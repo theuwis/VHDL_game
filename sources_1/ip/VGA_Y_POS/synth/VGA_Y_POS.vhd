@@ -56,16 +56,19 @@ USE ieee.numeric_std.ALL;
 LIBRARY c_counter_binary_v12_0_9;
 USE c_counter_binary_v12_0_9.c_counter_binary_v12_0_9;
 
-ENTITY rom_counter_adr IS
+ENTITY VGA_Y_POS IS
   PORT (
     CLK : IN STD_LOGIC;
-    Q : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
+    CE : IN STD_LOGIC;
+    SCLR : IN STD_LOGIC;
+    THRESH0 : OUT STD_LOGIC;
+    Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0)
   );
-END rom_counter_adr;
+END VGA_Y_POS;
 
-ARCHITECTURE rom_counter_adr_arch OF rom_counter_adr IS
+ARCHITECTURE VGA_Y_POS_arch OF VGA_Y_POS IS
   ATTRIBUTE DowngradeIPIdentifiedWarnings : STRING;
-  ATTRIBUTE DowngradeIPIdentifiedWarnings OF rom_counter_adr_arch: ARCHITECTURE IS "yes";
+  ATTRIBUTE DowngradeIPIdentifiedWarnings OF VGA_Y_POS_arch: ARCHITECTURE IS "yes";
   COMPONENT c_counter_binary_v12_0_9 IS
     GENERIC (
       C_IMPLEMENTATION : INTEGER;
@@ -99,13 +102,23 @@ ARCHITECTURE rom_counter_adr_arch OF rom_counter_adr IS
       SINIT : IN STD_LOGIC;
       UP : IN STD_LOGIC;
       LOAD : IN STD_LOGIC;
-      L : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+      L : IN STD_LOGIC_VECTOR(8 DOWNTO 0);
       THRESH0 : OUT STD_LOGIC;
-      Q : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
+      Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0)
     );
   END COMPONENT c_counter_binary_v12_0_9;
+  ATTRIBUTE X_CORE_INFO : STRING;
+  ATTRIBUTE X_CORE_INFO OF VGA_Y_POS_arch: ARCHITECTURE IS "c_counter_binary_v12_0_9,Vivado 2016.2";
+  ATTRIBUTE CHECK_LICENSE_TYPE : STRING;
+  ATTRIBUTE CHECK_LICENSE_TYPE OF VGA_Y_POS_arch : ARCHITECTURE IS "VGA_Y_POS,c_counter_binary_v12_0_9,{}";
+  ATTRIBUTE CORE_GENERATION_INFO : STRING;
+  ATTRIBUTE CORE_GENERATION_INFO OF VGA_Y_POS_arch: ARCHITECTURE IS "VGA_Y_POS,c_counter_binary_v12_0_9,{x_ipProduct=Vivado 2016.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=c_counter_binary,x_ipVersion=12.0,x_ipCoreRevision=9,x_ipLanguage=VHDL,x_ipSimLanguage=MIXED,C_IMPLEMENTATION=0,C_VERBOSITY=0,C_XDEVICEFAMILY=zynq,C_WIDTH=9,C_HAS_CE=1,C_HAS_SCLR=1,C_RESTRICT_COUNT=1,C_COUNT_TO=100001111,C_COUNT_BY=1,C_COUNT_MODE=0,C_THRESH0_VALUE=100001111,C_CE_OVERRIDES_SYNC=0,C_HAS_THRESH0=1,C_HAS_LOAD=0,C_LOAD_LOW=0,C_LATENCY=1,C_FB_LATENCY=0,C_AINIT_VAL=0,C_SINIT_VAL=" & 
+"0,C_SCLR_OVERRIDES_SSET=1,C_HAS_SSET=0,C_HAS_SINIT=0}";
   ATTRIBUTE X_INTERFACE_INFO : STRING;
   ATTRIBUTE X_INTERFACE_INFO OF CLK: SIGNAL IS "xilinx.com:signal:clock:1.0 clk_intf CLK";
+  ATTRIBUTE X_INTERFACE_INFO OF CE: SIGNAL IS "xilinx.com:signal:clockenable:1.0 ce_intf CE";
+  ATTRIBUTE X_INTERFACE_INFO OF SCLR: SIGNAL IS "xilinx.com:signal:reset:1.0 sclr_intf RST";
+  ATTRIBUTE X_INTERFACE_INFO OF THRESH0: SIGNAL IS "xilinx.com:signal:data:1.0 thresh0_intf DATA";
   ATTRIBUTE X_INTERFACE_INFO OF Q: SIGNAL IS "xilinx.com:signal:data:1.0 q_intf DATA";
 BEGIN
   U0 : c_counter_binary_v12_0_9
@@ -113,16 +126,16 @@ BEGIN
       C_IMPLEMENTATION => 0,
       C_VERBOSITY => 0,
       C_XDEVICEFAMILY => "zynq",
-      C_WIDTH => 5,
-      C_HAS_CE => 0,
-      C_HAS_SCLR => 0,
-      C_RESTRICT_COUNT => 0,
-      C_COUNT_TO => "1",
+      C_WIDTH => 9,
+      C_HAS_CE => 1,
+      C_HAS_SCLR => 1,
+      C_RESTRICT_COUNT => 1,
+      C_COUNT_TO => "100001111",
       C_COUNT_BY => "1",
       C_COUNT_MODE => 0,
-      C_THRESH0_VALUE => "1",
+      C_THRESH0_VALUE => "100001111",
       C_CE_OVERRIDES_SYNC => 0,
-      C_HAS_THRESH0 => 0,
+      C_HAS_THRESH0 => 1,
       C_HAS_LOAD => 0,
       C_LOAD_LOW => 0,
       C_LATENCY => 1,
@@ -135,13 +148,14 @@ BEGIN
     )
     PORT MAP (
       CLK => CLK,
-      CE => '1',
-      SCLR => '0',
+      CE => CE,
+      SCLR => SCLR,
       SSET => '0',
       SINIT => '0',
       UP => '1',
       LOAD => '0',
-      L => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 5)),
+      L => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 9)),
+      THRESH0 => THRESH0,
       Q => Q
     );
-END rom_counter_adr_arch;
+END VGA_Y_POS_arch;

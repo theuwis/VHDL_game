@@ -54,13 +54,16 @@
 // (in parentheses) to your own signal names.
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-rom_counter_adr your_instance_name (
-  .CLK(CLK),  // input wire CLK
-  .Q(Q)      // output wire [4 : 0] Q
+VGA_Y_POS your_instance_name (
+  .CLK(CLK),          // input wire CLK
+  .CE(CE),            // input wire CE
+  .SCLR(SCLR),        // input wire SCLR
+  .THRESH0(THRESH0),  // output wire THRESH0
+  .Q(Q)              // output wire [8 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
-// You must compile the wrapper file rom_counter_adr.v when simulating
-// the core, rom_counter_adr. When compiling the wrapper file, be sure to
+// You must compile the wrapper file VGA_Y_POS.v when simulating
+// the core, VGA_Y_POS. When compiling the wrapper file, be sure to
 // reference the Verilog simulation library.
 

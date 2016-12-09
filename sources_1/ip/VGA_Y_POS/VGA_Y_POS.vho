@@ -46,17 +46,19 @@
 -- 
 -- DO NOT MODIFY THIS FILE.
 
--- IP VLNV: xilinx.com:ip:dist_mem_gen:8.0
--- IP Revision: 10
+-- IP VLNV: xilinx.com:ip:c_counter_binary:12.0
+-- IP Revision: 9
 
 -- The following code must appear in the VHDL architecture header.
 
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
-COMPONENT imgtest_ROM_green
+COMPONENT VGA_Y_POS
   PORT (
-    a : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-    clk : IN STD_LOGIC;
-    spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+    CLK : IN STD_LOGIC;
+    CE : IN STD_LOGIC;
+    SCLR : IN STD_LOGIC;
+    THRESH0 : OUT STD_LOGIC;
+    Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
@@ -65,15 +67,17 @@ END COMPONENT;
 -- body. Substitute your own instance name and net names.
 
 ------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
-your_instance_name : imgtest_ROM_green
+your_instance_name : VGA_Y_POS
   PORT MAP (
-    a => a,
-    clk => clk,
-    spo => spo
+    CLK => CLK,
+    CE => CE,
+    SCLR => SCLR,
+    THRESH0 => THRESH0,
+    Q => Q
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------
 
--- You must compile the wrapper file imgtest_ROM_green.vhd when simulating
--- the core, imgtest_ROM_green. When compiling the wrapper file, be sure to
+-- You must compile the wrapper file VGA_Y_POS.vhd when simulating
+-- the core, VGA_Y_POS. When compiling the wrapper file, be sure to
 -- reference the VHDL simulation library.
 
