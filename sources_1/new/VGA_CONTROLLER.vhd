@@ -17,10 +17,10 @@ entity VGA_CONTROLLER is
     		
 			-- signals used to change screen
 			RED_IN : in STD_LOGIC_VECTOR(7 downto 0);
-			GREEN_IN : in STD_LOGIC_VECTOR(7 downto 2);
-			BLUE_IN : in STD_LOGIC_VECTOR(7 downto 4);
-			X_POS_OUT : out STD_LOGIC;
-			Y_POS_OUT : out STD_LOGIC);
+			GREEN_IN : in STD_LOGIC_VECTOR(7 downto 0);
+			BLUE_IN : in STD_LOGIC_VECTOR(7 downto 0);
+			X_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0);
+			Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));
 end VGA_CONTROLLER;
 
 architecture Behavioral of VGA_CONTROLLER is
@@ -114,6 +114,11 @@ DCLK <= DCLK_BUFF;
 H_SYNC_O <= H_SYNC;
 V_SYNC_O <= V_SYNC;
 
+-- output positions
+X_POS_OUT <= X_POS;
+Y_POS_OUT <= Y_POS;
+
+
 -- only a part of the input colors can be used
 RED_OUT <= RED;
 GREEN_OUT <= GREEN(7 downto 2);
@@ -129,22 +134,26 @@ process(DCLK_BUFF)
 			DISP <= '1';
 			DISP_sign <= '1';
 			
-			if(X_POS > "011110000") then
-				RED <= "00000000";
-				GREEN <= "00000000";
-				BLUE <= "11111111";
-			else
-				RED <= "11111111";
-				GREEN <= "00000000";
-				BLUE <= "00000000";			
-			end if;
+			RED <= RED_IN;
+			GREEN <= GREEN_IN;
+			BLUE <= BLUE_IN;
 			
-			if(Y_POS > "010000111") then
-				GREEN <= "11111111";
-			else
-				GREEN <= "00000000";
-				RED <= "11110000";
-			end if;
+--			if(X_POS > "011110000") then
+--				RED <= "00000000";
+--				GREEN <= "00000000";
+--				BLUE <= "11111111";
+--			else
+--				RED <= "11111111";
+--				GREEN <= "00000000";
+--				BLUE <= "00000000";			
+--			end if;
+			
+--			if(Y_POS > "010000111") then
+--				GREEN <= "11111111";
+--			else
+--				GREEN <= "00000000";
+--				RED <= "11110000";
+--			end if;
 		else
 			DISP <= '0';
 			DISP_sign <= '0';
