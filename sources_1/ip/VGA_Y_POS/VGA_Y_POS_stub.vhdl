@@ -1,18 +1,18 @@
 -- Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2016.2 (win64) Build 1577090 Thu Jun  2 16:32:40 MDT 2016
--- Date        : Fri Dec 09 14:01:41 2016
+-- Date        : Fri Dec 09 15:03:04 2016
 -- Host        : DESKTOP-IB3KRIO running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub
---               c:/Users/Tibo/Documents/programmable_logic/_game/_game.srcs/sources_1/ip/VGA_X_POS/VGA_X_POS_stub.vhdl
--- Design      : VGA_X_POS
+--               c:/Users/Tibo/Documents/programmable_logic/_game/_game.srcs/sources_1/ip/VGA_Y_POS/VGA_Y_POS_stub.vhdl
+-- Design      : VGA_Y_POS
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7z010clg400-1
 -- --------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity VGA_X_POS is
+entity VGA_Y_POS is
   Port ( 
     CLK : in STD_LOGIC;
     CE : in STD_LOGIC;
@@ -21,9 +21,9 @@ entity VGA_X_POS is
     Q : out STD_LOGIC_VECTOR ( 8 downto 0 )
   );
 
-end VGA_X_POS;
+end VGA_Y_POS;
 
-architecture stub of VGA_X_POS is
+architecture stub of VGA_Y_POS is
 attribute syn_black_box : boolean;
 attribute black_box_pad_pin : string;
 attribute syn_black_box of stub : architecture is true;

@@ -62,6 +62,26 @@ architecture Behavioral of VGA_CONTROLLER is
 	  );
 	end component;
 	
+	component VGA_X_POS IS
+	  PORT (
+	    CLK : IN STD_LOGIC;
+	    CE : IN STD_LOGIC;
+	    SCLR : IN STD_LOGIC;
+	    THRESH0 : OUT STD_LOGIC;
+	    Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0)
+	  );
+	end component;
+	
+	component VGA_Y_POS IS
+	  PORT (
+	    CLK : IN STD_LOGIC;
+	    CE : IN STD_LOGIC;
+	    SCLR : IN STD_LOGIC;
+	    THRESH0 : OUT STD_LOGIC;
+	    Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0)
+	  );
+	end component;
+	
 --	signal DCLK_sign : STD_LOGIC;
 	signal DCLK_sign : STD_LOGIC;
 	signal DCLK_BUFF : STD_LOGIC;
@@ -82,6 +102,11 @@ architecture Behavioral of VGA_CONTROLLER is
 	signal ROM_GREEN_OUT : STD_LOGIC_VECTOR(7 downto 0);
 	
 	signal ROM_CLK : STD_LOGIC;
+	signal DISP_sign : STD_LOGIC;
+	
+	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
+	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
+	signal Y_POS_CE : STD_LOGIC;
 	
 begin
 DCLK_controller: PLL_10MHZ port map(CLK_IN => CLK, CLK_OUT => DCLK_sign, RST => RST);
@@ -92,6 +117,10 @@ VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => VCLK, CE => '1', SCLR => RST, Q => 
 
 data_green: imgtest_ROM_green port map(a => ROM_ADR, clk => VCLK, spo => ROM_GREEN_OUT);
 rom_counter: rom_counter_adr port map(CLK => ROM_CLK, Q => ROM_ADR);
+
+x_pos_counter: VGA_X_POS port map(CLK => DCLK_BUFF, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
+y_pos_counter: VGA_Y_POS port map(CLK => Y_POS_CE, CE => '1', SCLR => RST, Q => Y_POS);
+
 
 DCLK <= DCLK_BUFF;
 H_SYNC_O <= H_SYNC;
@@ -104,16 +133,31 @@ BLUE_O <= BLUE(7 downto 4);
 BL_EN <= '1';
 
 
-
 process(DCLK_BUFF)
 	begin
 		if (H_VISABLE = '1') and (V_VISABLE = '1') then
 			DISP <= '1';
-			RED <= "00000000";
-			GREEN <= ROM_GREEN_OUT;
-			BLUE <= "11111111";
+			DISP_sign <= '1';
+			
+			if(X_POS > "011110000") then
+				RED <= "00000000";
+				GREEN <= "00000000";
+				BLUE <= "11111111";
+			else
+				RED <= "11111111";
+				GREEN <= "00000000";
+				BLUE <= "00000000";			
+			end if;
+			
+			if(Y_POS > "010000111") then
+				GREEN <= "11111111";
+			else
+				GREEN <= "00000000";
+				RED <= "11110000";
+			end if;
 		else
 			DISP <= '0';
+			DISP_sign <= '0';
 			RED <= "00000000";
 			GREEN <= "00000000";
 			BLUE <= "00000000";

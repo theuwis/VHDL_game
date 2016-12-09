@@ -2,7 +2,7 @@
 <spirit:component xmlns:xilinx="http://www.xilinx.com" xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <spirit:vendor>xilinx.com</spirit:vendor>
   <spirit:library>customized_ip</spirit:library>
-  <spirit:name>VGA_X_POS</spirit:name>
+  <spirit:name>VGA_Y_POS</spirit:name>
   <spirit:version>1.0</spirit:version>
   <spirit:busInterfaces>
     <spirit:busInterface>
@@ -204,7 +204,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:14 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -216,7 +216,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>1dee535e</spirit:value>
+            <spirit:value>e71ea3de</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -262,7 +262,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:15 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -274,7 +274,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>1dee535e</spirit:value>
+            <spirit:value>e71ea3de</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -292,7 +292,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:15 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -304,7 +304,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>1dee535e</spirit:value>
+            <spirit:value>e71ea3de</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -323,7 +323,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:15 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -335,7 +335,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>1dee535e</spirit:value>
+            <spirit:value>e71ea3de</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -381,7 +381,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:15 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -393,7 +393,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>9a8b7ad4</spirit:value>
+            <spirit:value>b01f10e5</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -412,7 +412,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:15 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -424,7 +424,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>9a8b7ad4</spirit:value>
+            <spirit:value>b01f10e5</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -442,7 +442,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:00:51 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:02:15 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -454,7 +454,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>1dee535e</spirit:value>
+            <spirit:value>e71ea3de</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -472,7 +472,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Dec 09 13:01:41 UTC 2016</spirit:value>
+            <spirit:value>Fri Dec 09 14:03:04 UTC 2016</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>boundaryCRC</spirit:name>
@@ -484,7 +484,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRC</spirit:name>
-            <spirit:value>1dee535e</spirit:value>
+            <spirit:value>e71ea3de</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>customizationCRCversion</spirit:name>
@@ -747,7 +747,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>C_COUNT_TO</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_COUNT_TO">111011111</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_COUNT_TO">100001111</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>C_COUNT_BY</spirit:name>
@@ -759,7 +759,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>C_THRESH0_VALUE</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_THRESH0_VALUE">111011111</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_THRESH0_VALUE">100001111</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>C_CE_OVERRIDES_SYNC</spirit:name>
@@ -843,11 +843,11 @@
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlinstantiationtemplate_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>VGA_X_POS.vho</spirit:name>
+        <spirit:name>VGA_Y_POS.vho</spirit:name>
         <spirit:userFileType>vhdlTemplate</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>VGA_X_POS.veo</spirit:name>
+        <spirit:name>VGA_Y_POS.veo</spirit:name>
         <spirit:userFileType>verilogTemplate</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1037,7 +1037,7 @@
     <spirit:fileSet>
       <spirit:name>xilinx_synthesisconstraints_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>VGA_X_POS_ooc.xdc</spirit:name>
+        <spirit:name>VGA_Y_POS_ooc.xdc</spirit:name>
         <spirit:userFileType>xdc</spirit:userFileType>
         <spirit:userFileType>USED_IN_implementation</spirit:userFileType>
         <spirit:userFileType>USED_IN_out_of_context</spirit:userFileType>
@@ -1047,7 +1047,7 @@
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlsynthesiswrapper_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>synth/VGA_X_POS.vhd</spirit:name>
+        <spirit:name>synth/VGA_Y_POS.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
@@ -1256,7 +1256,7 @@
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlsimulationwrapper_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>sim/VGA_X_POS.vhd</spirit:name>
+        <spirit:name>sim/VGA_Y_POS.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
@@ -1271,33 +1271,33 @@
     <spirit:fileSet>
       <spirit:name>xilinx_externalfiles_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>VGA_X_POS.dcp</spirit:name>
+        <spirit:name>VGA_Y_POS.dcp</spirit:name>
         <spirit:userFileType>dcp</spirit:userFileType>
         <spirit:userFileType>USED_IN_implementation</spirit:userFileType>
         <spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>VGA_X_POS_stub.v</spirit:name>
+        <spirit:name>VGA_Y_POS_stub.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_synth_blackbox_stub</spirit:userFileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>VGA_X_POS_stub.vhdl</spirit:name>
+        <spirit:name>VGA_Y_POS_stub.vhdl</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_synth_blackbox_stub</spirit:userFileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>VGA_X_POS_sim_netlist.v</spirit:name>
+        <spirit:name>VGA_Y_POS_sim_netlist.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_simulation</spirit:userFileType>
         <spirit:userFileType>USED_IN_single_language</spirit:userFileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>VGA_X_POS_sim_netlist.vhdl</spirit:name>
+        <spirit:name>VGA_Y_POS_sim_netlist.vhdl</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_simulation</spirit:userFileType>
         <spirit:userFileType>USED_IN_single_language</spirit:userFileType>
@@ -1309,7 +1309,7 @@
   <spirit:parameters>
     <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">VGA_X_POS</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">VGA_Y_POS</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Implementation</spirit:name>
@@ -1357,7 +1357,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Final_Count_Value</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Final_Count_Value" spirit:order="6">1DF</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Final_Count_Value" spirit:order="6">10F</spirit:value>
       <spirit:vendorExtensions>
         <xilinx:parameterInfo>
           <xilinx:enablement>
@@ -1390,7 +1390,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Threshold_Value</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Threshold_Value" spirit:order="9">1DF</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Threshold_Value" spirit:order="9">10F</spirit:value>
       <spirit:vendorExtensions>
         <xilinx:parameterInfo>
           <xilinx:enablement>

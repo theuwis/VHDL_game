@@ -56,7 +56,7 @@ USE ieee.numeric_std.ALL;
 LIBRARY c_counter_binary_v12_0_9;
 USE c_counter_binary_v12_0_9.c_counter_binary_v12_0_9;
 
-ENTITY VGA_X_POS IS
+ENTITY VGA_Y_POS IS
   PORT (
     CLK : IN STD_LOGIC;
     CE : IN STD_LOGIC;
@@ -64,11 +64,11 @@ ENTITY VGA_X_POS IS
     THRESH0 : OUT STD_LOGIC;
     Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0)
   );
-END VGA_X_POS;
+END VGA_Y_POS;
 
-ARCHITECTURE VGA_X_POS_arch OF VGA_X_POS IS
+ARCHITECTURE VGA_Y_POS_arch OF VGA_Y_POS IS
   ATTRIBUTE DowngradeIPIdentifiedWarnings : STRING;
-  ATTRIBUTE DowngradeIPIdentifiedWarnings OF VGA_X_POS_arch: ARCHITECTURE IS "yes";
+  ATTRIBUTE DowngradeIPIdentifiedWarnings OF VGA_Y_POS_arch: ARCHITECTURE IS "yes";
   COMPONENT c_counter_binary_v12_0_9 IS
     GENERIC (
       C_IMPLEMENTATION : INTEGER;
@@ -123,10 +123,10 @@ BEGIN
       C_HAS_CE => 1,
       C_HAS_SCLR => 1,
       C_RESTRICT_COUNT => 1,
-      C_COUNT_TO => "111011111",
+      C_COUNT_TO => "100001111",
       C_COUNT_BY => "1",
       C_COUNT_MODE => 0,
-      C_THRESH0_VALUE => "111011111",
+      C_THRESH0_VALUE => "100001111",
       C_CE_OVERRIDES_SYNC => 0,
       C_HAS_THRESH0 => 1,
       C_HAS_LOAD => 0,
@@ -151,4 +151,4 @@ BEGIN
       THRESH0 => THRESH0,
       Q => Q
     );
-END VGA_X_POS_arch;
+END VGA_Y_POS_arch;
