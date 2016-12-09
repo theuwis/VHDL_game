@@ -41,40 +41,75 @@ architecture Behavioral of GAME is
 				Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));
 	end component;
 	
+	component DRAW_BLOCK is
+		port(	CLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				-- current position to draw
+				X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+				Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+				
+				-- coordinates of the block to needs to be drawn
+				X_1 : in INTEGER;
+				X_2 : in INTEGER;
+				Y_1 : in INTEGER;
+				Y_2 : in INTEGER;
+				
+				-- returns true if the block can be drawn; false otherwise
+				DRAW : out BOOLEAN);
+	end component;
+	
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal RED : STD_LOGIC_VECTOR(7 downto 0);
 	signal GREEN : STD_LOGIC_VECTOR(7 downto 0);
 	signal BLUE : STD_LOGIC_VECTOR(7 downto 0);
 	
---	constant X_BOUND : integer := 100;
+	-- block 1
+	signal BLOCK1_X1 : INTEGER;
+	signal BLOCK1_X2 : INTEGER;
+	signal BLOCK1_Y1 : INTEGER;
+	signal BLOCK1_Y2 : INTEGER;
+	signal BLOCK1_DRAW : BOOLEAN;
+	
 begin
 vga_controller1: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
 										RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK, H_SYNC_O => H_SYNC_O,
 										V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
+block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => BLOCK1_X1, X_2 => BLOCK1_X2,
+										Y_1 => BLOCK1_Y1, Y_2 => BLOCK1_Y2, DRAW => BLOCK1_DRAW);
 
-
-
+BLOCK1_X1 <= 100;
+BLOCK1_X2 <= 200;
+BLOCK1_Y1 <= 100;
+BLOCK1_Y2 <= 200;
 
 process(CLK)
 	begin
-		if(X_POS > "011110000") then
---		if(X_POS > CONV_STD_LOGIC_VECTOR(X_BOUND, 9)) then
+		if BLOCK1_DRAW = true then
 			RED <= "00000000";
 			GREEN <= "00000000";
 			BLUE <= "11111111";
 		else
 			RED <= "11111111";
 			GREEN <= "00000000";
-			BLUE <= "00000000";			
+			BLUE <= "00000000";
 		end if;
+--		if(X_POS > "011110000") then
+--			RED <= "00000000";
+--			GREEN <= "00000000";
+--			BLUE <= "11111111";
+--		else
+--			RED <= "11111111";
+--			GREEN <= "00000000";
+--			BLUE <= "00000000";			
+--		end if;
 			
-		if(Y_POS > "010000111") then
-			GREEN <= "11111111";
-		else
-			GREEN <= "00000000";
-			RED <= "11110000";
-		end if;
+--		if(Y_POS > "010000111") then
+--			GREEN <= "11111111";
+--		else
+--			GREEN <= "00000000";
+--			RED <= "11110000";
+--		end if;
 end process;
 
 
