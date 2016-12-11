@@ -113,24 +113,32 @@ architecture Behavioral of GAME is
 	signal BLOCK5_DRAW : BOOLEAN;
 	
 	-- ROM's
+	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
+	
 	signal ROM_ADR_H : STD_LOGIC_VECTOR(5 downto 0);
-	signal DCLK_ROM : STD_LOGIC;
-	signal ROM_EN_H : STD_LOGIC;
-	signal DISP_EN : STD_LOGIC;
 	signal ROM_OUT_H : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_EN_H : STD_LOGIC;
+	signal DRAW_ROM_H : BOOLEAN;
+	
 	signal ROM_ADR_E : STD_LOGIC_VECTOR(5 downto 0);
-	signal ROM_EN_E : STD_LOGIC;
 	signal ROM_OUT_E : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_EN_E : STD_LOGIC;
+	signal DRAW_ROM_E : BOOLEAN;
+	
 	signal ROM_ADR_Y : STD_LOGIC_VECTOR(5 downto 0);
-	signal ROM_EN_Y : STD_LOGIC;
 	signal ROM_OUT_Y : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_EN_Y : STD_LOGIC;
+	signal DRAW_ROM_Y : BOOLEAN;
+	
+	
+	--	signal DISP_EN : STD_LOGIC;
 	
 begin
 vga_controller1: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
 										RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK_ROM, H_SYNC_O => H_SYNC_O,
-										V_SYNC_O => V_SYNC_O, DISP => DISP_EN, BL_EN => BL_EN);
+										V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 DCLK <= DCLK_ROM;
-DISP <= DISP_EN;
+
 block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => BLOCK1_X1, X_2 => BLOCK1_X2,
 										Y_1 => BLOCK1_Y1, Y_2 => BLOCK1_Y2, DRAW => BLOCK1_DRAW);
 --block2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 250, X_2 => 400,
@@ -155,32 +163,60 @@ letter_H_counter: ROM_H_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_H, Q => R
 letter_E_counter: ROM_H_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_E, Q => ROM_ADR_E);
 letter_Y_counter: ROM_H_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_Y, Q => ROM_ADR_Y);
 
+block_H: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 10, X_2 => 17,
+										Y_1 => 10, Y_2 => 17, DRAW => DRAW_ROM_H);
+block_E: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 18, X_2 => 25,
+										Y_1 => 10, Y_2 => 17, DRAW => DRAW_ROM_E);
+block_Y: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 26, X_2 => 33,
+										Y_1 => 10, Y_2 => 17, DRAW => DRAW_ROM_Y);
 RED <= "00000000";
 BLUE <= "00000000";
 
 process(CLK)
 	begin
-		if (DISP_EN = '1') and (X_POS >= "000001010") and (X_POS < "000010010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+		if DRAW_ROM_H = true then
 			ROM_EN_H <= '1';
 			ROM_EN_E <= '0';
 			ROM_EN_Y <= '0';
 			GREEN <= ROM_OUT_H;
-		elsif (DISP_EN = '1') and (X_POS >= "000010010") and (X_POS < "000011010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+		elsif DRAW_ROM_E = true then
 			ROM_EN_H <= '0';
 			ROM_EN_E <= '1';
 			ROM_EN_Y <= '0';
 			GREEN <= ROM_OUT_E;
-		elsif (DISP_EN = '1') and (X_POS >= "000011010") and (X_POS < "000100010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+		elsif DRAW_ROM_Y = true then
 			ROM_EN_H <= '0';
 			ROM_EN_E <= '0';
 			ROM_EN_Y <= '1';
-			GREEN <= ROM_OUT_Y;
+			GREEN <= ROM_OUT_Y;			
 		else
 			ROM_EN_H <= '0';
 			ROM_EN_E <= '0';
 			ROM_EN_Y <= '0';
 			GREEN <= "00101010";
 		end if;
+		
+--		if (DISP_EN = '1') and (X_POS >= "000001010") and (X_POS < "000010010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+--			ROM_EN_H <= '1';
+--			ROM_EN_E <= '0';
+--			ROM_EN_Y <= '0';
+--			GREEN <= ROM_OUT_H;
+--		elsif (DISP_EN = '1') and (X_POS >= "000010010") and (X_POS < "000011010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+--			ROM_EN_H <= '0';
+--			ROM_EN_E <= '1';
+--			ROM_EN_Y <= '0';
+--			GREEN <= ROM_OUT_E;
+--		elsif (DISP_EN = '1') and (X_POS >= "000011010") and (X_POS < "000100010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+--			ROM_EN_H <= '0';
+--			ROM_EN_E <= '0';
+--			ROM_EN_Y <= '1';
+--			GREEN <= ROM_OUT_Y;
+--		else
+--			ROM_EN_H <= '0';
+--			ROM_EN_E <= '0';
+--			ROM_EN_Y <= '0';
+--			GREEN <= "00101010";
+--		end if;
 end process;
 
 process(CLK)
