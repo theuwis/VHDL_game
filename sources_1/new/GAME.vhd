@@ -58,20 +58,41 @@ architecture Behavioral of GAME is
 				DRAW : out BOOLEAN);
 	end component;
 	
-	component dist_mem_gen_0 is
-	  PORT (
-	    a : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-	    spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	  );
+--	component dist_mem_gen_0 is
+--	  PORT (
+--	    a : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+--	    spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+--	  );
+--	end component;
+	
+--	component ROM_counter IS
+--	  PORT (
+--	    CLK : IN STD_LOGIC;
+--	    CE : IN STD_LOGIC;
+--	    Q : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
+--	  );
+--	END component;
+	
+	component ROM_H is
+		port(	a : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
+				spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 	end component;
 	
-	component ROM_counter IS
-	  PORT (
-	    CLK : IN STD_LOGIC;
-	    CE : IN STD_LOGIC;
-	    Q : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
-	  );
-	END component;
+	component ROM_H_COUNTER is
+		port(	CLK : IN STD_LOGIC;
+				CE : IN STD_LOGIC;
+				Q : OUT STD_LOGIC_VECTOR(5 DOWNTO 0));
+	end component;
+	
+	component ROM_E is
+		port(	a : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
+				spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+	end component;
+
+	component ROM_Y is
+		port(	a : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
+				spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+	end component;
 	
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
@@ -91,11 +112,18 @@ architecture Behavioral of GAME is
 	signal BLOCK4_DRAW : BOOLEAN;
 	signal BLOCK5_DRAW : BOOLEAN;
 	
-	signal ROM_ADR : STD_LOGIC_VECTOR(4 downto 0);
+	-- ROM's
+	signal ROM_ADR_H : STD_LOGIC_VECTOR(5 downto 0);
 	signal DCLK_ROM : STD_LOGIC;
-	signal ROM_EN : STD_LOGIC;
+	signal ROM_EN_H : STD_LOGIC;
 	signal DISP_EN : STD_LOGIC;
-	signal ROM_OUTPUT : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_OUT_H : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_ADR_E : STD_LOGIC_VECTOR(5 downto 0);
+	signal ROM_EN_E : STD_LOGIC;
+	signal ROM_OUT_E : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_ADR_Y : STD_LOGIC_VECTOR(5 downto 0);
+	signal ROM_EN_Y : STD_LOGIC;
+	signal ROM_OUT_Y : STD_LOGIC_VECTOR(7 downto 0);
 	
 begin
 vga_controller1: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -118,18 +146,39 @@ BLOCK1_X2 <= 200;
 BLOCK1_Y1 <= 100;
 BLOCK1_Y2 <= 200;
 
-rom1: dist_mem_gen_0 port map(a => ROM_ADR, spo => ROM_OUTPUT);
-rom_count: ROM_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN, Q => ROM_ADR);
+--rom1: dist_mem_gen_0 port map(a => ROM_ADR, spo => ROM_OUTPUT);
+--rom_count: ROM_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN, Q => ROM_ADR);
+letter_H: ROM_H port map(a => ROM_ADR_H, spo => ROM_OUT_H);
+letter_E: ROM_E port map(a => ROM_ADR_E, spo => ROM_OUT_E);
+letter_Y: ROM_Y port map(a => ROM_ADR_Y, spo => ROM_OUT_Y);
+letter_H_counter: ROM_H_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_H, Q => ROM_ADR_H);
+letter_E_counter: ROM_H_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_E, Q => ROM_ADR_E);
+letter_Y_counter: ROM_H_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_Y, Q => ROM_ADR_Y);
+
 RED <= "00000000";
 BLUE <= "00000000";
 
 process(CLK)
-	begin -- 100..116
-		if (DISP_EN = '1') and (X_POS >= "000000000") and (X_POS < "000001000") and (Y_POS >= "000000000") and (Y_POS < "000000100") then
-			ROM_EN <= '1';
-			GREEN <= ROM_OUTPUT;
+	begin
+		if (DISP_EN = '1') and (X_POS >= "000001010") and (X_POS < "000010010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+			ROM_EN_H <= '1';
+			ROM_EN_E <= '0';
+			ROM_EN_Y <= '0';
+			GREEN <= ROM_OUT_H;
+		elsif (DISP_EN = '1') and (X_POS >= "000010010") and (X_POS < "000011010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+			ROM_EN_H <= '0';
+			ROM_EN_E <= '1';
+			ROM_EN_Y <= '0';
+			GREEN <= ROM_OUT_E;
+		elsif (DISP_EN = '1') and (X_POS >= "000011010") and (X_POS < "000100010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
+			ROM_EN_H <= '0';
+			ROM_EN_E <= '0';
+			ROM_EN_Y <= '1';
+			GREEN <= ROM_OUT_Y;
 		else
-			ROM_EN <= '0';
+			ROM_EN_H <= '0';
+			ROM_EN_E <= '0';
+			ROM_EN_Y <= '0';
 			GREEN <= "00101010";
 		end if;
 end process;
