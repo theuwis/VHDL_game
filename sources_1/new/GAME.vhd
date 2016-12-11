@@ -71,13 +71,25 @@ architecture Behavioral of GAME is
 	signal BLOCK1_Y2 : INTEGER;
 	signal BLOCK1_DRAW : BOOLEAN;
 	
+	signal BLOCK2_DRAW : BOOLEAN;
+	signal BLOCK3_DRAW : BOOLEAN;
+	signal BLOCK4_DRAW : BOOLEAN;
+	signal BLOCK5_DRAW : BOOLEAN;
+	
 begin
 vga_controller1: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
 										RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK, H_SYNC_O => H_SYNC_O,
 										V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => BLOCK1_X1, X_2 => BLOCK1_X2,
 										Y_1 => BLOCK1_Y1, Y_2 => BLOCK1_Y2, DRAW => BLOCK1_DRAW);
-
+block2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 250, X_2 => 400,
+										Y_1 => 0, Y_2 => 50, DRAW => BLOCK2_DRAW);
+block3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 100, X_2 => 150,
+										Y_1 => 200, Y_2 => 250, DRAW => BLOCK3_DRAW);
+block4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 25,
+										Y_1 => 0, Y_2 => 25, DRAW => BLOCK4_DRAW);
+block5: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 454, X_2 => 478,
+										Y_1 => 246, Y_2 => 270, DRAW => BLOCK5_DRAW);
 BLOCK1_X1 <= 100;
 BLOCK1_X2 <= 200;
 BLOCK1_Y1 <= 100;
@@ -86,13 +98,29 @@ BLOCK1_Y2 <= 200;
 process(CLK)
 	begin
 		if BLOCK1_DRAW = true then
-			RED <= "00000000";
-			GREEN <= "00000000";
-			BLUE <= "11111111";
+			RED <=	"00000000";
+			GREEN <="00000000";
+			BLUE <=	"11111111";
+		elsif BLOCK2_DRAW = true then
+			RED <=	"00000000";
+			GREEN <="11111111";
+			BLUE <=	"11111111";
+		elsif BLOCK3_DRAW = true then
+			RED <=	"11111111";
+			GREEN <="00000000";
+			BLUE <=	"11111111";
+		elsif BLOCK4_DRAW = true then
+			RED <=	"11001111";
+			GREEN <="00110000";
+			BLUE <=	"11111111";
+		elsif BLOCK5_DRAW = true then
+			RED <=	"11110000";
+			GREEN <="11111111";
+			BLUE <=	"11111111";
 		else
-			RED <= "11111111";
-			GREEN <= "00000000";
-			BLUE <= "00000000";
+			RED <=	"11111111";
+			GREEN <="00000000";
+			BLUE <=	"00000000";
 		end if;
 --		if(X_POS > "011110000") then
 --			RED <= "00000000";
