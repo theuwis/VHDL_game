@@ -195,28 +195,6 @@ process(CLK)
 			ROM_EN_Y <= '0';
 			GREEN <= "00101010";
 		end if;
-		
---		if (DISP_EN = '1') and (X_POS >= "000001010") and (X_POS < "000010010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
---			ROM_EN_H <= '1';
---			ROM_EN_E <= '0';
---			ROM_EN_Y <= '0';
---			GREEN <= ROM_OUT_H;
---		elsif (DISP_EN = '1') and (X_POS >= "000010010") and (X_POS < "000011010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
---			ROM_EN_H <= '0';
---			ROM_EN_E <= '1';
---			ROM_EN_Y <= '0';
---			GREEN <= ROM_OUT_E;
---		elsif (DISP_EN = '1') and (X_POS >= "000011010") and (X_POS < "000100010") and (Y_POS >= "000001010") and (Y_POS < "000011010") then
---			ROM_EN_H <= '0';
---			ROM_EN_E <= '0';
---			ROM_EN_Y <= '1';
---			GREEN <= ROM_OUT_Y;
---		else
---			ROM_EN_H <= '0';
---			ROM_EN_E <= '0';
---			ROM_EN_Y <= '0';
---			GREEN <= "00101010";
---		end if;
 end process;
 
 process(CLK)
