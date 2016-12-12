@@ -18,7 +18,7 @@ architecture Behavioral of VGA_CONTROLLER_TB is
 
 begin
 
-controller_test : VGA_CONTROLLER port map(CLK => CLK, RST => RST);
+controller_test: VGA_CONTROLLER port map(CLK => CLK, RST => RST);
 
 clk_process: process
 	begin
