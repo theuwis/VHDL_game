@@ -38,21 +38,25 @@ begin
 -- process to convert the input coordinates from int to vector
 process(X_1, X_2, Y_1, Y_2)
 	begin
+	if (CLK'event and CLK = '1') then
 		X_DES_VECT_1 <= CONV_STD_LOGIC_VECTOR(X_1, 9);
 		X_DES_VECT_2 <= CONV_STD_LOGIC_VECTOR(X_2, 9);
 		Y_DES_VECT_1 <= CONV_STD_LOGIC_VECTOR(Y_1, 9);
 		Y_DES_VECT_2 <= CONV_STD_LOGIC_VECTOR(Y_2, 9);
+	end if;
 end process;
 
 -- process to see if the block can be drawn
 process(CLK)
 	begin
-		if(X_POS_CURRENT  >=  X_DES_VECT_1) and (X_POS_CURRENT <= X_DES_VECT_2)
-				and (Y_POS_CURRENT  >=  Y_DES_VECT_1) and (Y_POS_CURRENT  <=  Y_DES_VECT_2) then
+	if (CLK'event and CLK = '1') then
+		if(X_POS_CURRENT >= X_DES_VECT_1) and (X_POS_CURRENT <= X_DES_VECT_2)
+				and (Y_POS_CURRENT >=  Y_DES_VECT_1) and (Y_POS_CURRENT <= Y_DES_VECT_2) then
 			DRAW <= true;
 		else
 			DRAW <= false;
 		end if;
+	end if;
 end process;
 
 end Behavioral;

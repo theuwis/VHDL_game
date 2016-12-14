@@ -130,6 +130,7 @@ BL_EN <= '1';
 -- process to determine if you can display data on the scren
 process(DCLK_BUFF)
 	begin
+	if (DCLK_BUFF'event and DCLK_BUFF = '1') then
 		if (H_VISABLE = '1') and (V_VISABLE = '1') then
 			DISP <= '1';
 			DISP_sign <= '1';
@@ -137,23 +138,6 @@ process(DCLK_BUFF)
 			RED <= RED_IN;
 			GREEN <= GREEN_IN;
 			BLUE <= BLUE_IN;
-			
---			if(X_POS > "011110000") then
---				RED <= "00000000";
---				GREEN <= "00000000";
---				BLUE <= "11111111";
---			else
---				RED <= "11111111";
---				GREEN <= "00000000";
---				BLUE <= "00000000";			
---			end if;
-			
---			if(Y_POS > "010000111") then
---				GREEN <= "11111111";
---			else
---				GREEN <= "00000000";
---				RED <= "11110000";
---			end if;
 		else
 			DISP <= '0';
 			DISP_sign <= '0';
@@ -161,11 +145,13 @@ process(DCLK_BUFF)
 			GREEN <= "00000000";
 			BLUE <= "00000000";
 		end if;
+	end if;
 end process;
 
 -- process used to generate H- and VSYNC signals
 process(DCLK_BUFF)
 	begin
+	if (DCLK_BUFF'event and DCLK_BUFF = '1') then
 --		if V_SYNC = '1' then
 			case H_COUNTER is
 				when "0000000000" => -- 0
@@ -203,6 +189,7 @@ process(DCLK_BUFF)
 			when OTHERS =>
 			
 		end case;
+	end if;
 end process;
 
 end Behavioral;
