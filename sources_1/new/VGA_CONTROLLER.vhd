@@ -172,7 +172,7 @@ process(DCLK_BUFF)
 					H_SYNC <= '0';
 					H_VISABLE <= '0';			
 				when "0000000001" => -- 1
-			--		H_SYNC <= '1';
+					H_SYNC <= '1';
 					H_SYNC <= '0';
 					H_VISABLE <= '0';
 				when "0000101011" => -- 43
@@ -191,7 +191,7 @@ process(DCLK_BUFF)
 				V_SYNC <= '0';
 				V_VISABLE <= '0';
 			when "000001010" => -- 10
-		--		V_SYNC <= '1';
+				V_SYNC <= '1';
 				V_SYNC <= '0';
 				V_VISABLE <= '0';
 			when "000010101" => -- 21

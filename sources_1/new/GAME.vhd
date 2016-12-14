@@ -174,9 +174,13 @@ RED <= "00000000";
 --GREEN <= "00101010";
 BLUE <= "00000000";
 
---diagonal testing processes
+-- diagonal testing processes
 --process(CLK)
+--	variable width : integer range 0 to 5;
+--	variable XPOS : integer range 0 to 479;
 --	begin
+--		 to_integer(signed(a));
+	
 --		if (X_POS > "000000000") and (X_POS < "011001000") and (Y_POS > "000000000") and (Y_POS < "011001000") then
 --			if X_POS > Y_POS then
 --				RED <= "11111111";
@@ -206,7 +210,11 @@ process(CLK)
 			ROM_EN_H <= '0';
 			ROM_EN_E <= '0';
 			ROM_EN_Y <= '1';
-			GREEN <= ROM_OUT_Y;			
+			GREEN <= ROM_OUT_Y;
+		elsif BLOCK1_DRAW = true then
+			RED <=	"00000000";
+			GREEN <="00000000";
+			BLUE <=	"11111111";
 		else
 			ROM_EN_H <= '0';
 			ROM_EN_E <= '0';
