@@ -169,9 +169,27 @@ block_E: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_P
 										Y_1 => 10, Y_2 => 17, DRAW => DRAW_ROM_E);
 block_Y: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 26, X_2 => 33,
 										Y_1 => 10, Y_2 => 17, DRAW => DRAW_ROM_Y);
+
 RED <= "00000000";
+--GREEN <= "00101010";
 BLUE <= "00000000";
 
+--diagonal testing processes
+--process(CLK)
+--	begin
+--		if (X_POS > "000000000") and (X_POS < "011001000") and (Y_POS > "000000000") and (Y_POS < "011001000") then
+--			if X_POS > Y_POS then
+--				RED <= "11111111";
+--			else
+--				RED <= "00000000";
+--			end if;
+--		else
+--			RED <= "00000000";
+--		end if;
+--end process;
+
+--todo alles sync maken met CLK'event...
+--ROM dipslay processes
 process(CLK)
 	begin
 		if DRAW_ROM_H = true then
@@ -197,6 +215,7 @@ process(CLK)
 		end if;
 end process;
 
+--block display processes
 process(CLK)
 	begin
 --		if BLOCK1_DRAW = true then
