@@ -15,7 +15,8 @@ entity GAME is
 			H_SYNC_O : out STD_LOGIC;
 			V_SYNC_O : out STD_LOGIC;
 			DISP : out STD_LOGIC;
-			BL_EN : out STD_LOGIC);
+			BL_EN : out STD_LOGIC;
+			GND : out STD_LOGIC);
 end GAME;
 
 architecture Behavioral of GAME is
@@ -152,7 +153,7 @@ vga_controller1: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, 
 										RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK_ROM, H_SYNC_O => H_SYNC_O,
 										V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 DCLK <= DCLK_ROM;
-
+GND <= '0';
 --block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => BLOCK1_X1, X_2 => BLOCK1_X2,
 --										Y_1 => BLOCK1_Y1, Y_2 => BLOCK1_Y2, DRAW => BLOCK1_DRAW);
 --block2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 250, X_2 => 400,
