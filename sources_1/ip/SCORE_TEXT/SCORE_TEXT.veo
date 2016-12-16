@@ -54,13 +54,13 @@
 // (in parentheses) to your own signal names.
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-SCORE your_instance_name (
-  .a(a),      // input wire [12 : 0] a
+SCORE_TEXT your_instance_name (
+  .a(a),      // input wire [10 : 0] a
   .spo(spo)  // output wire [23 : 0] spo
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
-// You must compile the wrapper file SCORE.v when simulating
-// the core, SCORE. When compiling the wrapper file, be sure to
+// You must compile the wrapper file SCORE_TEXT.v when simulating
+// the core, SCORE_TEXT. When compiling the wrapper file, be sure to
 // reference the Verilog simulation library.
 

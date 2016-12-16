@@ -52,9 +52,9 @@
 -- The following code must appear in the VHDL architecture header.
 
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
-COMPONENT SCORE
+COMPONENT SCORE_TEXT
   PORT (
-    a : IN STD_LOGIC_VECTOR(12 DOWNTO 0);
+    a : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
     spo : OUT STD_LOGIC_VECTOR(23 DOWNTO 0)
   );
 END COMPONENT;
@@ -64,14 +64,14 @@ END COMPONENT;
 -- body. Substitute your own instance name and net names.
 
 ------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
-your_instance_name : SCORE
+your_instance_name : SCORE_TEXT
   PORT MAP (
     a => a,
     spo => spo
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------
 
--- You must compile the wrapper file SCORE.vhd when simulating
--- the core, SCORE. When compiling the wrapper file, be sure to
+-- You must compile the wrapper file SCORE_TEXT.vhd when simulating
+-- the core, SCORE_TEXT. When compiling the wrapper file, be sure to
 -- reference the VHDL simulation library.
 

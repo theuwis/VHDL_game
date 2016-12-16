@@ -52,11 +52,11 @@
 -- The following code must appear in the VHDL architecture header.
 
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
-COMPONENT SCORE_COUNTER
+COMPONENT SCORE_TEXT_COUNTER
   PORT (
     CLK : IN STD_LOGIC;
     CE : IN STD_LOGIC;
-    Q : OUT STD_LOGIC_VECTOR(12 DOWNTO 0)
+    Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
@@ -65,7 +65,7 @@ END COMPONENT;
 -- body. Substitute your own instance name and net names.
 
 ------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
-your_instance_name : SCORE_COUNTER
+your_instance_name : SCORE_TEXT_COUNTER
   PORT MAP (
     CLK => CLK,
     CE => CE,
@@ -73,7 +73,7 @@ your_instance_name : SCORE_COUNTER
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------
 
--- You must compile the wrapper file SCORE_COUNTER.vhd when simulating
--- the core, SCORE_COUNTER. When compiling the wrapper file, be sure to
+-- You must compile the wrapper file SCORE_TEXT_COUNTER.vhd when simulating
+-- the core, SCORE_TEXT_COUNTER. When compiling the wrapper file, be sure to
 -- reference the VHDL simulation library.
 

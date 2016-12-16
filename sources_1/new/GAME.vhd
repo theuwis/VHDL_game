@@ -80,18 +80,18 @@ architecture Behavioral of GAME is
 				spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 	end component;
 	
-	component SCORE IS
+	component SCORE_TEXT IS
 	  PORT (
-	    a : IN STD_LOGIC_VECTOR(12 DOWNTO 0);
+	    a : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
 	    spo : OUT STD_LOGIC_VECTOR(23 DOWNTO 0)
 	  );
 	END component;
 	
-	component SCORE_COUNTER IS
+	component SCORE_TEXT_COUNTER IS
 	  PORT (
 	    CLK : IN STD_LOGIC;
 	    CE : IN STD_LOGIC;
-	    Q : OUT STD_LOGIC_VECTOR(12 DOWNTO 0)
+	    Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0)
 	  );
 	END component;
 	
@@ -137,7 +137,7 @@ architecture Behavioral of GAME is
 	signal FIELD_BUTTON3 : BOOLEAN;
 	signal FIELD_BUTTON4 : BOOLEAN;
 	
-	signal ROM_ADR_SCORE : STD_LOGIC_VECTOR(12 downto 0);
+	signal ROM_ADR_SCORE : STD_LOGIC_VECTOR(10 downto 0);
 	signal ROM_OUT_SCORE : STD_LOGIC_VECTOR(23 downto 0);
 	signal ROM_EN_SCORE : STD_LOGIC;
 	signal DRAW_ROM_SCORE : BOOLEAN;
@@ -228,13 +228,13 @@ button3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_P
 button4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 245, X_2 => 297,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON4);
 
-block_score: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 360, X_2 => 469,
-								Y_1 => 225, Y_2 => 264, DRAW => DRAW_ROM_SCORE);
-score_blabla: SCORE port map(a => ROM_ADR_SCORE, spo => ROM_OUT_SCORE);
-score_counter_blabla: SCORE_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE, Q => ROM_ADR_SCORE);
+block_score_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 399, X_2 => 470,
+								Y_1 => 225, Y_2 => 242, DRAW => DRAW_ROM_SCORE);
+score_rom: SCORE_TEXT port map(a => ROM_ADR_SCORE, spo => ROM_OUT_SCORE);
+score_counter: SCORE_TEXT_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE, Q => ROM_ADR_SCORE);
 
-block_score_new: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 15, X_2 => 26,
-								Y_1 => 15, Y_2 => 34, DRAW => DRAW_ROM_SCORE_NEW);
+block_score_new: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 459, X_2 => 470,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_ROM_SCORE_NEW);
 score_number: SCORE_NUMBERS port map(a => ROM_ADR_SCORE_NEW, spo => ROM_OUT_SCORE_NEW);
 score_counter_number: SCORE_NUMBERS_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE_NEW, Q => ROM_ADR_SCORE_NEW);
 --button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 10,
