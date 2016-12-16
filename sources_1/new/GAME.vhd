@@ -59,6 +59,24 @@ architecture Behavioral of GAME is
 				DRAW : out BOOLEAN);
 	end component;
 	
+	component GAMESCREEN is
+		port(	CLK : in STD_LOGIC;
+				DCLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				XPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				YPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				
+				-- control signals for the top module (to know when to draw)
+				DRAW_BG : out BOOLEAN;
+				RED_BG : out STD_LOGIC_VECTOR(7 downto 0);
+				GREEN_BG : out STD_LOGIC_VECTOR(7 downto 0);
+				BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0));
+	end component;
+	
+	
+	
+	
+	
 	component ROM_H is
 		port(	a : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
 				spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
@@ -80,35 +98,35 @@ architecture Behavioral of GAME is
 				spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 	end component;
 	
-	component SCORE_TEXT IS
-	  PORT (
-	    a : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-	    spo : OUT STD_LOGIC_VECTOR(23 DOWNTO 0)
-	  );
-	END component;
+--	component SCORE_TEXT IS
+--	  PORT (
+--	    a : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+--	    spo : OUT STD_LOGIC_VECTOR(23 DOWNTO 0)
+--	  );
+--	END component;
 	
-	component SCORE_TEXT_COUNTER IS
-	  PORT (
-	    CLK : IN STD_LOGIC;
-	    CE : IN STD_LOGIC;
-	    Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0)
-	  );
-	END component;
+--	component SCORE_TEXT_COUNTER IS
+--	  PORT (
+--	    CLK : IN STD_LOGIC;
+--	    CE : IN STD_LOGIC;
+--	    Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0)
+--	  );
+--	END component;
 	
-	component SCORE_NUMBERS IS
-	  PORT (
-	    a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-	    spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0)
-	  );
-	END component;
+--	component SCORE_NUMBERS IS
+--	  PORT (
+--	    a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+--	    spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0)
+--	  );
+--	END component;
 	
-	component SCORE_NUMBERS_COUNTER IS
-	  PORT (
-	    CLK : IN STD_LOGIC;
-	    CE : IN STD_LOGIC;
-	    Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	  );
-	END component;
+--	component SCORE_NUMBERS_COUNTER IS
+--	  PORT (
+--	    CLK : IN STD_LOGIC;
+--	    CE : IN STD_LOGIC;
+--	    Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+--	  );
+--	END component;
 	
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
@@ -128,24 +146,30 @@ architecture Behavioral of GAME is
 	signal BLOCK4_DRAW : BOOLEAN;
 	signal BLOCK5_DRAW : BOOLEAN;
 	
-	signal FIELD_LINE1 : BOOLEAN;
-	signal FIELD_LINE2 : BOOLEAN;
-	signal FIELD_LINE3 : BOOLEAN;
-	signal FIELD_LINE4 : BOOLEAN;
-	signal FIELD_BUTTON1 : BOOLEAN;
-	signal FIELD_BUTTON2 : BOOLEAN;
-	signal FIELD_BUTTON3 : BOOLEAN;
-	signal FIELD_BUTTON4 : BOOLEAN;
+	-- signals for the background
+	signal DRAW_BG : BOOLEAN;
+	signal RED_BG : STD_LOGIC_VECTOR(7 downto 0);
+	signal GREEN_BG : STD_LOGIC_VECTOR(7 downto 0);
+	signal BLUE_BG : STD_LOGIC_VECTOR(7 downto 0);
 	
-	signal ROM_ADR_SCORE : STD_LOGIC_VECTOR(10 downto 0);
-	signal ROM_OUT_SCORE : STD_LOGIC_VECTOR(23 downto 0);
-	signal ROM_EN_SCORE : STD_LOGIC;
-	signal DRAW_ROM_SCORE : BOOLEAN;
+--	signal FIELD_LINE1 : BOOLEAN;
+--	signal FIELD_LINE2 : BOOLEAN;
+--	signal FIELD_LINE3 : BOOLEAN;
+--	signal FIELD_LINE4 : BOOLEAN;
+--	signal FIELD_BUTTON1 : BOOLEAN;
+--	signal FIELD_BUTTON2 : BOOLEAN;
+--	signal FIELD_BUTTON3 : BOOLEAN;
+--	signal FIELD_BUTTON4 : BOOLEAN;
 	
-	signal ROM_ADR_SCORE_NEW : STD_LOGIC_VECTOR(7 downto 0);
-	signal ROM_OUT_SCORE_NEW : STD_LOGIC_VECTOR(239 downto 0);
-	signal ROM_EN_SCORE_NEW : STD_LOGIC;
-	signal DRAW_ROM_SCORE_NEW : BOOLEAN;
+--	signal ROM_ADR_SCORE : STD_LOGIC_VECTOR(10 downto 0);
+--	signal ROM_OUT_SCORE : STD_LOGIC_VECTOR(23 downto 0);
+--	signal ROM_EN_SCORE : STD_LOGIC;
+--	signal DRAW_ROM_SCORE : BOOLEAN;
+	
+--	signal ROM_ADR_SCORE_NEW : STD_LOGIC_VECTOR(7 downto 0);
+--	signal ROM_OUT_SCORE_NEW : STD_LOGIC_VECTOR(239 downto 0);
+--	signal ROM_EN_SCORE_NEW : STD_LOGIC;
+--	signal DRAW_ROM_SCORE_NEW : BOOLEAN;
 	
 	-- ROM's
 	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
@@ -169,9 +193,16 @@ architecture Behavioral of GAME is
 	--	signal DISP_EN : STD_LOGIC;
 	
 begin
-vga_controller1: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
+VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
 										RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK_ROM, H_SYNC_O => H_SYNC_O,
 										V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
+BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG, GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG);
+
+
+
+
+
+
 DCLK <= DCLK_ROM;
 GND <= '0';
 --block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => BLOCK1_X1, X_2 => BLOCK1_X2,
@@ -211,32 +242,32 @@ GND <= '0';
 
 
 -- board design
-line1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
-								Y_1 => 0, Y_2 => 4, DRAW => FIELD_LINE1);
-line2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
-								Y_1 => 67, Y_2 => 72, DRAW => FIELD_LINE2);
-line3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
-								Y_1 => 135, Y_2 => 140, DRAW => FIELD_LINE3);
-line4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
-								Y_1 => 203, Y_2 => 218, DRAW => FIELD_LINE4);
-button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 51,
-								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON1);
-button2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 81, X_2 => 133,
-								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON2);
-button3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 163, X_2 => 215,
-								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON3);
-button4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 245, X_2 => 297,
-								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON4);
+--line1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
+--								Y_1 => 0, Y_2 => 4, DRAW => FIELD_LINE1);
+--line2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
+--								Y_1 => 67, Y_2 => 72, DRAW => FIELD_LINE2);
+--line3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
+--								Y_1 => 135, Y_2 => 140, DRAW => FIELD_LINE3);
+--line4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 479,
+--								Y_1 => 203, Y_2 => 218, DRAW => FIELD_LINE4);
+--button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 51,
+--								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON1);
+--button2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 81, X_2 => 133,
+--								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON2);
+--button3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 163, X_2 => 215,
+--								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON3);
+--button4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 245, X_2 => 297,
+--								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON4);
 
-block_score_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 399, X_2 => 470,
-								Y_1 => 225, Y_2 => 242, DRAW => DRAW_ROM_SCORE);
-score_rom: SCORE_TEXT port map(a => ROM_ADR_SCORE, spo => ROM_OUT_SCORE);
-score_counter: SCORE_TEXT_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE, Q => ROM_ADR_SCORE);
+--block_score_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 399, X_2 => 470,
+--								Y_1 => 225, Y_2 => 242, DRAW => DRAW_ROM_SCORE);
+--score_rom: SCORE_TEXT port map(a => ROM_ADR_SCORE, spo => ROM_OUT_SCORE);
+--score_counter: SCORE_TEXT_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE, Q => ROM_ADR_SCORE);
 
-block_score_new: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 459, X_2 => 470,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_ROM_SCORE_NEW);
-score_number: SCORE_NUMBERS port map(a => ROM_ADR_SCORE_NEW, spo => ROM_OUT_SCORE_NEW);
-score_counter_number: SCORE_NUMBERS_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE_NEW, Q => ROM_ADR_SCORE_NEW);
+--block_score_new: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 459, X_2 => 470,
+--								Y_1 => 247, Y_2 => 266, DRAW => DRAW_ROM_SCORE_NEW);
+--score_number: SCORE_NUMBERS port map(a => ROM_ADR_SCORE_NEW, spo => ROM_OUT_SCORE_NEW);
+--score_counter_number: SCORE_NUMBERS_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE_NEW, Q => ROM_ADR_SCORE_NEW);
 --button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 10,
 --								Y_1 => 0, Y_2 => 10, DRAW => FIELD_BUTTON1);
 --button2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 469, X_2 => 479,
@@ -248,39 +279,44 @@ score_counter_number: SCORE_NUMBERS_COUNTER port map(CLK => DCLK_ROM, CE => ROM_
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
-		if (FIELD_LINE1 = true) or (FIELD_LINE2 = true) or (FIELD_LINE3 = true) or (FIELD_LINE4 = true) then
-			RED <=   "00000000";
-			GREEN <= "00000000";
-			BLUE <=  "00000000";
-		elsif FIELD_BUTTON1 = true then
-			RED <=   "11111111";
-			GREEN <= "00000000";
-			BLUE <=  "00000000";
-		elsif FIELD_BUTTON2 = true then
-			RED <=   "11111111";
-			GREEN <= "00000000";
-			BLUE <=  "11111111";
-		elsif FIELD_BUTTON3 = true then
-			RED <=   "00000000";
-			GREEN <= "11111111";
-			BLUE <=  "00000000";
-		elsif FIELD_BUTTON4 = true then
-			RED <=   "00000000";
-			GREEN <= "11111111";
-			BLUE <=  "11111111";
-		elsif DRAW_ROM_SCORE = true then
-			ROM_EN_SCORE <= '1';
-			RED <=   ROM_OUT_SCORE(23 downto 16);
-			GREEN <= ROM_OUT_SCORE(15 downto 8);
-			BLUE <=  ROM_OUT_SCORE(7 downto 0);
-		elsif DRAW_ROM_SCORE_NEW = true then
-			ROM_EN_SCORE_NEW <= '1';
-			RED <=   ROM_OUT_SCORE_NEW(23 downto 16);
-			GREEN <= ROM_OUT_SCORE_NEW(15 downto 8);
-			BLUE <=  ROM_OUT_SCORE_NEW(7 downto 0);
+		if DRAW_BG = true then
+			RED <=	 RED_BG;
+			GREEN <= GREEN_BG;
+			BLUE <=  BLUE_BG;
+			
+--		if (FIELD_LINE1 = true) or (FIELD_LINE2 = true) or (FIELD_LINE3 = true) or (FIELD_LINE4 = true) then
+--			RED <=   "00000000";
+--			GREEN <= "00000000";
+--			BLUE <=  "00000000";
+--		elsif FIELD_BUTTON1 = true then
+--			RED <=   "11111111";
+--			GREEN <= "00000000";
+--			BLUE <=  "00000000";
+--		elsif FIELD_BUTTON2 = true then
+--			RED <=   "11111111";
+--			GREEN <= "00000000";
+--			BLUE <=  "11111111";
+--		elsif FIELD_BUTTON3 = true then
+--			RED <=   "00000000";
+--			GREEN <= "11111111";
+--			BLUE <=  "00000000";
+--		elsif FIELD_BUTTON4 = true then
+--			RED <=   "00000000";
+--			GREEN <= "11111111";
+--			BLUE <=  "11111111";
+--		elsif DRAW_ROM_SCORE = true then
+--			ROM_EN_SCORE <= '1';
+--			RED <=   ROM_OUT_SCORE(23 downto 16);
+--			GREEN <= ROM_OUT_SCORE(15 downto 8);
+--			BLUE <=  ROM_OUT_SCORE(7 downto 0);
+--		elsif DRAW_ROM_SCORE_NEW = true then
+--			ROM_EN_SCORE_NEW <= '1';
+--			RED <=   ROM_OUT_SCORE_NEW(23 downto 16);
+--			GREEN <= ROM_OUT_SCORE_NEW(15 downto 8);
+--			BLUE <=  ROM_OUT_SCORE_NEW(7 downto 0);
 		else
-			ROM_EN_SCORE <= '0';
-			ROM_EN_SCORE_NEW <= '0';
+--			ROM_EN_SCORE <= '0';
+--			ROM_EN_SCORE_NEW <= '0';
 			RED <=   "00000000"; -- 0
 			GREEN <= "01000011"; -- 67
 			BLUE <=  "10101111"; -- 175
