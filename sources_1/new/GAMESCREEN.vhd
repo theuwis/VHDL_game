@@ -62,16 +62,16 @@ architecture Behavioral of GAMESCREEN is
 	signal FIELD_BUTTON4 : BOOLEAN;
 	
 	-- signals for the 'SCORE' text
-	signal ROM_ADR_SCORE : STD_LOGIC_VECTOR(10 downto 0);
-	signal ROM_OUT_SCORE : STD_LOGIC_VECTOR(23 downto 0);
-	signal ROM_EN_SCORE : STD_LOGIC;
-	signal DRAW_ROM_SCORE : BOOLEAN;
+	signal ADR_SCORE_TEXT : STD_LOGIC_VECTOR(10 downto 0);
+	signal OUT_SCORE_TEXT : STD_LOGIC_VECTOR(23 downto 0);
+	signal EN_SCORE_TEXT : STD_LOGIC;
+	signal DRAW_SCORE_TEXT : BOOLEAN;
 	
 	-- signals for the score --TODO betere namen
-	signal ROM_ADR_SCORE_NEW : STD_LOGIC_VECTOR(7 downto 0);
-	signal ROM_OUT_SCORE_NEW : STD_LOGIC_VECTOR(239 downto 0);
-	signal ROM_EN_SCORE_NEW : STD_LOGIC;
-	signal DRAW_ROM_SCORE_NEW : BOOLEAN;
+	signal ADR_SCORE : STD_LOGIC_VECTOR(7 downto 0);
+	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
+	signal EN_SCORE : STD_LOGIC;
+	signal DRAW_SCORE : BOOLEAN;
 begin
 -- draws boundary lines on the screen
 line1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
@@ -93,16 +93,16 @@ button3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_PO
 button4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 245, X_2 => 297,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON4);
 
+-- writes 'SCORE' on the screen
+score_text_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 399, X_2 => 470,
+								Y_1 => 225, Y_2 => 242, DRAW => DRAW_SCORE_TEXT);
+score_text_rom: SCORE_TEXT port map(a => ADR_SCORE_TEXT, spo => OUT_SCORE_TEXT);
+score_text_count: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => EN_SCORE_TEXT, Q => ADR_SCORE_TEXT);
 
-block_score_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 399, X_2 => 470,
-								Y_1 => 225, Y_2 => 242, DRAW => DRAW_ROM_SCORE);
-score_rom: SCORE_TEXT port map(a => ROM_ADR_SCORE, spo => ROM_OUT_SCORE);
-score_counter: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => ROM_EN_SCORE, Q => ROM_ADR_SCORE);
-
-block_score_new: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_ROM_SCORE_NEW);
-score_number: SCORE_NUMBERS port map(a => ROM_ADR_SCORE_NEW, spo => ROM_OUT_SCORE_NEW);
-score_counter_number: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => ROM_EN_SCORE_NEW, Q => ROM_ADR_SCORE_NEW);
+score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE);
+score_rom: SCORE_NUMBERS port map(a => ADR_SCORE, spo => OUT_SCORE);
+score_counter: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE, Q => ADR_SCORE);
 
 -- process that generates DRAW_BG signal for the top module
 process(CLK)
@@ -133,41 +133,25 @@ process(CLK)
 			GREEN_BG <= "11111111";
 			BLUE_BG <=  "11111111";
 			DRAW_BG <= true;
-		elsif DRAW_ROM_SCORE = true then
-			ROM_EN_SCORE <= '1';
-			RED_BG <=   ROM_OUT_SCORE(23 downto 16);
-			GREEN_BG <= ROM_OUT_SCORE(15 downto 8);
-			BLUE_BG <=  ROM_OUT_SCORE(7 downto 0);
+		elsif DRAW_SCORE_TEXT = true then
+			EN_SCORE_TEXT <= '1';
+			RED_BG <=   OUT_SCORE_TEXT(23 downto 16);
+			GREEN_BG <= OUT_SCORE_TEXT(15 downto 8);
+			BLUE_BG <=  OUT_SCORE_TEXT(7 downto 0);
 			DRAW_BG <= true;
-		elsif DRAW_ROM_SCORE_NEW = true then
-			ROM_EN_SCORE_NEW <= '1';
-			RED_BG <=   ROM_OUT_SCORE_NEW(23 downto 16);
-			GREEN_BG <= ROM_OUT_SCORE_NEW(15 downto 8);
-			BLUE_BG <=  ROM_OUT_SCORE_NEW(7 downto 0);
+		elsif DRAW_SCORE= true then
+			EN_SCORE <= '1';
+			RED_BG <=   OUT_SCORE(23 downto 16);
+			GREEN_BG <= OUT_SCORE(15 downto 8);
+			BLUE_BG <=  OUT_SCORE(7 downto 0);
 			DRAW_BG <= true;
-		else 													-- TODO het heeft eig geen nut om hier kleuren uit te sturen
-			ROM_EN_SCORE <= '0';
-			ROM_EN_SCORE_NEW <= '0';
-			RED_BG <=   "00000000"; -- 0
-			GREEN_BG <= "01000011"; -- 67
-			BLUE_BG <=  "10101111"; -- 175
+		else
+			EN_SCORE_TEXT <= '0';
+			EN_SCORE <= '0';
 			DRAW_BG <= false;
 		end if;
 	end if;
 end process;
 
 end Behavioral;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
