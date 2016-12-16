@@ -16,7 +16,9 @@ entity GAME is
 			V_SYNC_O : out STD_LOGIC;
 			DISP : out STD_LOGIC;
 			BL_EN : out STD_LOGIC;
-			GND : out STD_LOGIC);
+			GND : out STD_LOGIC;
+			
+			BTN1 : in STD_LOGIC);
 end GAME;
 
 architecture Behavioral of GAME is
@@ -66,11 +68,29 @@ architecture Behavioral of GAME is
 				XPOS : in STD_LOGIC_VECTOR(8 downto 0);
 				YPOS : in STD_LOGIC_VECTOR(8 downto 0);
 				
+				SCORE_UP : in STD_LOGIC;
+				
 				-- control signals for the top module (to know when to draw)
 				DRAW_BG : out BOOLEAN;
 				RED_BG : out STD_LOGIC_VECTOR(7 downto 0);
 				GREEN_BG : out STD_LOGIC_VECTOR(7 downto 0);
 				BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0));
+	end component;
+	
+	-- TEMP -- proof of concept
+	component DEBOUNCE_FSM is
+	    Port ( CLK : in STD_LOGIC;
+	           RST : in STD_LOGIC;
+	           SAMPLE : in STD_LOGIC;
+	           SW : in STD_LOGIC;
+	           SW_DEB : out STD_LOGIC);
+	end component;
+	component DEBOUNCE_SAMPLE2 is
+		Port (	CLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				CE : in STD_LOGIC;
+				SAMPLE : out STD_LOGIC;
+				COUNT_OUT : out STD_LOGIC_VECTOR (26 downto 0)); 
 	end component;
 
 	-- VGA control
@@ -88,13 +108,21 @@ architecture Behavioral of GAME is
 	
 	-- ROM's
 	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
+	
+	-- temp
+	signal SCORE_INCR : STD_LOGIC;
+	signal SW_SAMPLE : STD_LOGIC;
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
 								RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK_ROM, H_SYNC_O => H_SYNC_O,
 								V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
-								GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG);
+								GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
+
+--debounce_BTN1: DEBOUNCE_FSM port map(CLK => CLK, RST => RST, SAMPLE => SW_SAMPLE, SW => BTN1, SW_DEB => SCORE_INCR);
+deb_sample: DEBOUNCE_SAMPLE2 port map(CLK => CLK, RST => RST, CE => CLK, SAMPLE => SCORE_INCR);
+
 DCLK <= DCLK_ROM;
 GND <= '0';
 

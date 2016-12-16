@@ -9,6 +9,8 @@ entity GAMESCREEN is
 			XPOS : in STD_LOGIC_VECTOR(8 downto 0);
 			YPOS : in STD_LOGIC_VECTOR(8 downto 0);
 			
+			SCORE_UP : in STD_LOGIC;
+			
 			-- control signals for the top module (to know when to draw)
 			DRAW_BG : out BOOLEAN;
 			RED_BG : out STD_LOGIC_VECTOR(7 downto 0);
@@ -50,7 +52,7 @@ architecture Behavioral of GAMESCREEN is
 				CE : IN STD_LOGIC;
 				Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 	end component;
-	
+		
 	-- signals for background lines and buttons
 	signal FIELD_LINE1 : BOOLEAN;
 	signal FIELD_LINE2 : BOOLEAN;
@@ -72,6 +74,12 @@ architecture Behavioral of GAMESCREEN is
 	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
 	signal EN_SCORE : STD_LOGIC;
 	signal DRAW_SCORE : BOOLEAN;
+	
+	-- signals for updating the score
+	signal RED_SCORE1 : STD_LOGIC_VECTOR(7 downto 0);
+	signal GREEN_SCORE1 : STD_LOGIC_VECTOR(7 downto 0);
+	signal BLUE_SCORE1 : STD_LOGIC_VECTOR(7 downto 0);
+	
 begin
 -- draws boundary lines on the screen
 line1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
@@ -139,11 +147,11 @@ process(CLK)
 			GREEN_BG <= OUT_SCORE_TEXT(15 downto 8);
 			BLUE_BG <=  OUT_SCORE_TEXT(7 downto 0);
 			DRAW_BG <= true;
-		elsif DRAW_SCORE= true then
+		elsif DRAW_SCORE = true then
 			EN_SCORE <= '1';
-			RED_BG <=   OUT_SCORE(23 downto 16);
-			GREEN_BG <= OUT_SCORE(15 downto 8);
-			BLUE_BG <=  OUT_SCORE(7 downto 0);
+			RED_BG <=   RED_SCORE1;
+			GREEN_BG <= GREEN_SCORE1;
+			BLUE_BG <=  BLUE_SCORE1;
 			DRAW_BG <= true;
 		else
 			EN_SCORE_TEXT <= '0';
@@ -152,6 +160,73 @@ process(CLK)
 		end if;
 	end if;
 end process;
+
+-- process to update the score
+process(CLK)
+	variable SCORE : INTEGER range 0 to 9;
+	
+	begin
+	if (CLK'event and CLK = '1') then
+		if SCORE_UP = '1' then
+			if SCORE < 9 then
+				SCORE := SCORE + 1;
+			else
+				SCORE := 0;
+			end if;
+		end if;
+		
+		if DRAW_SCORE = true then
+			case SCORE is
+				when 0 =>
+					RED_SCORE1 <=   OUT_SCORE(239 downto 232);
+					GREEN_SCORE1 <= OUT_SCORE(231 downto 224);
+					BLUE_SCORE1 <=  OUT_SCORE(223 downto 216);
+				when 1 =>
+					RED_SCORE1 <=   OUT_SCORE(215 downto 208);
+					GREEN_SCORE1 <= OUT_SCORE(207 downto 200);
+					BLUE_SCORE1 <=  OUT_SCORE(199 downto 192);
+				when 2 =>
+					RED_SCORE1 <=   OUT_SCORE(191 downto 184);
+					GREEN_SCORE1 <= OUT_SCORE(183 downto 176);
+					BLUE_SCORE1 <=  OUT_SCORE(175 downto 168);
+				when 3 =>
+					RED_SCORE1 <=   OUT_SCORE(167 downto 160);
+					GREEN_SCORE1 <= OUT_SCORE(159 downto 152);
+					BLUE_SCORE1 <=  OUT_SCORE(151 downto 144);
+				when 4 =>
+					RED_SCORE1 <=   OUT_SCORE(143 downto 136);
+					GREEN_SCORE1 <= OUT_SCORE(135 downto 128);
+					BLUE_SCORE1 <=  OUT_SCORE(127 downto 120);
+				when 5 =>
+					RED_SCORE1 <=   OUT_SCORE(119 downto 112);
+					GREEN_SCORE1 <= OUT_SCORE(111 downto 104);
+					BLUE_SCORE1 <=  OUT_SCORE(103 downto 96);
+				when 6 =>
+					RED_SCORE1 <=   OUT_SCORE(95 downto 88);
+					GREEN_SCORE1 <= OUT_SCORE(87 downto 80);
+					BLUE_SCORE1 <=  OUT_SCORE(79 downto 72);
+				when 7 =>
+					RED_SCORE1 <=   OUT_SCORE(71 downto 64);
+					GREEN_SCORE1 <= OUT_SCORE(63 downto 56);
+					BLUE_SCORE1 <=  OUT_SCORE(55 downto 48);	
+				when 8 =>
+					RED_SCORE1 <=   OUT_SCORE(47 downto 40);
+					GREEN_SCORE1 <= OUT_SCORE(39 downto 32);
+					BLUE_SCORE1 <=  OUT_SCORE(31 downto 24);
+				when 9 =>
+					RED_SCORE1 <=   OUT_SCORE(23 downto 16);
+					GREEN_SCORE1 <= OUT_SCORE(15 downto 8);
+					BLUE_SCORE1 <=  OUT_SCORE(7 downto 0);
+					
+				when OTHERS =>
+					RED_SCORE1 <=   OUT_SCORE(23 downto 16);
+					GREEN_SCORE1 <= OUT_SCORE(15 downto 8);
+					BLUE_SCORE1 <=  OUT_SCORE(7 downto 0);
+			end case;
+		end if;
+	end if;
+end process;
+
 
 end Behavioral;
 

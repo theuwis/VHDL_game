@@ -1,3 +1,7 @@
+set_property IOSTANDARD LVCMOS33 [get_ports BTN1]
+set_property PACKAGE_PIN Y16 [get_ports BTN1]
+
+
 set_property IOSTANDARD LVCMOS33 [get_ports CLK]
 set_property IOSTANDARD LVCMOS33 [get_ports H_SYNC_O]
 set_property IOSTANDARD LVCMOS33 [get_ports RST]
@@ -26,7 +30,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {RED_OUT[3]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {RED_OUT[2]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {RED_OUT[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {RED_OUT[0]}]
-
 
 
 
