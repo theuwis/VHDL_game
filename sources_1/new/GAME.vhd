@@ -95,6 +95,21 @@ architecture Behavioral of GAME is
 	  );
 	END component;
 	
+	component SCORE_NUMBERS IS
+	  PORT (
+	    a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+	    spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0)
+	  );
+	END component;
+	
+	component SCORE_NUMBERS_COUNTER IS
+	  PORT (
+	    CLK : IN STD_LOGIC;
+	    CE : IN STD_LOGIC;
+	    Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+	  );
+	END component;
+	
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal RED : STD_LOGIC_VECTOR(7 downto 0);
@@ -126,6 +141,11 @@ architecture Behavioral of GAME is
 	signal ROM_OUT_SCORE : STD_LOGIC_VECTOR(23 downto 0);
 	signal ROM_EN_SCORE : STD_LOGIC;
 	signal DRAW_ROM_SCORE : BOOLEAN;
+	
+	signal ROM_ADR_SCORE_NEW : STD_LOGIC_VECTOR(7 downto 0);
+	signal ROM_OUT_SCORE_NEW : STD_LOGIC_VECTOR(239 downto 0);
+	signal ROM_EN_SCORE_NEW : STD_LOGIC;
+	signal DRAW_ROM_SCORE_NEW : BOOLEAN;
 	
 	-- ROM's
 	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
@@ -212,6 +232,11 @@ block_score: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS,
 								Y_1 => 225, Y_2 => 264, DRAW => DRAW_ROM_SCORE);
 score_blabla: SCORE port map(a => ROM_ADR_SCORE, spo => ROM_OUT_SCORE);
 score_counter_blabla: SCORE_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE, Q => ROM_ADR_SCORE);
+
+block_score_new: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 15, X_2 => 26,
+								Y_1 => 15, Y_2 => 34, DRAW => DRAW_ROM_SCORE_NEW);
+score_number: SCORE_NUMBERS port map(a => ROM_ADR_SCORE_NEW, spo => ROM_OUT_SCORE_NEW);
+score_counter_number: SCORE_NUMBERS_COUNTER port map(CLK => DCLK_ROM, CE => ROM_EN_SCORE_NEW, Q => ROM_ADR_SCORE_NEW);
 --button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 0, X_2 => 10,
 --								Y_1 => 0, Y_2 => 10, DRAW => FIELD_BUTTON1);
 --button2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => 469, X_2 => 479,
@@ -228,7 +253,6 @@ process(CLK)
 			GREEN <= "00000000";
 			BLUE <=  "00000000";
 		elsif FIELD_BUTTON1 = true then
---		if FIELD_BUTTON1 = true then
 			RED <=   "11111111";
 			GREEN <= "00000000";
 			BLUE <=  "00000000";
@@ -249,8 +273,14 @@ process(CLK)
 			RED <=   ROM_OUT_SCORE(23 downto 16);
 			GREEN <= ROM_OUT_SCORE(15 downto 8);
 			BLUE <=  ROM_OUT_SCORE(7 downto 0);
+		elsif DRAW_ROM_SCORE_NEW = true then
+			ROM_EN_SCORE_NEW <= '1';
+			RED <=   ROM_OUT_SCORE_NEW(23 downto 16);
+			GREEN <= ROM_OUT_SCORE_NEW(15 downto 8);
+			BLUE <=  ROM_OUT_SCORE_NEW(7 downto 0);
 		else
 			ROM_EN_SCORE <= '0';
+			ROM_EN_SCORE_NEW <= '0';
 			RED <=   "00000000"; -- 0
 			GREEN <= "01000011"; -- 67
 			BLUE <=  "10101111"; -- 175

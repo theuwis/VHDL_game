@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-
 entity GAME_TB is
 --  Port ( );
 end GAME_TB;
@@ -19,21 +18,22 @@ architecture Behavioral of GAME_TB is
 				H_SYNC_O : out STD_LOGIC;
 				V_SYNC_O : out STD_LOGIC;
 				DISP : out STD_LOGIC;
-				BL_EN : out STD_LOGIC);
+				BL_EN : out STD_LOGIC;
+				GND : out STD_LOGIC);
 	end component;
-	
+
 	signal CLK : STD_LOGIC;
 	signal RST : STD_LOGIC;
 	constant clock_period : time := 8ns;
-
+	
 begin
 game_test: GAME port map(CLK => CLK, RST => RST);
 clk_process: process
 	begin
 		CLK <= '0';
-		wait for clock_period / 2;
+		wait for clock_period/2;
 		CLK <= '1';
-		wait for clock_period / 2;
+		wait for clock_period/2;	
 end process;
 
 inf: process
@@ -41,5 +41,4 @@ inf: process
 		RST <= '0';
 		wait;
 end process;
-
 end Behavioral;
