@@ -42,10 +42,22 @@ architecture Behavioral of GAMESCREEN is
 				Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0));
 	end component;
 	
-	-- used to display the current score
-	component SCORE_NUMBERS is
-		port(	a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-				spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0));
+	
+	
+--	-- used to display the current score
+--	component SCORE_NUMBERS is
+--		port(	a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+--				spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0));
+--	end component;
+	component SCORE_COUNTER is
+		port(	CLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				SCORE : in INTEGER;
+				ADR : in STD_LOGIC_VECTOR(7 downto 0);
+				
+				RED_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
+				GREEN_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
+				BLUE_SCORE : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
 	component SCORE_NUMBERS_COUNTER is
 		port(	CLK : IN STD_LOGIC;
@@ -69,16 +81,27 @@ architecture Behavioral of GAMESCREEN is
 	signal EN_SCORE_TEXT : STD_LOGIC;
 	signal DRAW_SCORE_TEXT : BOOLEAN;
 	
-	-- signals for the score --TODO betere namen
+--	-- signals for the score --TODO betere namen
 	signal ADR_SCORE : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_1 : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_10 : STD_LOGIC_VECTOR(7 downto 0);
 	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
-	signal EN_SCORE : STD_LOGIC;
-	signal DRAW_SCORE : BOOLEAN;
+	signal EN_SCORE_1 : STD_LOGIC;
+	signal EN_SCORE_10 : STD_LOGIC;
+	signal DRAW_SCORE_1 : BOOLEAN;
+	signal DRAW_SCORE_10 : BOOLEAN;
 	
 	-- signals for updating the score
-	signal RED_SCORE1 : STD_LOGIC_VECTOR(7 downto 0);
-	signal GREEN_SCORE1 : STD_LOGIC_VECTOR(7 downto 0);
-	signal BLUE_SCORE1 : STD_LOGIC_VECTOR(7 downto 0);
+	signal RED_SCORE : STD_LOGIC_VECTOR(7 downto 0);
+	signal GREEN_SCORE : STD_LOGIC_VECTOR(7 downto 0);
+	signal BLUE_SCORE : STD_LOGIC_VECTOR(7 downto 0);
+	
+	
+	--shared variable SCORE_1 : INTEGER range 0 to 9;
+	signal SCORE_1 : INTEGER;
+	signal SCORE_10 : INTEGER;
+	signal SCORE : INTEGER;
+	
 	
 begin
 -- draws boundary lines on the screen
@@ -108,9 +131,15 @@ score_text_rom: SCORE_TEXT port map(a => ADR_SCORE_TEXT, spo => OUT_SCORE_TEXT);
 score_text_count: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => EN_SCORE_TEXT, Q => ADR_SCORE_TEXT);
 
 score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE);
-score_rom: SCORE_NUMBERS port map(a => ADR_SCORE, spo => OUT_SCORE);
-score_counter: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE, Q => ADR_SCORE);
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
+score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 444, X_2 => 455,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_10);
+--score_rom: SCORE_NUMBERS port map(a => ADR_SCORE, spo => OUT_SCORE);
+score_getadr_1: SCORE_COUNTER port map(CLK => CLK, RST => RST, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => RED_SCORE, GREEN_SCORE => GREEN_SCORE, BLUE_SCORE => BLUE_SCORE);
+
+score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1, Q => ADR_SCORE_1);
+score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_10, Q => ADR_SCORE_10);
+
 
 -- process that generates DRAW_BG signal for the top module
 process(CLK)
@@ -147,86 +176,55 @@ process(CLK)
 			GREEN_BG <= OUT_SCORE_TEXT(15 downto 8);
 			BLUE_BG <=  OUT_SCORE_TEXT(7 downto 0);
 			DRAW_BG <= true;
-		elsif DRAW_SCORE = true then
-			EN_SCORE <= '1';
-			RED_BG <=   RED_SCORE1;
-			GREEN_BG <= GREEN_SCORE1;
-			BLUE_BG <=  BLUE_SCORE1;
+		elsif (DRAW_SCORE_1 = true) or (DRAW_SCORE_10 = true) then
+			if (DRAW_SCORE_1 = true) then
+				SCORE <= SCORE_1;
+				ADR_SCORE <= ADR_SCORE_1;
+				EN_SCORE_1 <= '1';			
+				EN_SCORE_10 <= '0';
+			end if;
+			
+			if (DRAW_SCORE_10 = true) then
+				SCORE <= SCORE_10;
+				ADR_SCORE <= ADR_SCORE_10;
+				EN_SCORE_1 <= '0';
+				EN_SCORE_10 <= '1';
+			end if;
+			RED_BG <=   RED_SCORE;
+			GREEN_BG <= GREEN_SCORE;
+			BLUE_BG <=  BLUE_SCORE;
 			DRAW_BG <= true;
 		else
 			EN_SCORE_TEXT <= '0';
-			EN_SCORE <= '0';
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
 			DRAW_BG <= false;
 		end if;
 	end if;
 end process;
 
--- process to update the score
 process(CLK)
-	variable SCORE : INTEGER range 0 to 9;
-	
+	variable SCORE_VAR_1 : INTEGER range 0 to 9;
+	variable SCORE_VAR_10 : INTEGER range 0 to 9;
 	begin
 	if (CLK'event and CLK = '1') then
 		if SCORE_UP = '1' then
-			if SCORE < 9 then
-				SCORE := SCORE + 1;
+			if SCORE_VAR_1 < 9 then
+				SCORE_VAR_1 := SCORE_VAR_1 + 1;
 			else
-				SCORE := 0;
+				SCORE_VAR_1 := 0;
+				
+				if SCORE_VAR_10 < 9 then
+					SCORE_VAR_10 := SCORE_VAR_10 + 1;
+				else
+					SCORE_VAR_10 := 0;
+				end if;				
 			end if;
 		end if;
-		
-		if DRAW_SCORE = true then
-			case SCORE is
-				when 0 =>
-					RED_SCORE1 <=   OUT_SCORE(239 downto 232);
-					GREEN_SCORE1 <= OUT_SCORE(231 downto 224);
-					BLUE_SCORE1 <=  OUT_SCORE(223 downto 216);
-				when 1 =>
-					RED_SCORE1 <=   OUT_SCORE(215 downto 208);
-					GREEN_SCORE1 <= OUT_SCORE(207 downto 200);
-					BLUE_SCORE1 <=  OUT_SCORE(199 downto 192);
-				when 2 =>
-					RED_SCORE1 <=   OUT_SCORE(191 downto 184);
-					GREEN_SCORE1 <= OUT_SCORE(183 downto 176);
-					BLUE_SCORE1 <=  OUT_SCORE(175 downto 168);
-				when 3 =>
-					RED_SCORE1 <=   OUT_SCORE(167 downto 160);
-					GREEN_SCORE1 <= OUT_SCORE(159 downto 152);
-					BLUE_SCORE1 <=  OUT_SCORE(151 downto 144);
-				when 4 =>
-					RED_SCORE1 <=   OUT_SCORE(143 downto 136);
-					GREEN_SCORE1 <= OUT_SCORE(135 downto 128);
-					BLUE_SCORE1 <=  OUT_SCORE(127 downto 120);
-				when 5 =>
-					RED_SCORE1 <=   OUT_SCORE(119 downto 112);
-					GREEN_SCORE1 <= OUT_SCORE(111 downto 104);
-					BLUE_SCORE1 <=  OUT_SCORE(103 downto 96);
-				when 6 =>
-					RED_SCORE1 <=   OUT_SCORE(95 downto 88);
-					GREEN_SCORE1 <= OUT_SCORE(87 downto 80);
-					BLUE_SCORE1 <=  OUT_SCORE(79 downto 72);
-				when 7 =>
-					RED_SCORE1 <=   OUT_SCORE(71 downto 64);
-					GREEN_SCORE1 <= OUT_SCORE(63 downto 56);
-					BLUE_SCORE1 <=  OUT_SCORE(55 downto 48);	
-				when 8 =>
-					RED_SCORE1 <=   OUT_SCORE(47 downto 40);
-					GREEN_SCORE1 <= OUT_SCORE(39 downto 32);
-					BLUE_SCORE1 <=  OUT_SCORE(31 downto 24);
-				when 9 =>
-					RED_SCORE1 <=   OUT_SCORE(23 downto 16);
-					GREEN_SCORE1 <= OUT_SCORE(15 downto 8);
-					BLUE_SCORE1 <=  OUT_SCORE(7 downto 0);
-					
-				when OTHERS =>
-					RED_SCORE1 <=   OUT_SCORE(23 downto 16);
-					GREEN_SCORE1 <= OUT_SCORE(15 downto 8);
-					BLUE_SCORE1 <=  OUT_SCORE(7 downto 0);
-			end case;
-		end if;
 	end if;
+	SCORE_1 <= SCORE_VAR_1;
+	SCORE_10 <= SCORE_VAR_10;
 end process;
-
 
 end Behavioral;
 
