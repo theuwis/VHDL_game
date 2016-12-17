@@ -181,10 +181,8 @@ process(CLK)
 				SCORE <= SCORE_1;
 				ADR_SCORE <= ADR_SCORE_1;
 				EN_SCORE_1 <= '1';			
-				EN_SCORE_10 <= '0';
-			end if;
-			
-			if (DRAW_SCORE_10 = true) then
+				EN_SCORE_10 <= '0';			
+			elsif (DRAW_SCORE_10 = true) then
 				SCORE <= SCORE_10;
 				ADR_SCORE <= ADR_SCORE_10;
 				EN_SCORE_1 <= '0';

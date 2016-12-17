@@ -90,8 +90,15 @@ architecture Behavioral of GAME is
 				RST : in STD_LOGIC;
 				CE : in STD_LOGIC;
 				SAMPLE : out STD_LOGIC;
-				COUNT_OUT : out STD_LOGIC_VECTOR (26 downto 0)); 
+				COUNT_OUT : out STD_LOGIC_VECTOR (25 downto 0)); 
 	end component;
+	component SCORE_INCR_COUNTER IS
+	  PORT (
+	    CLK : IN STD_LOGIC;
+	    THRESH0 : OUT STD_LOGIC;
+	    Q : OUT STD_LOGIC_VECTOR(25 DOWNTO 0)
+	  );
+	END component;
 
 	-- VGA control
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
@@ -121,7 +128,8 @@ BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS =
 								GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
 
 --debounce_BTN1: DEBOUNCE_FSM port map(CLK => CLK, RST => RST, SAMPLE => SW_SAMPLE, SW => BTN1, SW_DEB => SCORE_INCR);
-deb_sample: DEBOUNCE_SAMPLE2 port map(CLK => CLK, RST => RST, CE => CLK, SAMPLE => SCORE_INCR);
+--deb_sample: DEBOUNCE_SAMPLE2 port map(CLK => CLK, RST => RST, CE => CLK, SAMPLE => SCORE_INCR);
+incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
 
 DCLK <= DCLK_ROM;
 GND <= '0';
