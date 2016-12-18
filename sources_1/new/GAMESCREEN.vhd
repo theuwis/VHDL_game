@@ -81,15 +81,27 @@ architecture Behavioral of GAMESCREEN is
 	signal EN_SCORE_TEXT : STD_LOGIC;
 	signal DRAW_SCORE_TEXT : BOOLEAN;
 	
---	-- signals for the score --TODO betere namen
+	-- signals for the score ---> TODO mss in aparte blok teken ipv deze copy-paste
 	signal ADR_SCORE : STD_LOGIC_VECTOR(7 downto 0);
 	signal ADR_SCORE_1 : STD_LOGIC_VECTOR(7 downto 0);
 	signal ADR_SCORE_10 : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_100 : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_1000 : STD_LOGIC_VECTOR(7 downto 0);
 	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
 	signal EN_SCORE_1 : STD_LOGIC;
 	signal EN_SCORE_10 : STD_LOGIC;
+	signal EN_SCORE_100 : STD_LOGIC;
+	signal EN_SCORE_1000 : STD_LOGIC;
 	signal DRAW_SCORE_1 : BOOLEAN;
 	signal DRAW_SCORE_10 : BOOLEAN;
+	signal DRAW_SCORE_100 : BOOLEAN;
+	signal DRAW_SCORE_1000 : BOOLEAN;
+	signal SCORE : INTEGER;
+	signal SCORE_1 : INTEGER;
+	signal SCORE_10 : INTEGER;
+	signal SCORE_100 : INTEGER;
+	signal SCORE_1000 : INTEGER;
+	
 	
 	-- signals for updating the score
 	signal RED_SCORE : STD_LOGIC_VECTOR(7 downto 0);
@@ -97,10 +109,7 @@ architecture Behavioral of GAMESCREEN is
 	signal BLUE_SCORE : STD_LOGIC_VECTOR(7 downto 0);
 	
 	
-	--shared variable SCORE_1 : INTEGER range 0 to 9;
-	signal SCORE_1 : INTEGER;
-	signal SCORE_10 : INTEGER;
-	signal SCORE : INTEGER;
+
 	
 	
 begin
@@ -134,12 +143,17 @@ score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS,
 								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
 score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 444, X_2 => 455,
 								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_10);
---score_rom: SCORE_NUMBERS port map(a => ADR_SCORE, spo => OUT_SCORE);
-score_getadr_1: SCORE_COUNTER port map(CLK => CLK, RST => RST, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => RED_SCORE, GREEN_SCORE => GREEN_SCORE, BLUE_SCORE => BLUE_SCORE);
+score_100_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 429, X_2 => 440,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_100);
+score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 414, X_2 => 425,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1000);
+
+score_getadr: SCORE_COUNTER port map(CLK => CLK, RST => RST, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => RED_SCORE, GREEN_SCORE => GREEN_SCORE, BLUE_SCORE => BLUE_SCORE);
 
 score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1, Q => ADR_SCORE_1);
 score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_10, Q => ADR_SCORE_10);
-
+score_count_100: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_100, Q => ADR_SCORE_100);
+score_count_1000: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1000, Q => ADR_SCORE_1000);
 
 -- process that generates DRAW_BG signal for the top module
 process(CLK)
@@ -176,17 +190,35 @@ process(CLK)
 			GREEN_BG <= OUT_SCORE_TEXT(15 downto 8);
 			BLUE_BG <=  OUT_SCORE_TEXT(7 downto 0);
 			DRAW_BG <= true;
-		elsif (DRAW_SCORE_1 = true) or (DRAW_SCORE_10 = true) then
+		elsif (DRAW_SCORE_1 = true) or (DRAW_SCORE_10 = true) or (DRAW_SCORE_100 = true) or (DRAW_SCORE_1000 = true) then
 			if (DRAW_SCORE_1 = true) then
 				SCORE <= SCORE_1;
 				ADR_SCORE <= ADR_SCORE_1;
-				EN_SCORE_1 <= '1';			
-				EN_SCORE_10 <= '0';			
+				EN_SCORE_1 <= '1';
+				EN_SCORE_10 <= '0';
+				EN_SCORE_100 <= '0';
+				EN_SCORE_1000 <= '0';
 			elsif (DRAW_SCORE_10 = true) then
 				SCORE <= SCORE_10;
 				ADR_SCORE <= ADR_SCORE_10;
 				EN_SCORE_1 <= '0';
 				EN_SCORE_10 <= '1';
+				EN_SCORE_100 <= '0';
+				EN_SCORE_1000 <= '0';
+			elsif (DRAW_SCORE_100 = true) then
+				SCORE <= SCORE_100;
+				ADR_SCORE <= ADR_SCORE_100;
+				EN_SCORE_1 <= '0';
+				EN_SCORE_10 <= '0';
+				EN_SCORE_100 <= '1';
+				EN_SCORE_1000 <= '0';
+			elsif (DRAW_SCORE_1000 = true) then
+				SCORE <= SCORE_1000;
+				ADR_SCORE <= ADR_SCORE_1000;
+				EN_SCORE_1 <= '0';
+				EN_SCORE_10 <= '0';
+				EN_SCORE_100 <= '0';
+				EN_SCORE_1000 <= '1';
 			end if;
 			RED_BG <=   RED_SCORE;
 			GREEN_BG <= GREEN_SCORE;
@@ -196,6 +228,8 @@ process(CLK)
 			EN_SCORE_TEXT <= '0';
 			EN_SCORE_1 <= '0';
 			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
 			DRAW_BG <= false;
 		end if;
 	end if;
@@ -204,6 +238,9 @@ end process;
 process(CLK)
 	variable SCORE_VAR_1 : INTEGER range 0 to 9;
 	variable SCORE_VAR_10 : INTEGER range 0 to 9;
+	variable SCORE_VAR_100 : INTEGER range 0 to 9;
+	variable SCORE_VAR_1000 : INTEGER range 0 to 9;
+	
 	begin
 	if (CLK'event and CLK = '1') then
 		if SCORE_UP = '1' then
@@ -211,17 +248,28 @@ process(CLK)
 				SCORE_VAR_1 := SCORE_VAR_1 + 1;
 			else
 				SCORE_VAR_1 := 0;
-				
 				if SCORE_VAR_10 < 9 then
 					SCORE_VAR_10 := SCORE_VAR_10 + 1;
 				else
 					SCORE_VAR_10 := 0;
+					if SCORE_VAR_100 < 9 then
+						SCORE_VAR_100 := SCORE_VAR_100 + 1;
+					else
+						SCORE_VAR_100 := 0;
+						if SCORE_VAR_1000 < 9 then
+							SCORE_VAR_1000 := SCORE_VAR_1000 + 1;
+						else
+							SCORE_VAR_1000 := 0;
+						end if;
+					end if;
 				end if;				
 			end if;
 		end if;
 	end if;
 	SCORE_1 <= SCORE_VAR_1;
 	SCORE_10 <= SCORE_VAR_10;
+	SCORE_100 <= SCORE_VAR_100;
+	SCORE_1000 <= SCORE_VAR_1000;
 end process;
 
 end Behavioral;

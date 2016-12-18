@@ -44,23 +44,6 @@ architecture Behavioral of GAME is
 				Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));
 	end component;
 	
-	component DRAW_BLOCK is
-		port(	CLK : in STD_LOGIC;
-				RST : in STD_LOGIC;
-				-- current position to draw
-				X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-				Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-				
-				-- coordinates of the block to needs to be drawn
-				X_1 : in INTEGER;
-				X_2 : in INTEGER;
-				Y_1 : in INTEGER;
-				Y_2 : in INTEGER;
-				
-				-- returns true if the block can be drawn; false otherwise
-				DRAW : out BOOLEAN);
-	end component;
-	
 	component GAMESCREEN is
 		port(	CLK : in STD_LOGIC;
 				DCLK : in STD_LOGIC;
@@ -77,26 +60,24 @@ architecture Behavioral of GAME is
 				BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
 	
+	component GAME_CONTROLLER is
+		port(	CLK : in STD_LOGIC;
+	    		RST : in STD_LOGIC;
+	    		X_POS : in STD_LOGIC_VECTOR(8 downto 0);
+	    		Y_POS : in STD_LOGIC_VECTOR(8 downto 0);
+	    		
+	    		DRAW : out BOOLEAN;
+	    		RED : out STD_LOGIC_VECTOR(7 downto 0);
+	    		GREEN : out STD_LOGIC_VECTOR(7 downto 0);
+	    		BLUE : out STD_LOGIC_VECTOR(7 downto 0));
+	end component;
+	
 	-- TEMP -- proof of concept
-	component DEBOUNCE_FSM is
-	    Port ( CLK : in STD_LOGIC;
-	           RST : in STD_LOGIC;
-	           SAMPLE : in STD_LOGIC;
-	           SW : in STD_LOGIC;
-	           SW_DEB : out STD_LOGIC);
-	end component;
-	component DEBOUNCE_SAMPLE2 is
-		Port (	CLK : in STD_LOGIC;
-				RST : in STD_LOGIC;
-				CE : in STD_LOGIC;
-				SAMPLE : out STD_LOGIC;
-				COUNT_OUT : out STD_LOGIC_VECTOR (25 downto 0)); 
-	end component;
 	component SCORE_INCR_COUNTER IS
 	  PORT (
 	    CLK : IN STD_LOGIC;
 	    THRESH0 : OUT STD_LOGIC;
-	    Q : OUT STD_LOGIC_VECTOR(25 DOWNTO 0)
+	    Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
 	  );
 	END component;
 
@@ -113,6 +94,12 @@ architecture Behavioral of GAME is
 	signal GREEN_BG : STD_LOGIC_VECTOR(7 downto 0);
 	signal BLUE_BG : STD_LOGIC_VECTOR(7 downto 0);
 	
+	-- signals for moving game blocks
+	signal DRAW_BLOCK : BOOLEAN;
+	signal RED_BLOCK : STD_LOGIC_VECTOR(7 downto 0);
+	signal GREEN_BLOCK : STD_LOGIC_VECTOR(7 downto 0);
+	signal BLUE_BLOCK : STD_LOGIC_VECTOR(7 downto 0);
+	
 	-- ROM's
 	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
 	
@@ -126,10 +113,8 @@ VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => 
 								V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
 								GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
-
---debounce_BTN1: DEBOUNCE_FSM port map(CLK => CLK, RST => RST, SAMPLE => SW_SAMPLE, SW => BTN1, SW_DEB => SCORE_INCR);
---deb_sample: DEBOUNCE_SAMPLE2 port map(CLK => CLK, RST => RST, CE => CLK, SAMPLE => SCORE_INCR);
 incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
+GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK, RED => RED_BLOCK, GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK);
 
 DCLK <= DCLK_ROM;
 GND <= '0';
@@ -142,31 +127,16 @@ process(CLK)
 			RED <=	 RED_BG;
 			GREEN <= GREEN_BG;
 			BLUE <=  BLUE_BG;
-		else
+		elsif DRAW_BLOCK = true then
+			RED <=   RED_BLOCK;
+			GREEN <= GREEN_BLOCK;
+			BLUE  <= BLUE_BLOCK;
+		else -- background color
 			RED <=   "00000000"; -- 0
 			GREEN <= "01000011"; -- 67
 			BLUE <=  "10101111"; -- 175
 		end if;
 	end if;
 end process;
-
-
--- diagonal testing processes
---process(CLK)
---	variable width : integer range 0 to 5;
---	variable XPOS : integer range 0 to 479;
---	begin
---		 to_integer(signed(a));
-	
---		if (X_POS > "000000000") and (X_POS < "011001000") and (Y_POS > "000000000") and (Y_POS < "011001000") then
---			if X_POS > Y_POS then
---				RED <= "11111111";
---			else
---				RED <= "00000000";
---			end if;
---		else
---			RED <= "00000000";
---		end if;
---end process;
 
 end Behavioral;

@@ -57,7 +57,7 @@
 SCORE_INCR_COUNTER your_instance_name (
   .CLK(CLK),          // input wire CLK
   .THRESH0(THRESH0),  // output wire THRESH0
-  .Q(Q)              // output wire [25 : 0] Q
+  .Q(Q)              // output wire [24 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
