@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
 
 
 entity GAME_CONTROLLER is
@@ -48,6 +49,9 @@ architecture Behavioral of GAME_CONTROLLER is
 	signal POSITION2 : INTEGER;
 	signal DRAW_1 : BOOLEAN;
 	signal TICK : STD_LOGIC;
+	
+	signal temp1 : STD_LOGIC_VECTOR(8 downto 0);
+	signal temp2 : STD_LOGIC_VECTOR(8 downto 0);
 --	signal LOAD : STD_LOGIC;
 --	signal SPEED : STD_LOGIC_VECTOR(21 downto 0);
 
@@ -58,22 +62,26 @@ block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_PO
 --tick_gen: TICK_GENERATOR port map(CLK => CLK, SCLR => RST, LOAD => LOAD, L => SPEED, THRESH0 => TICK);
 tick_gen: TICK_GENERATOR port map(CLK => CLK, SCLR => RST, THRESH0 => TICK);
 
-POSITION2 <= POSITION1 + 20;
+
 --LOAD <= '0';
 
 
-process(CLK)
+process(CLK, DRAW_1)
 	begin
 	if (CLK'event and CLK = '1') then
+----		if (Y_POS > "000000101") and (Y_POS < "001000010") and (X_POS > CONV_STD_LOGIC_VECTOR(POSITION1, 9)) and
+----		(X_POS < CONV_STD_LOGIC_VECTOR(POSITION2, 9)) then
 		if DRAW_1 = true then
 			RED <=   "11111111";
 			GREEN <= "11110000";
 			BLUE <=  "00000000";
-			
 			DRAW <= true;
 		else
 			DRAW <= false;
 		end if;
+		
+		POSITION2 <= POSITION1 + 20;
+
 		
 		if TICK = '1' then
 			if POSITION1 > 100 then

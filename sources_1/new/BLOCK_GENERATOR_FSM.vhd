@@ -6,7 +6,6 @@ entity BLOCK_GENERATOR_FSM is
 	port(	CLK : in STD_LOGIC;
 			RST : in STD_LOGIC;
 			BLOCK_POS : out INTEGER;
-	--		BLOCK_POS_Y : out INTEGER;
 			TICK : in STD_LOGIC);
 --			BLOCK_COLOR : out STD_LOGIC_VECTOR(2 downto 0));
 end BLOCK_GENERATOR_FSM;
@@ -68,26 +67,28 @@ BLOCK_POS <= POSITION;
 		case old_state is
 			when IDLE =>
 				POS := 400;
-				POSITION <= 400;
+--				POSITION <= 400;
 				--block color...
 			
 			when PLACE_BLOCK =>
-				POSITION <= POSITION;
+--				POSITION <= POSITION;
+				POS := POS;
 				
 			when MOVE_BLOCK =>
-				POSITION <= (POSITION - 1);
+--				POSITION <= (POSITION - 1);
 				POS := POS - 1;
 			
 			when CHECK =>
-				POSITION <= 50;
---				POS := 50;
+--				POSITION <= 50;
+				POS := 50;
 				
 			when OTHERS =>
-				POSITION <= 50; --TODO ... kan gewoon weg?
---				POS := 50;
+--				POSITION <= 50; --TODO ... kan gewoon weg?
+				POS := 50;
 				
 		end case;
-		--POSITION <= POS;
+		
+		POSITION <= POS;
 	end process;
 
 end Behavioral;

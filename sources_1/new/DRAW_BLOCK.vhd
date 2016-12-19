@@ -47,7 +47,7 @@ process(X_1, X_2, Y_1, Y_2)
 end process;
 
 -- process to see if the block can be drawn
-process(CLK)
+process(CLK, X_POS_CURRENT, Y_POS_CURRENT)
 	begin
 	if (CLK'event and CLK = '1') then
 		if(X_POS_CURRENT >= X_DES_VECT_1) and (X_POS_CURRENT <= X_DES_VECT_2)
