@@ -18,7 +18,14 @@ entity GAME is
 			BL_EN : out STD_LOGIC;
 			GND : out STD_LOGIC;
 			
-			BTN1 : in STD_LOGIC);
+			BTN1 : in STD_LOGIC;
+			
+			SDO : out STD_LOGIC;
+			MISO : in STD_LOGIC;
+			MOSI : out STD_LOGIC;
+			BUSY : in STD_LOGIC;
+			SCK : out STD_LOGIC;
+			SSEL : out STD_LOGIC);
 end GAME;
 
 architecture Behavioral of GAME is
@@ -80,6 +87,18 @@ architecture Behavioral of GAME is
 	    Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
 	  );
 	END component;
+	
+	component TOUCH_TOP is
+	    Port ( CLK : in STD_LOGIC;
+	           CLR: in STD_LOGIC;
+	           INTERRUPT_REQUEST : in STD_LOGIC;
+	           SDO : out STD_LOGIC;
+	           SDI : in STD_LOGIC;
+	           DCLK : out STD_LOGIC;
+	           BUSY : in STD_LOGIC;
+	           X_POS : out STD_LOGIC_VECTOR(7 downto 0);
+	           Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
+	end component;
 
 	-- VGA control
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
@@ -106,6 +125,10 @@ architecture Behavioral of GAME is
 	-- temp
 	signal SCORE_INCR : STD_LOGIC;
 	signal SW_SAMPLE : STD_LOGIC;
+	
+	-- tocuhscreen
+	signal X_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
+	signal Y_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -116,7 +139,10 @@ BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS =
 incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK,
 								RED => RED_BLOCK, GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK);
+TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 
+
+SSEL <= '0';
 DCLK <= DCLK_ROM;
 GND <= '0';
 
@@ -124,14 +150,18 @@ GND <= '0';
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
-		if DRAW_BG = true then
-			RED <=	 RED_BG;
-			GREEN <= GREEN_BG;
-			BLUE <=  BLUE_BG;
-		elsif DRAW_BLOCK = true then
-			RED <=   RED_BLOCK;
-			GREEN <= GREEN_BLOCK;
-			BLUE  <= BLUE_BLOCK;
+		if X_TOUCH > "00001111" then
+			RED <= "11111111";
+	
+	
+--		if DRAW_BG = true then
+--			RED <=	 RED_BG;
+--			GREEN <= GREEN_BG;
+--			BLUE <=  BLUE_BG;
+--		elsif DRAW_BLOCK = true then
+--			RED <=   RED_BLOCK;
+--			GREEN <= GREEN_BLOCK;
+--			BLUE  <= BLUE_BLOCK;
 		else -- background color
 			RED <=   "00000000"; -- 0
 			GREEN <= "01000011"; -- 67
