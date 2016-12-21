@@ -122,7 +122,7 @@ program_rom: TOUCHSCREEN_ASM                  --Name to match your PSM file
 --                    C_RAM_SIZE_KWORDS => 2,      --Program size '1', '2' or '4'
 --                 C_JTAG_LOADER_ENABLE => 1)      --Include JTAG Loader when set to '1' 
     generic map(      C_FAMILY => "S6",   --Family 'S6', 'V6' or '7S'
-                C_RAM_SIZE_KWORDS => 1,      --Program size '1', '2' or '4'
+                C_RAM_SIZE_KWORDS => 1,	      --Program size '1', '2' or '4'
              C_JTAG_LOADER_ENABLE => 0)      --Include JTAG Loader when set to '1' 
     port map(      address => address,      
                instruction => instruction,
@@ -141,11 +141,11 @@ input_ports: process(clk)
 				--when X"02"
 				when "00000010" =>
 					in_port(0) <= SDI;
- --   			in_port(7 downto 1) <= "0000000";
-    		--when X"04" =>
+    			in_port(7 downto 1) <= "0000000";
+    			--when X"04" =>
     			when "00000100" =>
     				in_port(0) <= BUSY;
- --   			in_port(7 downto 1) <= "0000000";
+    			in_port(7 downto 1) <= "0000000";
  				when OTHERS =>
  					in_port <= "XXXXXXXX";
 			end case;
