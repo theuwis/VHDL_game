@@ -20,12 +20,14 @@ entity GAME is
 			
 			BTN1 : in STD_LOGIC;
 			
-			SDO : out STD_LOGIC;
+		--	SDO : out STD_LOGIC;
 			MISO : in STD_LOGIC;
 			MOSI : out STD_LOGIC;
 			BUSY : in STD_LOGIC;
 			SCK : out STD_LOGIC;
-			SSEL : out STD_LOGIC);
+			SSEL : out STD_LOGIC;
+			
+			LEDS : out STD_LOGIC_VECTOR(3 downto 0));
 end GAME;
 
 architecture Behavioral of GAME is
@@ -96,8 +98,11 @@ architecture Behavioral of GAME is
 	           SDI : in STD_LOGIC;
 	           DCLK : out STD_LOGIC;
 	           BUSY : in STD_LOGIC;
+	           CS : out STD_LOGIC;
 	           X_POS : out STD_LOGIC_VECTOR(7 downto 0);
-	           Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
+	           Y_POS : out STD_LOGIC_VECTOR(7 downto 0);
+	           
+	           LEDS: out STD_LOGIC_VECTOR(3 downto 0));
 	end component;
 
 	-- VGA control
@@ -139,10 +144,9 @@ BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS =
 incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK,
 								RED => RED_BLOCK, GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK);
-TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
+TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
+								CS => SSEL,	X_POS => X_TOUCH, Y_POS => Y_TOUCH, LEDS => LEDS);
 
-
-SSEL <= '0';
 DCLK <= DCLK_ROM;
 GND <= '0';
 
@@ -152,6 +156,8 @@ process(CLK)
 	if (CLK'event and CLK = '1') then
 		if X_TOUCH > "00001111" then
 			RED <= "11111111";
+			GREEN <= "00000000";
+			BLUE <= "00000000";
 	
 	
 --		if DRAW_BG = true then

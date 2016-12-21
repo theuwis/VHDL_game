@@ -10,10 +10,13 @@ entity TOUCH_TOP is
            SDI : in STD_LOGIC;
            DCLK : out STD_LOGIC;
            BUSY : in STD_LOGIC;
+           CS : out STD_LOGIC;
            X_POS : out STD_LOGIC_VECTOR(7 downto 0);
-           Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
+           Y_POS : out STD_LOGIC_VECTOR(7 downto 0);
+           
+           LEDS: out STD_LOGIC_VECTOR(3 downto 0));
 end TOUCH_TOP;
-
+-- TODO ==> MOET ER EEN PRESCALER AAN DE CLK VAN PICOBLAZE?
 architecture behavioral of TOUCH_TOP is
   
   component KCPSM6 
@@ -40,12 +43,20 @@ architecture behavioral of TOUCH_TOP is
 	component TOUCHSCREEN_ASM is
 		generic(C_FAMILY : string := "S6"; 
 			C_RAM_SIZE_KWORDS : integer := 1;
-			C_JTAG_LOADER_ENABLE : integer := 1);
+			C_JTAG_LOADER_ENABLE : integer := 0);
    		 Port (      address : in std_logic_vector(11 downto 0);
             instruction : out std_logic_vector(17 downto 0);
                  enable : in std_logic;
                     clk : in std_logic);
     end component;
+    
+    component c_counter_binary_0 IS
+      PORT (
+        CLK : IN STD_LOGIC;
+        THRESH0 : OUT STD_LOGIC;
+        Q : OUT STD_LOGIC_VECTOR(12 DOWNTO 0)
+      );
+    END component;
   
 
 signal         address : std_logic_vector(11 downto 0);
@@ -73,6 +84,9 @@ signal     int_request : std_logic;
 
 
 begin
+clk_signal <= CLK; --TODO CLK kan direct aan componenten wss ==> PRESCALER NODIG?
+
+--prescaler: c_counter_binary_0 port map(CLK => CLK, THRESH0 => clk_signal);
 
 processor: kcpsm6
     generic map (  hwbuild => X"00", 
@@ -84,7 +98,7 @@ processor: kcpsm6
                    port_id => port_id,
               write_strobe => write_strobe,
             k_write_strobe => k_write_strobe,
-                  out_port => out_port, --LEDS, ???
+                  out_port => out_port,
                read_strobe => read_strobe,
                    in_port => in_port,
                  interrupt => interrupt,
@@ -92,6 +106,7 @@ processor: kcpsm6
                      sleep => kcpsm6_sleep,
                      reset => CLR,
                        clk => clk_signal);
+ -- 					clk => CLK);
 
 
 
@@ -103,62 +118,66 @@ processor: kcpsm6
 
 
 program_rom: TOUCHSCREEN_ASM                  --Name to match your PSM file
-    generic map(      C_FAMILY => "V6",   --Family 'S6', 'V6' or '7S'
-                    C_RAM_SIZE_KWORDS => 2,      --Program size '1', '2' or '4'
-                 C_JTAG_LOADER_ENABLE => 1)      --Include JTAG Loader when set to '1' 
+--    generic map(      C_FAMILY => "V6",   --Family 'S6', 'V6' or '7S'
+--                    C_RAM_SIZE_KWORDS => 2,      --Program size '1', '2' or '4'
+--                 C_JTAG_LOADER_ENABLE => 1)      --Include JTAG Loader when set to '1' 
+    generic map(      C_FAMILY => "S6",   --Family 'S6', 'V6' or '7S'
+                C_RAM_SIZE_KWORDS => 1,      --Program size '1', '2' or '4'
+             C_JTAG_LOADER_ENABLE => 0)      --Include JTAG Loader when set to '1' 
     port map(      address => address,      
                instruction => instruction,
                     enable => bram_enable,
                     --  rdl => rdl,
                        clk => clk_signal);
+--				 clk => CLK);
 
   kcpsm6_reset <= cpu_reset; --or rdl;
 
 
 input_ports: process(clk)
-  begin
-    if clk'event and clk = '1' then
-    	case port_id(7 downto 0) is
-    		when X"02" =>
-    			in_port(0) <= SDI;
-    			in_port(7 downto 1) <= "0000000";
-    		when X"04" =>
-    			in_port(0) <= BUSY;
-    			in_port(7 downto 1) <= "0000000";
-    		when OTHERS =>
-				in_port <= "XXXXXXXX";
-    	end case;
+	begin
+		if clk'event and clk = '1' then
+			case port_id(7 downto 0) is
+				--when X"02"
+				when "00000010" =>
+					in_port(0) <= SDI;
+ --   			in_port(7 downto 1) <= "0000000";
+    		--when X"04" =>
+    			when "00000100" =>
+    				in_port(0) <= BUSY;
+ --   			in_port(7 downto 1) <= "0000000";
+ 				when OTHERS =>
+ 					in_port <= "XXXXXXXX";
+			end case;
+		end if;
+end process input_ports;
 
-
-    end if;
-
-  end process input_ports;
-
-
+  
 output_ports: process(clk)
-  begin
-
-    if (clk'event and clk = '1') then
-
-      -- 'write_strobe' is used to qualify all writes to general output ports.
-      if write_strobe = '1' then
-   		case port_id(7 downto 0) is
-			when X"01" =>
-				SDO <= out_port(0);
-			when X"03" =>
-				DCLK <= out_port(0);
-			when X"05" =>
-				X_POS <= out_port(7 downto 0);
-			when X"07" =>
-				Y_POS <= out_port(7 downto 0);
-			when OTHERS =>
-				
-		end case;
-      end if;
-
-    end if; 
-
-  end process output_ports;
+  	begin
+  		if (clk'event and clk = '1') then
+  			if write_strobe = '1' then
+				case port_id(7 downto 0) is
+					--when X"01" =>
+					when "00000001" =>
+						SDO <= out_port(0);
+					--when X"03" =>
+					when "00000011" =>
+						DCLK <= out_port(0);
+					--when X"05" =>
+					when "00000101" =>
+						X_POS <= out_port(7 downto 0);
+					--when X"06" =>
+					when "00000110" =>
+						Y_POS <= out_port(7 downto 0);
+					--when X"07"
+					when "00000111" =>
+						CS <= out_port(0);
+					when OTHERS =>
+				end case;
+  			end if;
+  		end if;
+end process output_ports;
 
 
 interrupt_control: process(clk)
