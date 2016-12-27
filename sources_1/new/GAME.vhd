@@ -157,15 +157,31 @@ TEST <= TO_INTEGER(unsigned(X_TOUCH));
 process(CLK)
 	begin
 	--	if (X_TOUCH > X_POS) and (TO_INTEGER(unsigned(X_TOUCH)) < TO_INTEGER(unsigned(X_POS)) + 20 ) then
-	if (X_TOUCH > "100000000") then
-			RED <=   "11111111";
-			GREEN <= "00000000";
-			BLUE <=  "00000000";
-		else
-			RED <=   "00000000"; -- 0
-			GREEN <= "01000011"; -- 67
-			BLUE <=  "10101111"; -- 175
-		end if;
+	if (X_TOUCH < "100000000") and (Y_TOUCH < "100000000") then
+		RED <=   "11111111";
+		GREEN <= "00000000";
+		BLUE <=  "00000000";
+	elsif (X_TOUCH > "100000000") and (Y_TOUCH < "100000000") then
+		RED <=   "00000000";
+		GREEN <= "11111111";
+		BLUE <=  "00000000";	
+	elsif (X_TOUCH < "100000000") and (Y_TOUCH > "100000000") then
+		RED <=   "00000000";
+		GREEN <= "00000000";
+		BLUE <=  "11111111";	
+	elsif (X_TOUCH < "100000000") and (Y_TOUCH > "100000000") then
+		RED <=   "00000000";
+		GREEN <= "00000000";
+		BLUE <=  "11111111";
+	elsif (X_TOUCH > "100000000") and (Y_TOUCH > "100000000") then
+		RED <=   "11111111";
+		GREEN <= "00000000";
+		BLUE <=  "11111111";		
+	else
+		RED <=   "00000000"; -- 0
+		GREEN <= "01000011"; -- 67
+		BLUE <=  "10101111"; -- 175
+	end if;
 end process;
 
 --process(CLK)
