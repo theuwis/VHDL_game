@@ -11,10 +11,10 @@ entity TOUCH_TOP is
            DCLK : out STD_LOGIC;
            BUSY : in STD_LOGIC;
            CS : out STD_LOGIC;
-           X_POS : out STD_LOGIC_VECTOR(11 downto 0);
-           Y_POS : out STD_LOGIC_VECTOR(11 downto 0);
+           X_POS : out STD_LOGIC_VECTOR(7 downto 0);
+           Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
            
-           LEDS: out STD_LOGIC_VECTOR(3 downto 0));
+         --  LEDS: out STD_LOGIC_VECTOR(3 downto 0));
 end TOUCH_TOP;
 -- TODO ==> MOET ER EEN PRESCALER AAN DE CLK VAN PICOBLAZE?
 architecture behavioral of TOUCH_TOP is
@@ -70,8 +70,8 @@ signal kcpsm6_sleep : std_logic;
 signal kcpsm6_reset : std_logic;
 signal clk_signal : std_logic;
 
-signal X_POS_temp : STD_LOGIC_VECTOR(11 downto 0);
-signal Y_POS_temp : STD_LOGIC_VECTOR(11 downto 0);
+--signal X_POS_temp : STD_LOGIC_VECTOR(11 downto 0);
+--signal Y_POS_temp : STD_LOGIC_VECTOR(11 downto 0);
 
 
 signal cpu_reset : std_logic;
@@ -140,11 +140,11 @@ end process input_ports;
 
 -- process to update the positions from the touchscreen
 -- positions will only be updated if the LSB and MSB bytes are both read
-update_pos: process(X_POS_temp(11 downto 8), Y_POS_temp(11 downto 8))
-	begin
-		X_POS <= X_POS_temp;
-		Y_POS <= Y_POS_temp;
-end process;
+--update_pos: process(X_POS_temp(11 downto 8), Y_POS_temp(11 downto 8))
+--	begin
+--		X_POS <= X_POS_temp;
+--		Y_POS <= Y_POS_temp;
+--end process;
 
 output_ports: process(clk)
   	begin
@@ -156,14 +156,14 @@ output_ports: process(clk)
 					when X"03" =>
 						DCLK <= out_port(0);
 					when X"05" => -- X POS LOW
-						X_POS_temp(7 downto 0) <= out_port(7 downto 0);
-					when X"06" => -- X POS HIGH
-						X_POS_temp(11 downto 8) <= out_port(3 downto 0); -- only LSB nibbles needed
-					when X"07" => -- Y POS LOW
-						Y_POS_temp(7 downto 0) <= out_port(7 downto 0);
-					when X"08" => -- Y POS HIGH
-						Y_POS_temp(11 downto 8) <= out_port(3 downto 0); -- only LSB nibble needed
-					when X"09" =>
+						X_POS(7 downto 0) <= out_port(7 downto 0);
+--					when X"06" => -- X POS HIGH
+--						X_POS_temp(11 downto 8) <= out_port(3 downto 0); -- only LSB nibbles needed
+					when X"06" => -- Y POS LOW
+						Y_POS(7 downto 0) <= out_port(7 downto 0);
+--					when X"08" => -- Y POS HIGH
+--						Y_POS_temp(11 downto 8) <= out_port(3 downto 0); -- only LSB nibble needed
+					when X"07" =>
 						CS <= out_port(0);
 					when OTHERS =>
 				end case;

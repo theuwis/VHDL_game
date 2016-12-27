@@ -99,10 +99,10 @@ architecture Behavioral of GAME is
 	           DCLK : out STD_LOGIC;
 	           BUSY : in STD_LOGIC;
 	           CS : out STD_LOGIC;
-	           X_POS : out STD_LOGIC_VECTOR(11 downto 0);
-	           Y_POS : out STD_LOGIC_VECTOR(11 downto 0);
+	           X_POS : out STD_LOGIC_VECTOR(7 downto 0);
+	           Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
 	           
-	           LEDS: out STD_LOGIC_VECTOR(3 downto 0));
+	          -- LEDS: out STD_LOGIC_VECTOR(3 downto 0));
 	end component;
 
 	-- VGA control
@@ -132,8 +132,8 @@ architecture Behavioral of GAME is
 	signal SW_SAMPLE : STD_LOGIC;
 	
 	-- tocuhscreen
-	signal X_TOUCH : STD_LOGIC_VECTOR(11 downto 0);
-	signal Y_TOUCH : STD_LOGIC_VECTOR(11 downto 0);
+	signal X_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
+	signal Y_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
 	
 	signal TEST : INTEGER;
 
@@ -147,65 +147,86 @@ incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK,
 								RED => RED_BLOCK, GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK);
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
-								CS => SSEL,	X_POS => X_TOUCH, Y_POS => Y_TOUCH, LEDS => LEDS);
+								CS => SSEL,	X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 
 DCLK <= DCLK_ROM;
 GND <= '0';
 
 
 TEST <= TO_INTEGER(unsigned(X_TOUCH));
+
+
 process(CLK)
 	begin
-	--	if (X_TOUCH > X_POS) and (TO_INTEGER(unsigned(X_TOUCH)) < TO_INTEGER(unsigned(X_POS)) + 20 ) then
-	if (X_TOUCH < "1000000000000") and (Y_TOUCH < "1000000000000") then
-		RED <=   "11111111";
-		GREEN <= "00000000";
-		BLUE <=  "00000000";
-	elsif (X_TOUCH > "1000000000000") and (Y_TOUCH < "1000000000000") then
-		RED <=   "00000000";
-		GREEN <= "11111111";
-		BLUE <=  "00000000";	
-	elsif (X_TOUCH < "1000000000000") and (Y_TOUCH > "1000000000000") then
-		RED <=   "00000000";
-		GREEN <= "00000000";
-		BLUE <=  "11111111";	
-	elsif (X_TOUCH < "1000000000000") and (Y_TOUCH > "1000000000000") then
-		RED <=   "00000000";
-		GREEN <= "00000000";
-		BLUE <=  "11111111";
-	elsif (X_TOUCH > "1000000000000") and (Y_TOUCH > "1000000000000") then
-		RED <=   "11111111";
-		GREEN <= "00000000";
-		BLUE <=  "11111111";		
-	else
-		RED <=   "00000000"; -- 0
-		GREEN <= "01000011"; -- 67
-		BLUE <=  "10101111"; -- 175
+	if (CLK'event and CLK = '1') then
+		if DRAW_BG = true then
+			RED <=	 RED_BG;
+			GREEN <= GREEN_BG;
+			BLUE <=  BLUE_BG;
+		elsif Y_POS > "010001101" and Y_POS < "011001010" and X_POS > "000000000" and X_POS < "000111101" then
+			if X_TOUCH > "00000000" and X_TOUCH < "00010111" and Y_TOUCH < "00111111" then
+				RED <=   "11111111";
+				GREEN <= "00000000";
+				BLUE <=  "00000000";
+			elsif X_TOUCH > "00011110" and X_TOUCH < "00111001" and Y_TOUCH < "00111111" then
+				RED <=   "11111111";
+				GREEN <= "00000000";
+				BLUE <=  "11111111";
+			elsif X_TOUCH > "01000001" and X_TOUCH < "01001011" and Y_TOUCH < "00100010" then
+				RED <=   "00000000";
+				GREEN <= "11111111";
+				BLUE <=  "00000000";
+			elsif X_TOUCH > "11000011" and X_TOUCH < "11001110" and Y_TOUCH < "00011111" then
+				RED <=   "00000000";
+				GREEN <= "11111111";
+				BLUE <=  "11111111";
+			else
+				--RED <=   "XXXXXXXX";
+				--GREEN <= "XXXXXXXX";
+				--BLUE <=  "XXXXXXXX";			
+			end if;
+
+		else -- background color
+			RED <=   "00000000"; -- 0
+			GREEN <= "01000011"; -- 67
+			BLUE <=  "10101111"; -- 175
+		end if;
 	end if;
 end process;
 
---process(CLK)
---	begin
---	if (CLK'event and CLK = '1') then
-----		if X_TOUCH > "100000000" then
-----			RED <= "11111111";
-----			GREEN <= "00000000";
-----			BLUE <= "00000000";
-	
---		if DRAW_BG = true then
---			RED <=	 RED_BG;
---			GREEN <= GREEN_BG;
---			BLUE <=  BLUE_BG;
---		elsif DRAW_BLOCK = true then
---			RED <=   RED_BLOCK;
---			GREEN <= GREEN_BLOCK;
---			BLUE  <= BLUE_BLOCK;
---		else -- background color
---			RED <=   "00000000"; -- 0
---			GREEN <= "01000011"; -- 67
---			BLUE <=  "10101111"; -- 175
---		end if;
---	end if;
---end process;
+
+process(CLK)
+	begin
+--	--	if (X_TOUCH > X_POS) and (TO_INTEGER(unsigned(X_TOUCH)) < TO_INTEGER(unsigned(X_POS)) + 20 ) then
+	if (X_TOUCH < "100000000") and (Y_TOUCH < "100000000") then
+		LEDS(0) <= '1';
+	else
+		LEDS(0) <= '0';
+--		RED <=   "11111111";
+--		GREEN <= "00000000";
+--		BLUE <=  "00000000";
+--	elsif (X_TOUCH > "100000000") and (Y_TOUCH < "100000000") then
+--		RED <=   "00000000";
+--		GREEN <= "11111111";
+--		BLUE <=  "00000000";	
+--	elsif (X_TOUCH < "100000000") and (Y_TOUCH > "100000000") then
+--		RED <=   "00000000";
+--		GREEN <= "00000000";
+--		BLUE <=  "11111111";	
+--	elsif (X_TOUCH < "100000000") and (Y_TOUCH > "100000000") then
+--		RED <=   "00000000";
+--		GREEN <= "00000000";
+--		BLUE <=  "11111111";
+--	elsif (X_TOUCH > "100000000") and (Y_TOUCH > "100000000") then
+--		RED <=   "11111111";
+--		GREEN <= "00000000";
+--		BLUE <=  "11111111";		
+--	else
+--		RED <=   "00000000"; -- 0
+--		GREEN <= "01000011"; -- 67
+--		BLUE <=  "10101111"; -- 175
+	end if;
+end process;
+
 
 end Behavioral;
