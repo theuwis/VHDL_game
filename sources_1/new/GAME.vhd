@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
+--use IEEE.STD_LOGIC_ARITH.ALL;
 use ieee.numeric_std.all;
 
 entity GAME is
@@ -134,6 +134,8 @@ architecture Behavioral of GAME is
 	-- tocuhscreen
 	signal X_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
 	signal Y_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
+	
+	signal TEST : INTEGER;
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -151,29 +153,44 @@ DCLK <= DCLK_ROM;
 GND <= '0';
 
 
+TEST <= TO_INTEGER(unsigned(X_TOUCH));
 process(CLK)
 	begin
-	if (CLK'event and CLK = '1') then
-		if X_TOUCH > "00001111" then
-			RED <= "11111111";
+	--	if (X_TOUCH > X_POS) and (TO_INTEGER(unsigned(X_TOUCH)) < TO_INTEGER(unsigned(X_POS)) + 20 ) then
+	if (X_TOUCH > "100000000") then
+			RED <=   "11111111";
 			GREEN <= "00000000";
-			BLUE <= "00000000";
-	
-	
---		if DRAW_BG = true then
---			RED <=	 RED_BG;
---			GREEN <= GREEN_BG;
---			BLUE <=  BLUE_BG;
---		elsif DRAW_BLOCK = true then
---			RED <=   RED_BLOCK;
---			GREEN <= GREEN_BLOCK;
---			BLUE  <= BLUE_BLOCK;
-		else -- background color
+			BLUE <=  "00000000";
+		else
 			RED <=   "00000000"; -- 0
 			GREEN <= "01000011"; -- 67
 			BLUE <=  "10101111"; -- 175
 		end if;
-	end if;
 end process;
+
+--process(CLK)
+--	begin
+--	if (CLK'event and CLK = '1') then
+--		if X_TOUCH > "100000000" then
+--			RED <= "11111111";
+--			GREEN <= "00000000";
+--			BLUE <= "00000000";
+	
+	
+----		if DRAW_BG = true then
+----			RED <=	 RED_BG;
+----			GREEN <= GREEN_BG;
+----			BLUE <=  BLUE_BG;
+----		elsif DRAW_BLOCK = true then
+----			RED <=   RED_BLOCK;
+----			GREEN <= GREEN_BLOCK;
+----			BLUE  <= BLUE_BLOCK;
+--		else -- background color
+--			RED <=   "00000000"; -- 0
+--			GREEN <= "01000011"; -- 67
+--			BLUE <=  "10101111"; -- 175
+--		end if;
+--	end if;
+--end process;
 
 end Behavioral;
