@@ -124,12 +124,12 @@ input_ports: process(clk)
 	begin
 		if clk'event and clk = '1' then
 			case port_id(7 downto 0) is
-				--when X"02"
-				when "00000010" =>
+				when X"02" =>
+				--when "00000010" =>
 					in_port(0) <= SDI;
     			in_port(7 downto 1) <= "0000000";
-    			--when X"04" =>
-    			when "00000100" =>
+    			when X"04" =>
+    			--when "00000100" =>
     				in_port(0) <= BUSY;
     			in_port(7 downto 1) <= "0000000";
  				when OTHERS =>
@@ -144,20 +144,20 @@ output_ports: process(clk)
   		if (clk'event and clk = '1') then
   			if write_strobe = '1' then
 				case port_id(7 downto 0) is
-					--when X"01" =>
-					when "00000001" =>
+					when X"01" =>
+					--when "00000001" =>
 						SDO <= out_port(0);
-					--when X"03" =>
-					when "00000011" =>
+					when X"03" =>
+					--when "00000011" =>
 						DCLK <= out_port(0);
-					--when X"05" =>
-					when "00000101" =>
+					when X"05" =>
+					--when "00000101" =>
 						X_POS <= out_port(7 downto 0);
-					--when X"06" =>
-					when "00000110" =>
+					when X"06" =>
+					--when "00000110" =>
 						Y_POS <= out_port(7 downto 0);
-					--when X"07"
-					when "00000111" =>
+					when X"07" =>
+					--when "00000111" =>
 						CS <= out_port(0);
 					when OTHERS =>
 				end case;
