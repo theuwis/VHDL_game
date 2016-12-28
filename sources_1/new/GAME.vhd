@@ -138,6 +138,10 @@ architecture Behavioral of GAME is
 	signal TEST : INTEGER;
 	
 	signal BLOCK_COL : STD_LOGIC_VECTOR(23 downto 0);
+	
+	signal ROW1 : BOOLEAN;
+	signal ROW2 : BOOLEAN;
+	signal ROW3 : BOOLEAN;
 
 
 begin
@@ -172,7 +176,7 @@ process(Y_POS)
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := 0;
 			
-				LEDS(3) <= '1';
+--				LEDS(3) <= '1';
 			
 				if COUNT_PINK = 99 then
 					BLOCK_COL(23 downto 16) <= "11111111";
@@ -185,7 +189,7 @@ process(Y_POS)
 				COUNT_GREEN:= COUNT_GREEN + 1;
 				COUNT_CYAN := 0;
 			
-				LEDS(2) <= '1';
+--				LEDS(2) <= '1';
 				
 				if COUNT_GREEN = 99 then
 					BLOCK_COL(23 downto 16) <= "00000000";
@@ -198,7 +202,7 @@ process(Y_POS)
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := COUNT_CYAN + 1;
 			
-				LEDS(1) <= '1';
+--				LEDS(1) <= '1';
 				
 				if COUNT_CYAN = 99 then
 					BLOCK_COL(23 downto 16) <= "00000000";
@@ -211,7 +215,7 @@ process(Y_POS)
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := 0;
 				
-				LEDS(0) <= '1';
+--				LEDS(0) <= '1';
 			
 				if COUNT_RED = 99 then
 					BLOCK_COL(23 downto 16) <= "11111111";
@@ -219,14 +223,14 @@ process(Y_POS)
 					BLOCK_COL(7 downto 0) <=   "00000000";
 				end if;
 			else
-				LEDS <= "0000";
+--				LEDS <= "0000";
 				COUNT_RED  := 0;
 				COUNT_PINK := 0;
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := 0;
 			end if;
 		else
-			LEDS <= "0000";
+---			LEDS <= "0000";
 			COUNT_RED  := 0;
 			COUNT_PINK := 0;
 			COUNT_GREEN:= 0;
@@ -239,6 +243,68 @@ process(Y_POS)
 end process;
 
 
+process(Y_POS)
+	variable COUNT_ROW1 : INTEGER RANGE 0 TO 1000000;
+	variable COUNT_ROW2 : INTEGER RANGE 0 TO 1000000;
+	variable COUNT_ROW3 : INTEGER RANGE 0 TO 1000000;
+	
+	begin
+	if (CLK'event and CLK = '1') then
+		if X_TOUCH < "00011101" then
+			if Y_TOUCH > "11011000" and Y_TOUCH < "11101000" then
+				COUNT_ROW1  := COUNT_ROW1 + 1;
+				COUNT_ROW2  := 0;
+				COUNT_ROW3  := 0;
+				
+				LEDS(3) <= '1';
+			
+				if COUNT_ROW1 >= 1000000 then
+					ROW1 <= true;
+					ROW2 <= false;
+					ROW3 <= false;
+				end if;
+				
+			elsif Y_TOUCH > "11001000" and Y_TOUCH < "11010000" then
+				COUNT_ROW1  := 0;
+				COUNT_ROW2  := COUNT_ROW2 + 1;
+				COUNT_ROW3  := 0;
+				
+				LEDS(2) <= '1';
+			
+				if COUNT_ROW2 >= 1000000 then
+					ROW1 <= false;
+					ROW2 <= true;
+					ROW3 <= false;
+				end if;
+				
+			elsif Y_TOUCH > "01001010" and Y_TOUCH < "10010001" then
+				COUNT_ROW1  := 0;
+				COUNT_ROW2  := 0;
+				COUNT_ROW3  := COUNT_ROW3 + 1;
+				
+				LEDS(1) <= '1';
+			
+				if COUNT_ROW3 >= 1000000 then
+					ROW1 <= false;
+					ROW2 <= false;
+					ROW3 <= true;
+				end if;	
+
+			else
+				LEDS <= "0000";
+				COUNT_ROW1  := 0;
+				COUNT_ROW2  := 0;
+				COUNT_ROW3  := 0;
+			end if;
+		else
+			LEDS <= "0000";
+			COUNT_ROW1  := 0;
+			COUNT_ROW2  := 0;
+			COUNT_ROW3  := 0;	
+		end if;
+	end if;
+end process;
+
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
@@ -246,10 +312,46 @@ process(CLK)
 			RED <=	 RED_BG;
 			GREEN <= GREEN_BG;
 			BLUE <=  BLUE_BG;
-		elsif Y_POS > "010001101" and Y_POS < "011001010" and X_POS > "000000000" and X_POS < "000111101" then
-			RED <=   BLOCK_COL(23 downto 16);
-			GREEN <= BLOCK_COL(15 downto 8);
-			BLUE <=  BLOCK_COL(7 downto 0);
+			
+		elsif X_POS < "000111101" and Y_POS < "011001011" and (ROW1 = true or ROW2 = true or ROW3 = true) then
+			if ROW1 = true then
+				if Y_POS > "000000100" and Y_POS < "001000011" then
+					RED <=   BLOCK_COL(23 downto 16);
+					GREEN <= BLOCK_COL(15 downto 8);
+					BLUE <=  BLOCK_COL(7 downto 0);
+				else
+					RED <=   "00000000";
+					GREEN <= "01000011";
+					BLUE <=  "10101111";
+				end if;
+					
+			elsif ROW2 = true then
+				if Y_POS > "001001010" and Y_POS < "01000011" then
+					RED <=   BLOCK_COL(23 downto 16);
+					GREEN <= BLOCK_COL(15 downto 8);
+					BLUE <=  BLOCK_COL(7 downto 0);
+				else
+					RED <=   "00000000";
+					GREEN <= "01000011";
+					BLUE <=  "10101111";
+				end if;
+				
+			elsif ROW3 = true then
+				if Y_POS > "010001101" and Y_POS < "011001011" then
+					RED <=   BLOCK_COL(23 downto 16);
+					GREEN <= BLOCK_COL(15 downto 8);
+					BLUE <=  BLOCK_COL(7 downto 0);
+				else
+					RED <=   "00000000";
+					GREEN <= "01000011";
+					BLUE <=  "10101111";
+				end if;
+			else
+				RED <=   "00000000";
+				GREEN <= "01000011";
+				BLUE <=  "10101111";			
+			end if;
+			
 		else -- background color
 			RED <=   "00000000"; -- 0
 			GREEN <= "01000011"; -- 67
