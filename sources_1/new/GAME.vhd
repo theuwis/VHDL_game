@@ -169,7 +169,7 @@ process(Y_POS)
 	
 	begin
 	if (CLK'event and CLK = '1') then
-		if Y_TOUCH < "00101100" then
+		if Y_TOUCH < "00100100" then
 			if X_TOUCH > "00100110" and X_TOUCH < "00101110" then -- and Y_TOUCH < "00100100" then
 				COUNT_RED  := 0;
 				COUNT_PINK := COUNT_PINK + 1;
@@ -209,6 +209,7 @@ process(Y_POS)
 					BLOCK_COL(15 downto 8) <=  "11111111";
 					BLOCK_COL(7 downto 0) <=   "11111111";
 				end if;
+				
 			elsif X_TOUCH > "11010000" and X_TOUCH < "11011000" then
 				COUNT_RED  := COUNT_RED + 1;
 				COUNT_PINK := 0;
@@ -250,8 +251,10 @@ process(Y_POS)
 	
 	begin
 	if (CLK'event and CLK = '1') then
-		if X_TOUCH < "00011101" then
-			if Y_TOUCH > "11011000" and Y_TOUCH < "11101000" then
+		--if X_TOUCH < "00011101" then
+		if X_TOUCH > "11100000" then
+			--if Y_TOUCH > "11011000" and Y_TOUCH < "11101000" then
+			if Y_TOUCH > "11010110" and Y_TOUCH < "11100111" then
 				COUNT_ROW1  := COUNT_ROW1 + 1;
 				COUNT_ROW2  := 0;
 				COUNT_ROW3  := 0;
@@ -264,7 +267,8 @@ process(Y_POS)
 					ROW3 <= false;
 				end if;
 				
-			elsif Y_TOUCH > "11001000" and Y_TOUCH < "11010000" then
+			--elsif Y_TOUCH > "11001000" and Y_TOUCH < "11010000" then
+			elsif Y_TOUCH > "10110001" and Y_TOUCH < "10111111" then
 				COUNT_ROW1  := 0;
 				COUNT_ROW2  := COUNT_ROW2 + 1;
 				COUNT_ROW3  := 0;
@@ -277,7 +281,8 @@ process(Y_POS)
 					ROW3 <= false;
 				end if;
 				
-			elsif Y_TOUCH > "01001010" and Y_TOUCH < "10010001" then
+			--elsif Y_TOUCH > "01001010" and Y_TOUCH < "10010001" then
+			elsif Y_TOUCH > "00101100" and Y_TOUCH < "00111010" then
 				COUNT_ROW1  := 0;
 				COUNT_ROW2  := 0;
 				COUNT_ROW3  := COUNT_ROW3 + 1;
@@ -313,7 +318,8 @@ process(CLK)
 			GREEN <= GREEN_BG;
 			BLUE <=  BLUE_BG;
 			
-		elsif X_POS < "000111101" and Y_POS < "011001011" and (ROW1 = true or ROW2 = true or ROW3 = true) then
+		--elsif X_POS < "000111101" and Y_POS < "011001011" and (ROW1 = true or ROW2 = true or ROW3 = true) then
+		elsif X_POS > "110100100" and Y_POS < "011001011" and (ROW1 = true or ROW2 = true or ROW3 = true) then
 			if ROW1 = true then
 				if Y_POS > "000000100" and Y_POS < "001000011" then
 					RED <=   BLOCK_COL(23 downto 16);
