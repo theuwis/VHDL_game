@@ -52,11 +52,12 @@
 -- The following code must appear in the VHDL architecture header.
 
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
-COMPONENT c_counter_binary_0
+COMPONENT PICO_PRESCALER
   PORT (
     CLK : IN STD_LOGIC;
+    SCLR : IN STD_LOGIC;
     THRESH0 : OUT STD_LOGIC;
-    Q : OUT STD_LOGIC_VECTOR(12 DOWNTO 0)
+    Q : OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
@@ -65,15 +66,16 @@ END COMPONENT;
 -- body. Substitute your own instance name and net names.
 
 ------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
-your_instance_name : c_counter_binary_0
+your_instance_name : PICO_PRESCALER
   PORT MAP (
     CLK => CLK,
+    SCLR => SCLR,
     THRESH0 => THRESH0,
     Q => Q
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------
 
--- You must compile the wrapper file c_counter_binary_0.vhd when simulating
--- the core, c_counter_binary_0. When compiling the wrapper file, be sure to
+-- You must compile the wrapper file PICO_PRESCALER.vhd when simulating
+-- the core, PICO_PRESCALER. When compiling the wrapper file, be sure to
 -- reference the VHDL simulation library.
 

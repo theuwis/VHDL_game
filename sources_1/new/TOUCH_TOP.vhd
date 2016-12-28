@@ -48,11 +48,14 @@ architecture behavioral of TOUCH_TOP is
 					clk : in std_logic);
 	end component;
     
-    component c_counter_binary_0 is
-    	port(	CLK : IN STD_LOGIC;
-    			THRESH0 : OUT STD_LOGIC;
-    			Q : OUT STD_LOGIC_VECTOR(12 DOWNTO 0));
-    end component;
+	component PICO_PRESCALER IS
+	  PORT (
+	    CLK : IN STD_LOGIC;
+	    SCLR : IN STD_LOGIC;
+	    THRESH0 : OUT STD_LOGIC;
+	    Q : OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
+	  );
+	END component;
   
 
 signal address : std_logic_vector(11 downto 0);
@@ -84,7 +87,7 @@ signal int_request : std_logic;
 begin
 clk_signal <= CLK; --TODO CLK kan direct aan componenten wss ==> PRESCALER NODIG?
 
---prescaler: c_counter_binary_0 port map(CLK => CLK, THRESH0 => clk_signal);
+--prescaler: PICO_PRESCALER port map(CLK => CLK, SCLR => CLR, THRESH0 => clk_signal);
 
 processor: kcpsm6
 	generic map(hwbuild => X"00", 

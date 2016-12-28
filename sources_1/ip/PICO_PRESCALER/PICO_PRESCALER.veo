@@ -54,14 +54,15 @@
 // (in parentheses) to your own signal names.
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-c_counter_binary_0 your_instance_name (
+PICO_PRESCALER your_instance_name (
   .CLK(CLK),          // input wire CLK
+  .SCLR(SCLR),        // input wire SCLR
   .THRESH0(THRESH0),  // output wire THRESH0
-  .Q(Q)              // output wire [12 : 0] Q
+  .Q(Q)              // output wire [11 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
-// You must compile the wrapper file c_counter_binary_0.v when simulating
-// the core, c_counter_binary_0. When compiling the wrapper file, be sure to
+// You must compile the wrapper file PICO_PRESCALER.v when simulating
+// the core, PICO_PRESCALER. When compiling the wrapper file, be sure to
 // reference the Verilog simulation library.
 
