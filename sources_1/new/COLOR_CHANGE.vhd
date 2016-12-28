@@ -22,7 +22,6 @@ process(Y_TOUCH)
 	
 	begin
 	if (CLK'event and CLK = '1') then
---		if Y_TOUCH < "00100100" then
 		if X_TOUCH > "00100110" and X_TOUCH < "00101110" and Y_TOUCH < "00101010" then
 			COUNT_RED  := 0;
 			COUNT_PINK := COUNT_PINK + 1;

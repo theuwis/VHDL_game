@@ -1,4 +1,3 @@
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -15,6 +14,7 @@ entity POSITION_CHANGE is
 end POSITION_CHANGE;
 
 architecture Behavioral of POSITION_CHANGE is
+	-- which row is active
 	signal ROW1 : BOOLEAN;
 	signal ROW2 : BOOLEAN;
 	signal ROW3 : BOOLEAN;
@@ -24,27 +24,13 @@ begin
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
-		if X_POS > "110100100" and Y_POS < "011001011" and (ROW1 = true or ROW2 = true or ROW3 = true) then
-			if ROW1 = true then
-				if Y_POS > "000000100" and Y_POS < "001000011" then
-					DRAW_MOVING_BLOCK <= true;
-				else
-					DRAW_MOVING_BLOCK <= false;
-				end if;
-					
-			elsif ROW2 = true then
-				if Y_POS > "001001010" and Y_POS < "01000011" then
-					DRAW_MOVING_BLOCK <= true;
-				else
-					DRAW_MOVING_BLOCK <= false;
-				end if;
-				
-			elsif ROW3 = true then
-				if Y_POS > "010001101" and Y_POS < "011001011" then
-					DRAW_MOVING_BLOCK <= true;
-				else
-					DRAW_MOVING_BLOCK <= false;
-				end if;
+		if X_POS > "110100100" and Y_POS < "011001011" then
+			if ROW1 = true and Y_POS > "000000100" and Y_POS < "001000011" then
+				DRAW_MOVING_BLOCK <= true;
+			elsif ROW2 = true and Y_POS > "001001010" and Y_POS < "01000011" then
+				DRAW_MOVING_BLOCK <= true;
+			elsif ROW3 = true and Y_POS > "010001101" and Y_POS < "011001011" then
+				DRAW_MOVING_BLOCK <= true;
 			else
 				DRAW_MOVING_BLOCK <= false;		
 			end if;
