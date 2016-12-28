@@ -124,7 +124,9 @@ line4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_
 								Y_1 => 203, Y_2 => 218, DRAW => FIELD_LINE4);
 
 -- draws gamebuttons on the screen
-button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 51,
+--button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 51,
+--								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON1);
+button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 327, X_2 => 379,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON1);
 button2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 81, X_2 => 133,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON2);
