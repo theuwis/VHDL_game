@@ -138,11 +138,7 @@ architecture Behavioral of GAME is
 	signal TEST : INTEGER;
 	
 	signal BLOCK_COL : STD_LOGIC_VECTOR(23 downto 0);
-	
-	signal RED_PRESSED : BOOLEAN;
-	signal PINK_PRESSED: BOOLEAN;
-	signal GREEN_PRESSED : BOOLEAN;
-	signal CYAN_PRESSED : BOOLEAN;
+
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -160,7 +156,6 @@ DCLK <= DCLK_ROM;
 GND <= '0';
 
 
-TEST <= TO_INTEGER(unsigned(X_TOUCH));
 
 process(Y_POS)
 	variable COUNT_RED : INTEGER RANGE 0 TO 99;
@@ -171,31 +166,18 @@ process(Y_POS)
 	begin
 	if (CLK'event and CLK = '1') then
 		if Y_TOUCH < "00101100" then
---			if X_TOUCH < "00011111" then -- and Y_TOUCH < "00111111" then
-			if X_TOUCH > "11010000" and X_TOUCH < "11011000" then
-				COUNT_RED  := COUNT_RED + 1;
-				COUNT_PINK := 0;
-				COUNT_GREEN:= 0;
-				COUNT_CYAN := 0;
-				
-				LEDS(3) <= '1';
-			
-				if COUNT_RED = 99 then
-					RED_PRESSED <= true;
-				end if;
-			elsif X_TOUCH > "00100110" and X_TOUCH < "00101110" then -- and Y_TOUCH < "00100100" then
+			if X_TOUCH > "00100110" and X_TOUCH < "00101110" then -- and Y_TOUCH < "00100100" then
 				COUNT_RED  := 0;
 				COUNT_PINK := COUNT_PINK + 1;
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := 0;
 			
-				LEDS(2) <= '1';
+				LEDS(3) <= '1';
 			
 				if COUNT_PINK = 99 then
-					PINK_PRESSED <= true;
-	--				BLOCK_OUT_TEMP(23 downto 16) := "11111111";
-	--				BLOCK_OUT_TEMP(15 downto 8) :=  "00000000";
-	--				BLOCK_OUT_TEMP(7 downto 0) :=   "11111111";
+					BLOCK_COL(23 downto 16) <= "11111111";
+					BLOCK_COL(15 downto 8) <=  "00000000";
+					BLOCK_COL(7 downto 0) <=   "11111111";
 				end if;
 			elsif X_TOUCH > "01000101" and X_TOUCH < "01001111" then --and Y_TOUCH < "00100010" then
 				COUNT_RED  := 0;
@@ -203,13 +185,12 @@ process(Y_POS)
 				COUNT_GREEN:= COUNT_GREEN + 1;
 				COUNT_CYAN := 0;
 			
-				LEDS(1) <= '1';
+				LEDS(2) <= '1';
 				
 				if COUNT_GREEN = 99 then
-					GREEN_PRESSED <= true;
-	--				BLOCK_OUT_TEMP(23 downto 16) := "00000000";
-	--				BLOCK_OUT_TEMP(15 downto 8) :=  "11111111";
-	--				BLOCK_OUT_TEMP(7 downto 0) :=   "00000000";
+					BLOCK_COL(23 downto 16) <= "00000000";
+					BLOCK_COL(15 downto 8) <=  "11111111";
+					BLOCK_COL(7 downto 0) <=   "00000000";
 				end if;
 			elsif X_TOUCH > "11000011" and X_TOUCH < "11001100" then --and Y_TOUCH < "00011000" then
 				COUNT_RED  := 0;
@@ -217,13 +198,25 @@ process(Y_POS)
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := COUNT_CYAN + 1;
 			
-				LEDS(0) <= '1';
+				LEDS(1) <= '1';
 				
 				if COUNT_CYAN = 99 then
-					CYAN_PRESSED <= true;
-	--				BLOCK_OUT_TEMP(23 downto 16) := "00000000";
-	--				BLOCK_OUT_TEMP(15 downto 8) :=  "11111111";
-	--				BLOCK_OUT_TEMP(7 downto 0) :=   "11111111";
+					BLOCK_COL(23 downto 16) <= "00000000";
+					BLOCK_COL(15 downto 8) <=  "11111111";
+					BLOCK_COL(7 downto 0) <=   "11111111";
+				end if;
+			elsif X_TOUCH > "11010000" and X_TOUCH < "11011000" then
+				COUNT_RED  := COUNT_RED + 1;
+				COUNT_PINK := 0;
+				COUNT_GREEN:= 0;
+				COUNT_CYAN := 0;
+				
+				LEDS(0) <= '1';
+			
+				if COUNT_RED = 99 then
+					BLOCK_COL(23 downto 16) <= "11111111";
+					BLOCK_COL(15 downto 8) <=  "00000000";
+					BLOCK_COL(7 downto 0) <=   "00000000";
 				end if;
 			else
 				LEDS <= "0000";
@@ -231,10 +224,6 @@ process(Y_POS)
 				COUNT_PINK := 0;
 				COUNT_GREEN:= 0;
 				COUNT_CYAN := 0;
-				RED_PRESSED <= false;
-				PINK_PRESSED <= false;
-				GREEN_PRESSED <= false;
-				CYAN_PRESSED <= false;
 			end if;
 		else
 			LEDS <= "0000";
@@ -242,10 +231,6 @@ process(Y_POS)
 			COUNT_PINK := 0;
 			COUNT_GREEN:= 0;
 			COUNT_CYAN := 0;
-			RED_PRESSED <= false;
-			PINK_PRESSED <= false;
-			GREEN_PRESSED <= false;
-			CYAN_PRESSED <= false;
 			--RED <=   "XXXXXXXX";
 			--GREEN <= "XXXXXXXX";
 			--BLUE <=  "XXXXXXXX";		
@@ -262,24 +247,6 @@ process(CLK)
 			GREEN <= GREEN_BG;
 			BLUE <=  BLUE_BG;
 		elsif Y_POS > "010001101" and Y_POS < "011001010" and X_POS > "000000000" and X_POS < "000111101" then
-			if RED_PRESSED = true then
-				BLOCK_COL(23 downto 16) <= "11111111";
-				BLOCK_COL(15 downto 8) <=  "00000000";
-				BLOCK_COL(7 downto 0) <=   "00000000";
-			elsif PINK_PRESSED = true then
-				BLOCK_COL(23 downto 16) <= "11111111";
-				BLOCK_COL(15 downto 8) <=  "00000000";
-				BLOCK_COL(7 downto 0) <=   "11111111";
-			elsif GREEN_PRESSED = true then
-				BLOCK_COL(23 downto 16) <= "00000000";
-				BLOCK_COL(15 downto 8) <=  "11111111";
-				BLOCK_COL(7 downto 0) <=   "00000000";
-			elsif CYAN_PRESSED = true then
-				BLOCK_COL(23 downto 16) <= "00000000";
-				BLOCK_COL(15 downto 8) <=  "11111111";
-				BLOCK_COL(7 downto 0) <=   "11111111";
-			end if;
-
 			RED <=   BLOCK_COL(23 downto 16);
 			GREEN <= BLOCK_COL(15 downto 8);
 			BLUE <=  BLOCK_COL(7 downto 0);
