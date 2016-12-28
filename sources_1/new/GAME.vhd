@@ -162,92 +162,92 @@ GND <= '0';
 
 
 process(Y_POS)
-	variable COUNT_RED : INTEGER RANGE 0 TO 99;
-	variable COUNT_PINK : INTEGER RANGE 0 TO 99;
-	variable COUNT_GREEN : INTEGER RANGE 0 TO 99;
-	variable COUNT_CYAN: INTEGER RANGE 0 TO 99;
+	variable COUNT_RED : INTEGER RANGE 0 TO 100000;
+	variable COUNT_PINK : INTEGER RANGE 0 TO 100000;
+	variable COUNT_GREEN : INTEGER RANGE 0 TO 100000;
+	variable COUNT_CYAN: INTEGER RANGE 0 TO 100000;
 	
 	begin
 	if (CLK'event and CLK = '1') then
-		if Y_TOUCH < "00100100" then
-			if X_TOUCH > "00100110" and X_TOUCH < "00101110" then -- and Y_TOUCH < "00100100" then
-				COUNT_RED  := 0;
-				COUNT_PINK := COUNT_PINK + 1;
-				COUNT_GREEN:= 0;
-				COUNT_CYAN := 0;
+--		if Y_TOUCH < "00100100" then
+		if X_TOUCH > "00100110" and X_TOUCH < "00101110" and Y_TOUCH < "00101010" then
+			COUNT_RED  := 0;
+			COUNT_PINK := COUNT_PINK + 1;
+			COUNT_GREEN:= 0;
+			COUNT_CYAN := 0;
+		
+			LEDS(3) <= '1';
+		
+			if COUNT_PINK = 100000 then
+				BLOCK_COL(23 downto 16) <= "11111111";
+				BLOCK_COL(15 downto 8) <=  "00000000";
+				BLOCK_COL(7 downto 0) <=   "11111111";
+			end if;
+		elsif X_TOUCH > "01000101" and X_TOUCH < "01001111" and Y_TOUCH < "00100111" then
+			COUNT_RED  := 0;
+			COUNT_PINK := 0;
+			COUNT_GREEN:= COUNT_GREEN + 1;
+			COUNT_CYAN := 0;
+		
+			LEDS(2) <= '1';
 			
---				LEDS(3) <= '1';
+			if COUNT_GREEN = 100000 then
+				BLOCK_COL(23 downto 16) <= "00000000";
+				BLOCK_COL(15 downto 8) <=  "11111111";
+				BLOCK_COL(7 downto 0) <=   "00000000";
+			end if;
+		elsif X_TOUCH > "11000011" and X_TOUCH < "11001100" and Y_TOUCH < "00100100" then
+			COUNT_RED  := 0;
+			COUNT_PINK := 0;
+			COUNT_GREEN:= 0;
+			COUNT_CYAN := COUNT_CYAN + 1;
+		
+			LEDS(1) <= '1';
 			
-				if COUNT_PINK = 99 then
-					BLOCK_COL(23 downto 16) <= "11111111";
-					BLOCK_COL(15 downto 8) <=  "00000000";
-					BLOCK_COL(7 downto 0) <=   "11111111";
-				end if;
-			elsif X_TOUCH > "01000101" and X_TOUCH < "01001111" then --and Y_TOUCH < "00100010" then
-				COUNT_RED  := 0;
-				COUNT_PINK := 0;
-				COUNT_GREEN:= COUNT_GREEN + 1;
-				COUNT_CYAN := 0;
+			if COUNT_CYAN = 100000 then
+				BLOCK_COL(23 downto 16) <= "00000000";
+				BLOCK_COL(15 downto 8) <=  "11111111";
+				BLOCK_COL(7 downto 0) <=   "11111111";
+			end if;
 			
---				LEDS(2) <= '1';
-				
-				if COUNT_GREEN = 99 then
-					BLOCK_COL(23 downto 16) <= "00000000";
-					BLOCK_COL(15 downto 8) <=  "11111111";
-					BLOCK_COL(7 downto 0) <=   "00000000";
-				end if;
-			elsif X_TOUCH > "11000011" and X_TOUCH < "11001100" then --and Y_TOUCH < "00011000" then
-				COUNT_RED  := 0;
-				COUNT_PINK := 0;
-				COUNT_GREEN:= 0;
-				COUNT_CYAN := COUNT_CYAN + 1;
+		elsif X_TOUCH > "11010000" and X_TOUCH < "11011000" and Y_TOUCH < "00100100" then
+			COUNT_RED  := COUNT_RED + 1;
+			COUNT_PINK := 0;
+			COUNT_GREEN:= 0;
+			COUNT_CYAN := 0;
 			
---				LEDS(1) <= '1';
-				
-				if COUNT_CYAN = 99 then
-					BLOCK_COL(23 downto 16) <= "00000000";
-					BLOCK_COL(15 downto 8) <=  "11111111";
-					BLOCK_COL(7 downto 0) <=   "11111111";
-				end if;
-				
-			elsif X_TOUCH > "11010000" and X_TOUCH < "11011000" then
-				COUNT_RED  := COUNT_RED + 1;
-				COUNT_PINK := 0;
-				COUNT_GREEN:= 0;
-				COUNT_CYAN := 0;
-				
---				LEDS(0) <= '1';
-			
-				if COUNT_RED = 99 then
-					BLOCK_COL(23 downto 16) <= "11111111";
-					BLOCK_COL(15 downto 8) <=  "00000000";
-					BLOCK_COL(7 downto 0) <=   "00000000";
-				end if;
-			else
---				LEDS <= "0000";
-				COUNT_RED  := 0;
-				COUNT_PINK := 0;
-				COUNT_GREEN:= 0;
-				COUNT_CYAN := 0;
+			LEDS(0) <= '1';
+		
+			if COUNT_RED = 100000 then
+				BLOCK_COL(23 downto 16) <= "11111111";
+				BLOCK_COL(15 downto 8) <=  "00000000";
+				BLOCK_COL(7 downto 0) <=   "00000000";
 			end if;
 		else
----			LEDS <= "0000";
+			LEDS <= "0000";
 			COUNT_RED  := 0;
 			COUNT_PINK := 0;
 			COUNT_GREEN:= 0;
 			COUNT_CYAN := 0;
-			--RED <=   "XXXXXXXX";
-			--GREEN <= "XXXXXXXX";
-			--BLUE <=  "XXXXXXXX";		
 		end if;
+--	else
+--		LEDS <= "0000";
+--		COUNT_RED  := 0;
+--		COUNT_PINK := 0;
+--		COUNT_GREEN:= 0;
+--		COUNT_CYAN := 0;
+--		--RED <=   "XXXXXXXX";
+--		--GREEN <= "XXXXXXXX";
+--		--BLUE <=  "XXXXXXXX";		
 	end if;
+--	end if;
 end process;
 
 
 process(Y_POS)
-	variable COUNT_ROW1 : INTEGER RANGE 0 TO 1000000;
-	variable COUNT_ROW2 : INTEGER RANGE 0 TO 1000000;
-	variable COUNT_ROW3 : INTEGER RANGE 0 TO 1000000;
+	variable COUNT_ROW1 : INTEGER RANGE 0 TO 100000;
+	variable COUNT_ROW2 : INTEGER RANGE 0 TO 100000;
+	variable COUNT_ROW3 : INTEGER RANGE 0 TO 100000;
 	
 	begin
 	if (CLK'event and CLK = '1') then
@@ -259,9 +259,9 @@ process(Y_POS)
 				COUNT_ROW2  := 0;
 				COUNT_ROW3  := 0;
 				
-				LEDS(3) <= '1';
+--				LEDS(3) <= '1';
 			
-				if COUNT_ROW1 >= 1000000 then
+				if COUNT_ROW1 >= 100000 then
 					ROW1 <= true;
 					ROW2 <= false;
 					ROW3 <= false;
@@ -273,9 +273,9 @@ process(Y_POS)
 				COUNT_ROW2  := COUNT_ROW2 + 1;
 				COUNT_ROW3  := 0;
 				
-				LEDS(2) <= '1';
+--				LEDS(2) <= '1';
 			
-				if COUNT_ROW2 >= 1000000 then
+				if COUNT_ROW2 >= 100000 then
 					ROW1 <= false;
 					ROW2 <= true;
 					ROW3 <= false;
@@ -287,22 +287,22 @@ process(Y_POS)
 				COUNT_ROW2  := 0;
 				COUNT_ROW3  := COUNT_ROW3 + 1;
 				
-				LEDS(1) <= '1';
+--				LEDS(1) <= '1';
 			
-				if COUNT_ROW3 >= 1000000 then
+				if COUNT_ROW3 >= 100000 then
 					ROW1 <= false;
 					ROW2 <= false;
 					ROW3 <= true;
 				end if;	
 
 			else
-				LEDS <= "0000";
+--				LEDS <= "0000";
 				COUNT_ROW1  := 0;
 				COUNT_ROW2  := 0;
 				COUNT_ROW3  := 0;
 			end if;
 		else
-			LEDS <= "0000";
+--			LEDS <= "0000";
 			COUNT_ROW1  := 0;
 			COUNT_ROW2  := 0;
 			COUNT_ROW3  := 0;	
