@@ -100,6 +100,7 @@ architecture Behavioral of GAME is
 	
 	component SCORE_INCR_COUNTER is
 		port(	CLK : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
 				THRESH0 : OUT STD_LOGIC;
 				Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0));
 	end component;
@@ -151,6 +152,21 @@ architecture Behavioral of GAME is
 	           GAME_OVER_DRAW : out BOOLEAN;
 	           DATA : out STD_LOGIC_VECTOR(23 downto 0));
 	end component;
+	
+	-- debounce
+	component DEBOUNCE_FSM is
+	    Port ( CLK : in STD_LOGIC;
+	           RST : in STD_LOGIC;
+	           SAMPLE : in STD_LOGIC;
+	           SW : in STD_LOGIC;
+	           SW_DEB : out STD_LOGIC);
+	end component;
+	component DEB_SAMPLE is
+		port(	CLK : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
+				THRESH0 : OUT STD_LOGIC;
+				Q : OUT STD_LOGIC_VECTOR(20 DOWNTO 0));
+	end component;
 
 	-- VGA control
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
@@ -194,6 +210,10 @@ architecture Behavioral of GAME is
 	-- game over
 	signal START_SCREEN : BOOLEAN;
 	signal LOST_SCREEN : BOOLEAN;
+	
+	--signal for start game btn
+	signal DEB_SAMPLE_START : STD_LOGIC;
+	signal DEB_START : STD_LOGIC;
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -201,10 +221,10 @@ VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => 
 							V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
 							GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
-incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
+incr: SCORE_INCR_COUNTER port map(CLK => CLK, SCLR => RST, THRESH0 => SCORE_INCR);
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK, RED => RED_BLOCK, GREEN => GREEN_BLOCK,
 							BLUE => BLUE_BLOCK, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_POS => BLOCK_POS, BLOCK_COL => BLOCK_COL,
-							START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN, START => START);
+							START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN, START => DEB_START);
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 COLOR_CONTROLLER: COLOR_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_COL => BLOCK_COL, LEDS => LEDS);
@@ -212,6 +232,10 @@ POSITION_CONTROLLER: POSITION_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH =>
 							DRAW_MOVING_BLOCK => DRAW_GAME_BLOCK, BLOCK_POS => BLOCK_POS);
 GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
 							GAME_OVER_DRAW => GAME_OVER_DRAW, DATA => GAME_OVER_COLOR);
+
+debounce_sample: DEB_SAMPLE port map (CLK => CLK, SCLR => RST, THRESH0 => DEB_SAMPLE_START);
+debounce_fsm0: DEBOUNCE_FSM port map (CLK => CLK, RST => RST, SAMPLE => DEB_SAMPLE_START, SW => START, SW_DEB => DEB_START);
+
 
 DCLK <= DCLK_ROM;
 GND <= '0';

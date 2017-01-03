@@ -54,15 +54,15 @@
 // (in parentheses) to your own signal names.
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-SCORE_INCR_COUNTER your_instance_name (
+DEB_SAMPLE your_instance_name (
   .CLK(CLK),          // input wire CLK
   .SCLR(SCLR),        // input wire SCLR
   .THRESH0(THRESH0),  // output wire THRESH0
-  .Q(Q)              // output wire [24 : 0] Q
+  .Q(Q)              // output wire [20 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
-// You must compile the wrapper file SCORE_INCR_COUNTER.v when simulating
-// the core, SCORE_INCR_COUNTER. When compiling the wrapper file, be sure to
+// You must compile the wrapper file DEB_SAMPLE.v when simulating
+// the core, DEB_SAMPLE. When compiling the wrapper file, be sure to
 // reference the Verilog simulation library.
 

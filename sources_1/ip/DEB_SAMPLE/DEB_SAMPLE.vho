@@ -52,12 +52,12 @@
 -- The following code must appear in the VHDL architecture header.
 
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
-COMPONENT SCORE_INCR_COUNTER
+COMPONENT DEB_SAMPLE
   PORT (
     CLK : IN STD_LOGIC;
     SCLR : IN STD_LOGIC;
     THRESH0 : OUT STD_LOGIC;
-    Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
+    Q : OUT STD_LOGIC_VECTOR(20 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
@@ -66,7 +66,7 @@ END COMPONENT;
 -- body. Substitute your own instance name and net names.
 
 ------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
-your_instance_name : SCORE_INCR_COUNTER
+your_instance_name : DEB_SAMPLE
   PORT MAP (
     CLK => CLK,
     SCLR => SCLR,
@@ -75,7 +75,7 @@ your_instance_name : SCORE_INCR_COUNTER
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------
 
--- You must compile the wrapper file SCORE_INCR_COUNTER.vhd when simulating
--- the core, SCORE_INCR_COUNTER. When compiling the wrapper file, be sure to
+-- You must compile the wrapper file DEB_SAMPLE.vhd when simulating
+-- the core, DEB_SAMPLE. When compiling the wrapper file, be sure to
 -- reference the VHDL simulation library.
 

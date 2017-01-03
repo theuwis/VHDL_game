@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2016 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2017 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -59,6 +59,7 @@ USE c_counter_binary_v12_0_9.c_counter_binary_v12_0_9;
 ENTITY SCORE_INCR_COUNTER IS
   PORT (
     CLK : IN STD_LOGIC;
+    SCLR : IN STD_LOGIC;
     THRESH0 : OUT STD_LOGIC;
     Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
   );
@@ -110,10 +111,11 @@ ARCHITECTURE SCORE_INCR_COUNTER_arch OF SCORE_INCR_COUNTER IS
   ATTRIBUTE CHECK_LICENSE_TYPE : STRING;
   ATTRIBUTE CHECK_LICENSE_TYPE OF SCORE_INCR_COUNTER_arch : ARCHITECTURE IS "SCORE_INCR_COUNTER,c_counter_binary_v12_0_9,{}";
   ATTRIBUTE CORE_GENERATION_INFO : STRING;
-  ATTRIBUTE CORE_GENERATION_INFO OF SCORE_INCR_COUNTER_arch: ARCHITECTURE IS "SCORE_INCR_COUNTER,c_counter_binary_v12_0_9,{x_ipProduct=Vivado 2016.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=c_counter_binary,x_ipVersion=12.0,x_ipCoreRevision=9,x_ipLanguage=VHDL,x_ipSimLanguage=MIXED,C_IMPLEMENTATION=0,C_VERBOSITY=0,C_XDEVICEFAMILY=zynq,C_WIDTH=25,C_HAS_CE=0,C_HAS_SCLR=0,C_RESTRICT_COUNT=0,C_COUNT_TO=1,C_COUNT_BY=1,C_COUNT_MODE=0,C_THRESH0_VALUE=1111111111111111111111111,C_CE_OVERRIDES_SYNC=0,C_HAS_THRESH0=1,C_HAS_LOAD=0,C_LOAD_LOW=0,C_LATENCY=1,C_FB_LATENCY=0,C_AINIT_" & 
+  ATTRIBUTE CORE_GENERATION_INFO OF SCORE_INCR_COUNTER_arch: ARCHITECTURE IS "SCORE_INCR_COUNTER,c_counter_binary_v12_0_9,{x_ipProduct=Vivado 2016.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=c_counter_binary,x_ipVersion=12.0,x_ipCoreRevision=9,x_ipLanguage=VHDL,x_ipSimLanguage=MIXED,C_IMPLEMENTATION=0,C_VERBOSITY=0,C_XDEVICEFAMILY=zynq,C_WIDTH=25,C_HAS_CE=0,C_HAS_SCLR=1,C_RESTRICT_COUNT=0,C_COUNT_TO=1,C_COUNT_BY=1,C_COUNT_MODE=0,C_THRESH0_VALUE=1111111111111111111111111,C_CE_OVERRIDES_SYNC=0,C_HAS_THRESH0=1,C_HAS_LOAD=0,C_LOAD_LOW=0,C_LATENCY=1,C_FB_LATENCY=0,C_AINIT_" & 
 "VAL=0,C_SINIT_VAL=0,C_SCLR_OVERRIDES_SSET=1,C_HAS_SSET=0,C_HAS_SINIT=0}";
   ATTRIBUTE X_INTERFACE_INFO : STRING;
   ATTRIBUTE X_INTERFACE_INFO OF CLK: SIGNAL IS "xilinx.com:signal:clock:1.0 clk_intf CLK";
+  ATTRIBUTE X_INTERFACE_INFO OF SCLR: SIGNAL IS "xilinx.com:signal:reset:1.0 sclr_intf RST";
   ATTRIBUTE X_INTERFACE_INFO OF THRESH0: SIGNAL IS "xilinx.com:signal:data:1.0 thresh0_intf DATA";
   ATTRIBUTE X_INTERFACE_INFO OF Q: SIGNAL IS "xilinx.com:signal:data:1.0 q_intf DATA";
 BEGIN
@@ -124,7 +126,7 @@ BEGIN
       C_XDEVICEFAMILY => "zynq",
       C_WIDTH => 25,
       C_HAS_CE => 0,
-      C_HAS_SCLR => 0,
+      C_HAS_SCLR => 1,
       C_RESTRICT_COUNT => 0,
       C_COUNT_TO => "1",
       C_COUNT_BY => "1",
@@ -145,7 +147,7 @@ BEGIN
     PORT MAP (
       CLK => CLK,
       CE => '1',
-      SCLR => '0',
+      SCLR => SCLR,
       SSET => '0',
       SINIT => '0',
       UP => '1',
