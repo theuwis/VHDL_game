@@ -12,11 +12,11 @@ entity COLOR_CHANGE is
 end COLOR_CHANGE;
 
 architecture Behavioral of COLOR_CHANGE is
---	signal BLOCK_COL_sign : STD_LOGIC_VECTOR(23 downto 0);-- := "111111110000000000000000";
+	signal BLOCK_COL_sign : STD_LOGIC_VECTOR(23 downto 0) := "011110000111100001111000";
 	
 begin
 
---BLOCK_COL <= BLOCK_COL_sign;
+BLOCK_COL <= BLOCK_COL_sign;
 
 process(Y_TOUCH)
 	variable COUNT_RED : INTEGER RANGE 0 TO 100000;
@@ -35,9 +35,9 @@ process(Y_TOUCH)
 			LEDS(3) <= '1';
 		
 			if COUNT_PINK = 100000 then
-				BLOCK_COL(23 downto 16) <= "11111111";
-				BLOCK_COL(15 downto 8) <=  "00000000";
-				BLOCK_COL(7 downto 0) <=   "11111111";
+				BLOCK_COL_sign(23 downto 16) <= "11111111";
+				BLOCK_COL_sign(15 downto 8) <=  "00000000";
+				BLOCK_COL_sign(7 downto 0) <=   "11111111";
 			end if;
 		elsif X_TOUCH > "01000101" and X_TOUCH < "01001111" and Y_TOUCH < "00100111" then
 			COUNT_RED  := 0;
@@ -48,9 +48,9 @@ process(Y_TOUCH)
 			LEDS(2) <= '1';
 			
 			if COUNT_GREEN = 100000 then
-				BLOCK_COL(23 downto 16) <= "00000000";
-				BLOCK_COL(15 downto 8) <=  "11111111";
-				BLOCK_COL(7 downto 0) <=   "00000000";
+				BLOCK_COL_sign(23 downto 16) <= "00000000";
+				BLOCK_COL_sign(15 downto 8) <=  "11111111";
+				BLOCK_COL_sign(7 downto 0) <=   "00000000";
 			end if;
 		elsif X_TOUCH > "11000011" and X_TOUCH < "11001100" and Y_TOUCH < "00100100" then
 			COUNT_RED  := 0;
@@ -61,9 +61,9 @@ process(Y_TOUCH)
 			LEDS(1) <= '1';
 			
 			if COUNT_CYAN = 100000 then
-				BLOCK_COL(23 downto 16) <= "00000000";
-				BLOCK_COL(15 downto 8) <=  "11111111";
-				BLOCK_COL(7 downto 0) <=   "11111111";
+				BLOCK_COL_sign(23 downto 16) <= "00000000";
+				BLOCK_COL_sign(15 downto 8) <=  "11111111";
+				BLOCK_COL_sign(7 downto 0) <=   "11111111";
 			end if;
 			
 		elsif X_TOUCH > "11010000" and X_TOUCH < "11011000" and Y_TOUCH < "00100100" then
@@ -75,9 +75,9 @@ process(Y_TOUCH)
 			LEDS(0) <= '1';
 		
 			if COUNT_RED = 100000 then
-				BLOCK_COL(23 downto 16) <= "11111111";
-				BLOCK_COL(15 downto 8) <=  "00000000";
-				BLOCK_COL(7 downto 0) <=   "00000000";
+				BLOCK_COL_sign(23 downto 16) <= "11111111";
+				BLOCK_COL_sign(15 downto 8) <=  "00000000";
+				BLOCK_COL_sign(7 downto 0) <=   "00000000";
 			end if;
 		else
 			LEDS <= "0000";

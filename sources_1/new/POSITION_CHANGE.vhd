@@ -16,7 +16,7 @@ end POSITION_CHANGE;
 
 architecture Behavioral of POSITION_CHANGE is
 	-- which row is active
-	signal ROW1 : BOOLEAN;-- := true;
+	signal ROW1 : BOOLEAN := true;
 	signal ROW2 : BOOLEAN;
 	signal ROW3 : BOOLEAN;
 	
