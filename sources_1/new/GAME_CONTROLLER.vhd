@@ -13,7 +13,12 @@ entity GAME_CONTROLLER is
     		DRAW : out BOOLEAN;
     		RED : out STD_LOGIC_VECTOR(7 downto 0);
     		GREEN : out STD_LOGIC_VECTOR(7 downto 0);
-    		BLUE : out STD_LOGIC_VECTOR(7 downto 0));
+    		BLUE : out STD_LOGIC_VECTOR(7 downto 0);
+    		
+    		X_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
+    		Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
+    		
+    		BLOCK_POS : in STD_LOGIC_VECTOR(1 downto 0));
 end GAME_CONTROLLER;
 
 architecture Behavioral of GAME_CONTROLLER is
@@ -78,6 +83,7 @@ architecture Behavioral of GAME_CONTROLLER is
 	-- signals used to place the walls in a random location
 	signal WALL_DRAW : BOOLEAN;
 	signal WALL_COLOR : STD_LOGIC_VECTOR(23 downto 0);
+	signal RAND_LOC : STD_LOGIC_VECTOR(3 downto 0);
 	
 
 begin
@@ -85,11 +91,12 @@ begin
 --									Y_1 => 5, Y_2 => 66, DRAW => DRAW_1);
 --blocks: BLOCK_GENERATOR_FSM port map(CLK => CLK, RST => RST, BLOCK_POS => POSITION1, TICK => TICK);
 tick_gen: TICK_GENERATOR port map(CLK => CLK, SCLR => RST, LOAD => TICK, L => SPEED, THRESH0 => TICK);
-wall_gen: DRAW_WALL port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, RANDOM => "0000", POS => POSITION,
-							 DRAW => WALL_DRAW, COLOR => WALL_COLOR);
+wall_gen: DRAW_WALL port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, RANDOM => RAND_LOC,
+							POS => POSITION, DRAW => WALL_DRAW, COLOR => WALL_COLOR);
 speed_incr: DIFF_INCREASE port map(CLK => CLK, SCLR => RST, THRESH0 => SPEED_TICK);
 
-
+RAND_LOC(1 downto 0) <= X_TOUCH(1 downto 0);
+RAND_LOC(3 downto 2) <= Y_TOUCH(1 downto 0);
 
 --POS1_VECTOR <= CONV_STD_LOGIC_VECTOR(POSITION1, 9);
 --POS2_VECTOR <= STD_LOGIC_VECTOR(IEEE.NUMERIC_STD.UNSIGNED(POS1_VECTOR) + 20);
@@ -119,7 +126,9 @@ process(CLK)
 end process;
 
 process(CLK)
-	variable SPEED_VAR : INTEGER RANGE 0 TO 1048575;
+	-- TODO variable mag weg wss
+	variable SPEED_VAR : INTEGER RANGE 0 TO 1048575 := 300000;
+	variable SPEED_INCREASE : INTEGER RANGE 0 TO 50000 := 50000;
 	
 	begin
 	if (CLK'event and CLK = '1') then
@@ -127,13 +136,19 @@ process(CLK)
 			if POSITION < 479 then
 				POSITION <= POSITION + 1;
 			else
+				if SPEED_VAR < 700000 then
+					SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
+					SPEED_INCREASE := SPEED_INCREASE - 1000;
+				end if;
+				
 				POSITION <= 0;
 			end if;
 		end if;
 		
-		if SPEED_TICK = '1' then
-			SPEED_VAR := SPEED_VAR + 100;
-		end if;
+--		if SPEED_TICK = '1' then
+--			SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
+--			SPEED_INCREASE := SPEED_INCREASE - 1;
+--		end if;
 		
 		SPEED <= CONV_STD_LOGIC_VECTOR(SPEED_VAR, 20);
 	end if;

@@ -14,7 +14,9 @@ entity DRAW_WALL is
     	   RANDOM: in STD_LOGIC_VECTOR(3 downto 0);
            POS : in INTEGER;
            DRAW : out BOOLEAN;
+           GAP_POS: out STD_LOGIC_VECTOR(1 downto 0); -- upper = 0, middle = 1, bottom = 2
            COLOR : out STD_LOGIC_VECTOR(23 downto 0));
+           
 end DRAW_WALL;
 
 architecture Behavioral of DRAW_WALL is
@@ -38,8 +40,8 @@ component DRAW_BLOCK is
 	signal mdraw : BOOLEAN;
 	
 	signal bdraw : BOOLEAN;
-	
-	type wall is (M1,M2,M3,M4,M5,M6,M7,M8,M9,M10,M11,M12,M13,M14,M15,M16);
+		
+	type wall is (W1,W2,W3,W4,W5,W6,W7,W8,W9,W10,W11,W12,W13,W14,W15,W16);
 	signal new_wall: wall;
 begin
 
@@ -51,34 +53,180 @@ bottomblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_C
 								X_1 => X_1, X_2 => X_2, Y_1 => 140, Y_2 => 203,DRAW => bdraw);	
 	
 	DRAW <= bdraw or mdraw  or udraw;
-COLOR <= "111111110000000000000000";			
+	
 	process(POS)
 	begin
-		if(POS = 0) then
+		if(POS = 478) then
 			case RANDOM is
-				when "0000" =>
-					new_wall <= M1;
-				when "0001" => new_wall <= M2;
-				when "0010" => new_wall <= M3;
-				when "0011" => new_wall <= M4;
-				when "0100" => new_wall <= M5;
-				when "0101" => new_wall <= M6;
-				when "0110" => new_wall <= M7;
-				when "0111" => new_wall <= M8;
-				when "1000" => new_wall <= M9;
-				when "1001" => new_wall <= M10;
-				when "1010" => new_wall <= M11;
-				when "1011" => new_wall <= M12;
-				when "1100" => new_wall <= M13;
-				when "1101" => new_wall <= M14;
-				when "1110" => new_wall <= M15;
-				when "1111" => new_wall <= M16;	
-				when others => new_wall <= M2;	
+				when "0000" => new_wall <= W1;	
+							   GAP_POS  <= "00";
+				when "0001" => new_wall <= W2;
+							   GAP_POS  <= "01";
+				when "0010" => new_wall <= W3;
+							   GAP_POS  <= "10";
+				when "0011" => new_wall <= W4;
+							   GAP_POS  <= "00";
+				when "0100" => new_wall <= W5;
+							   GAP_POS  <= "01";
+				when "0101" => new_wall <= W6;
+							   GAP_POS  <= "10";
+				when "0110" => new_wall <= W7;
+							   GAP_POS  <= "00";
+				when "0111" => new_wall <= W8;
+							   GAP_POS  <= "01";
+				when "1000" => new_wall <= W9;
+							   GAP_POS  <= "10";
+				when "1001" => new_wall <= W10;
+							   GAP_POS  <= "00";
+				when "1010" => new_wall <= W11;
+							   GAP_POS  <= "01";
+				when "1011" => new_wall <= W12;
+							   GAP_POS  <= "10";
+				when "1100" => new_wall <= W13;
+							   GAP_POS  <= "00";
+				when "1101" => new_wall <= W14;
+							   GAP_POS  <= "01";
+				when "1110" => new_wall <= W15;
+							   GAP_POS  <= "10";
+				when "1111" => new_wall <= W16;	
+							   GAP_POS  <= "00";
+				when others => new_wall <= W2;	
+							   GAP_POS  <= "01";
 			end case;
 		else
 			X_1<=pos;
-			X_2<=pos+40;
+			X_2<=pos+60;
 		end if;
 	end process;
 	
+	process(bdraw,mdraw,udraw)
+	begin
+		case new_wall is
+		-- red
+			when W1 => if(udraw = true) then		
+							COLOR <= "111111110000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			when W2 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "111111110000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;	
+			when W3 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "111111110000000000000000";
+						end if;
+			--green
+			when W4 => if(udraw = true) then
+							COLOR <= "000000001111111100000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			when W5 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000001111111100000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			when W6 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000001111111100000000";
+						end if;		
+			--blue		
+			when W7 => if(udraw = true) then
+							COLOR <= "000000001111111111111111";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;				
+			when W8 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000001111111111111111";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;			
+			when W9 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000001111111111111111";
+						end if;	
+			--magenta
+			when W10 => if(udraw = true) then
+							COLOR <= "111111110000000011111111";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;		
+			when W11 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "111111110000000011111111";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;	
+			when W12 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "111111110000000011111111";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			-- no color	
+			when W13 => if(udraw = true) then
+							COLOR <= "000000000100001110101111";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;	
+			when W14 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000100001110101111";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			when W15 => if(udraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000100001110101111";
+						end if;	
+			--extra red
+			when W16 => if(udraw = true) then		
+							COLOR <= "111111110000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			when others =>if(udraw = true) then		
+							COLOR <= "111111110000000000000000";
+						elsif(mdraw = true) then
+							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "000000000000000000000000";
+						end if;
+			end case;
+	end process;
 end Behavioral;

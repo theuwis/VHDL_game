@@ -10,7 +10,8 @@ entity POSITION_CHANGE is
 			Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
 			X_POS : in STD_LOGIC_VECTOR(8 downto 0);
 			Y_POS : in STD_LOGIC_VECTOR(8 downto 0);
-			DRAW_MOVING_BLOCK : out BOOLEAN);
+			DRAW_MOVING_BLOCK : out BOOLEAN;
+			BLOCK_POS : out STD_LOGIC_VECTOR(1 downto 0));
 end POSITION_CHANGE;
 
 architecture Behavioral of POSITION_CHANGE is
@@ -27,10 +28,13 @@ process(CLK)
 		if X_POS > "110100100" and Y_POS < "011001011" then
 			if ROW1 = true and Y_POS > "000000100" and Y_POS < "001000011" then
 				DRAW_MOVING_BLOCK <= true;
-			elsif ROW2 = true and Y_POS > "001001010" and Y_POS < "01000011" then
+				BLOCK_POS <= "00";
+			elsif ROW2 = true and Y_POS > "001001000" and Y_POS < "010000111" then
 				DRAW_MOVING_BLOCK <= true;
-			elsif ROW3 = true and Y_POS > "010001101" and Y_POS < "011001011" then
+				BLOCK_POS <= "01";
+			elsif ROW3 = true and Y_POS > "010001100" and Y_POS < "011001011" then
 				DRAW_MOVING_BLOCK <= true;
+				BLOCK_POS <= "10";
 			else
 				DRAW_MOVING_BLOCK <= false;		
 			end if;

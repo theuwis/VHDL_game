@@ -1,7 +1,10 @@
 ---------
--- TODO: bij alle INTEGERS range bijzetten
+-- TODO: bij alle INTEGERS range bijzetten + initializeren
 -- TODO: RST overal implementeren
--- TODO: size van blok die je kan bewegen aanpassen aan kolom
+-- TODO: score sneller laten increasen
+-- TODO: spel einde
+-- TODO: spel start
+-- TODO: overal NUMERIC gebruiken ipv ARITH
 ---------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -83,7 +86,11 @@ architecture Behavioral of GAME is
 	    		DRAW : out BOOLEAN;
 	    		RED : out STD_LOGIC_VECTOR(7 downto 0);
 	    		GREEN : out STD_LOGIC_VECTOR(7 downto 0);
-	    		BLUE : out STD_LOGIC_VECTOR(7 downto 0));
+	    		BLUE : out STD_LOGIC_VECTOR(7 downto 0);
+	    		
+	    		X_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
+	    		Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
+	    		BLOCK_POS : in STD_LOGIC_VECTOR(1 downto 0));
 	end component;
 	
 	component SCORE_INCR_COUNTER is
@@ -125,7 +132,8 @@ architecture Behavioral of GAME is
 				Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
 				X_POS : in STD_LOGIC_VECTOR(8 downto 0);
 				Y_POS : in STD_LOGIC_VECTOR(8 downto 0);
-				DRAW_MOVING_BLOCK : out BOOLEAN);
+				DRAW_MOVING_BLOCK : out BOOLEAN;
+				BLOCK_POS : out STD_LOGIC_VECTOR(1 downto 0));
 	end component;
 	
 	component GAME_OVER_SCREEN is
@@ -172,6 +180,7 @@ architecture Behavioral of GAME is
 	-- signals for movable block
 	signal BLOCK_COL : STD_LOGIC_VECTOR(23 downto 0);
 	signal DRAW_GAME_BLOCK : BOOLEAN;
+	signal BLOCK_POS : STD_LOGIC_VECTOR(1 downto 0);
 	
 	-- game over screen
 	signal GAME_OVER_DRAW : BOOLEAN;
@@ -184,13 +193,13 @@ VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => 
 BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
 							GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
 incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
-GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK,
-							RED => RED_BLOCK, GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK);
+GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK, RED => RED_BLOCK,
+							GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_POS => BLOCK_POS);
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 COLOR_CONTROLLER: COLOR_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_COL => BLOCK_COL, LEDS => LEDS);
 POSITION_CONTROLLER: POSITION_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, X_POS => X_POS, Y_POS => Y_POS,
-							DRAW_MOVING_BLOCK => DRAW_GAME_BLOCK);
+							DRAW_MOVING_BLOCK => DRAW_GAME_BLOCK, BLOCK_POS => BLOCK_POS);
 GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
 							GAME_OVER_DRAW => GAME_OVER_DRAW, DATA => GAME_OVER_COLOR);
 
@@ -220,17 +229,17 @@ process(CLK)
 				GREEN <= GREEN_BG;
 				BLUE <=  BLUE_BG;
 			
-			-- draw the wall
-			elsif DRAW_BLOCK = true then
-				RED <=   RED_BLOCK;
-				GREEN <= GREEN_BLOCK;
-				BLUE <=  BLUE_BLOCK;
-			
 			-- draw the block that has to be moved by the player
 			elsif DRAW_GAME_BLOCK = true then
 				RED <=	 BLOCK_COL(23 downto 16);
 				GREEN <= BLOCK_COL(15 downto 8);
 				BLUE <=  BLOCK_COL(7 downto 0);
+					
+			-- draw the wall
+			elsif DRAW_BLOCK = true then
+				RED <=   RED_BLOCK;
+				GREEN <= GREEN_BLOCK;
+				BLUE <=  BLUE_BLOCK;
 			
 			-- everything else get a blue background color
 			else
