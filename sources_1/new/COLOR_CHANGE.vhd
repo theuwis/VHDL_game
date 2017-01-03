@@ -12,8 +12,12 @@ entity COLOR_CHANGE is
 end COLOR_CHANGE;
 
 architecture Behavioral of COLOR_CHANGE is
-
+--	signal BLOCK_COL_sign : STD_LOGIC_VECTOR(23 downto 0);-- := "111111110000000000000000";
+	
 begin
+
+--BLOCK_COL <= BLOCK_COL_sign;
+
 process(Y_TOUCH)
 	variable COUNT_RED : INTEGER RANGE 0 TO 100000;
 	variable COUNT_PINK : INTEGER RANGE 0 TO 100000;

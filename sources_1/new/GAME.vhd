@@ -221,41 +221,48 @@ process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		-- draw game over screen
-		if (BTN1 = '1') or (LOST_SCREEN = true) then
-			if GAME_OVER_DRAW = true then
-				RED <=   GAME_OVER_COLOR(23 downto 16);
-				GREEN <= GAME_OVER_COLOR(15 downto 8);
-				BLUE  <= GAME_OVER_COLOR(7 downto 0);
-			else
-				RED <=   "00000000"; -- 0
-				GREEN <= "01000011"; -- 67
-				BLUE <=  "10101111"; -- 175
-			end if;
-
+		
+		if START_SCREEN = true then
+			RED <=   "00000000";
+			GREEN <= "11111111";
+			BLUE <=  "00000000";
 		else
-			-- draw the background elements
-			if DRAW_BG = true then
-				RED <=	 RED_BG;
-				GREEN <= GREEN_BG;
-				BLUE <=  BLUE_BG;
-			
-			-- draw the block that has to be moved by the player
-			elsif DRAW_GAME_BLOCK = true then
-				RED <=	 BLOCK_COL(23 downto 16);
-				GREEN <= BLOCK_COL(15 downto 8);
-				BLUE <=  BLOCK_COL(7 downto 0);
-					
-			-- draw the wall
-			elsif DRAW_BLOCK = true then
-				RED <=   RED_BLOCK;
-				GREEN <= GREEN_BLOCK;
-				BLUE <=  BLUE_BLOCK;
-			
-			-- everything else get a blue background color
+			if (BTN1 = '1') or (LOST_SCREEN = true) then
+				if GAME_OVER_DRAW = true then
+					RED <=   GAME_OVER_COLOR(23 downto 16);
+					GREEN <= GAME_OVER_COLOR(15 downto 8);
+					BLUE  <= GAME_OVER_COLOR(7 downto 0);
+				else
+					RED <=   "00000000"; -- 0
+					GREEN <= "01000011"; -- 67
+					BLUE <=  "10101111"; -- 175
+				end if;
+	
 			else
-				RED <=   "00000000"; -- 0
-				GREEN <= "01000011"; -- 67
-				BLUE <=  "10101111"; -- 175
+				-- draw the background elements
+				if DRAW_BG = true then
+					RED <=	 RED_BG;
+					GREEN <= GREEN_BG;
+					BLUE <=  BLUE_BG;
+				
+				-- draw the block that has to be moved by the player
+				elsif DRAW_GAME_BLOCK = true then
+					RED <=	 BLOCK_COL(23 downto 16);
+					GREEN <= BLOCK_COL(15 downto 8);
+					BLUE <=  BLOCK_COL(7 downto 0);
+						
+				-- draw the wall
+				elsif DRAW_BLOCK = true then
+					RED <=   RED_BLOCK;
+					GREEN <= GREEN_BLOCK;
+					BLUE <=  BLUE_BLOCK;
+				
+				-- everything else get a blue background color
+				else
+					RED <=   "00000000"; -- 0
+					GREEN <= "01000011"; -- 67
+					BLUE <=  "10101111"; -- 175
+				end if;
 			end if;
 		end if;
 	end if;
