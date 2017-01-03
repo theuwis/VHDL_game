@@ -245,26 +245,33 @@ process(CLK)
 	
 	begin
 	if (CLK'event and CLK = '1') then
-		if SCORE_UP = '1' then
-			if SCORE_VAR_1 < 9 then
-				SCORE_VAR_1 := SCORE_VAR_1 + 1;
-			else
-				SCORE_VAR_1 := 0;
-				if SCORE_VAR_10 < 9 then
-					SCORE_VAR_10 := SCORE_VAR_10 + 1;
+		if RST = '1' then
+			SCORE_VAR_1 := 0;
+			SCORE_VAR_10 := 0;
+			SCORE_VAR_100 := 0;
+			SCORE_VAR_1000 := 0;
+		else
+			if SCORE_UP = '1' then
+				if SCORE_VAR_1 < 9 then
+					SCORE_VAR_1 := SCORE_VAR_1 + 1;
 				else
-					SCORE_VAR_10 := 0;
-					if SCORE_VAR_100 < 9 then
-						SCORE_VAR_100 := SCORE_VAR_100 + 1;
+					SCORE_VAR_1 := 0;
+					if SCORE_VAR_10 < 9 then
+						SCORE_VAR_10 := SCORE_VAR_10 + 1;
 					else
-						SCORE_VAR_100 := 0;
-						if SCORE_VAR_1000 < 9 then
-							SCORE_VAR_1000 := SCORE_VAR_1000 + 1;
+						SCORE_VAR_10 := 0;
+						if SCORE_VAR_100 < 9 then
+							SCORE_VAR_100 := SCORE_VAR_100 + 1;
 						else
-							SCORE_VAR_1000 := 0;
+							SCORE_VAR_100 := 0;
+							if SCORE_VAR_1000 < 9 then
+								SCORE_VAR_1000 := SCORE_VAR_1000 + 1;
+							else
+								SCORE_VAR_1000 := 0;
+							end if;
 						end if;
-					end if;
-				end if;				
+					end if;				
+				end if;
 			end if;
 		end if;
 	end if;

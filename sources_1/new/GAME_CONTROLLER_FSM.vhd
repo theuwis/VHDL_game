@@ -41,24 +41,26 @@ entity GAME_CONTROLLER_FSM is
            COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);
            START : in STD_LOGIC;
            START_SCREEN : out BOOLEAN;
+           GAME_RESET: out STD_LOGIC;
            LOST_SCREEN : out BOOLEAN);
 end GAME_CONTROLLER_FSM;
 
 architecture Behavioral of GAME_CONTROLLER_FSM is
 
-type fsm_state is (begin_game,test,move_wall, lost);
+type fsm_state is (start_scr,begin_game,begin_game2,test,move_wall, lost);
 signal old_state, new_state: fsm_state;
 
 begin
-
 	process(X_POS,START,old_state)
 		begin
 		case old_state is
-			when begin_game => 	if(START = '1') then
-									new_state <= move_wall;
-								else
+			when start_scr => if(START = '1') then
 									new_state <= begin_game;
+								else
+									new_state <= start_scr;
 								end if;
+			when begin_game =>	new_state <= begin_game2;
+			when begin_game2 => new_state <= move_wall;
 			when move_wall =>	if(X_POS =420) then
 									new_state <= test;
 								else
@@ -67,6 +69,8 @@ begin
 			when test => 		if(GAP_POS = BLOCK_POS) then
 									if(COLOR_WALL = COLOR_BLOCK) then
 										new_state <= move_wall;
+									elsif (COLOR_WALL = "000000000100001110101111") then
+										new_state <= move_wall;
 									else
 										new_state <= lost;
 									end if;
@@ -74,11 +78,11 @@ begin
 									new_state <= lost;
 								end if;	
 			when lost =>		if(START = '1') then
-									new_state <= begin_game;
+									new_state <= start_scr;
 								else
 									new_state <= lost;
 								end if;
-			when others => 		new_state <= begin_game;
+			when others => 		new_state <= start_scr;
 		end case;
 	end process;
 	
@@ -86,7 +90,7 @@ begin
 	begin
 		if(CLK'event and CLK='1') then
 			if RST = '1' then
-				old_state <= begin_game;
+				old_state <= start_scr;
 			else
 				old_state <= new_state;
 			end if;
@@ -96,12 +100,21 @@ begin
 	process (old_state) 
 	begin
 		case old_state is
-			when begin_game => 	START_SCREEN <= true;
+			when start_scr => 	START_SCREEN <= true;
 								LOST_SCREEN <= false;
+								GAME_RESET <= '0';
 			when lost => 		LOST_SCREEN <= true;
 								START_SCREEN <= false;
+								GAME_RESET <= '0';
+			when begin_game =>	START_SCREEN <= true;
+								LOST_SCREEN <= false;
+								GAME_RESET <= '1';
+			when begin_game2 =>	START_SCREEN <= true;
+								LOST_SCREEN <= false;
+								GAME_RESET <= '1';
 			when others => 		START_SCREEN <= false;
 								LOST_SCREEN <= false;
+								GAME_RESET <= '0';
 		end case;
 	end process;
 

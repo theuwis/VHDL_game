@@ -22,7 +22,8 @@ entity GAME_CONTROLLER is
     		BLOCK_COL : in STD_LOGIC_VECTOR(23 downto 0);
     		START_SCREEN: out BOOLEAN;
     		LOST_SCREEN : out BOOLEAN;
-    		START : in STD_LOGIC);
+    		START : in STD_LOGIC;
+    		GAME_RESET: out STD_LOGIC);
 end GAME_CONTROLLER;
 
 architecture Behavioral of GAME_CONTROLLER is
@@ -67,6 +68,7 @@ architecture Behavioral of GAME_CONTROLLER is
 			   COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);
 			   START : in STD_LOGIC;
 			   START_SCREEN : out BOOLEAN;
+			   GAME_RESET: out STD_LOGIC;
 			   LOST_SCREEN : out BOOLEAN);
 	end component;
 
@@ -95,9 +97,9 @@ tick_gen: TICK_GENERATOR port map(CLK => CLK, SCLR => RST, LOAD => TICK, L => SP
 wall_gen: DRAW_WALL port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, RANDOM => RAND_LOC,
 							POS => POSITION, DRAW => WALL_DRAW, GAP_POS => GAP_POS_sign, COLOR => WALL_COLOR);
 speed_incr: DIFF_INCREASE port map(CLK => CLK, SCLR => RST, THRESH0 => SPEED_TICK);
-game_fsm: GAME_CONTROLLER_FSM port map(CLK => CLK, RST => RST, X_POS => POSITION, GAP_POS => GAP_POS_sign, BLOCK_POS => BLOCK_POS,
+game_fsm: GAME_CONTROLLER_FSM port map(CLK => CLK, RST => '0', X_POS => POSITION, GAP_POS => GAP_POS_sign, BLOCK_POS => BLOCK_POS,
 							COLOR_WALL => WALL_COLOR, COLOR_BLOCK => BLOCK_COL, START => START, START_SCREEN => START_SCREEN,
-							LOST_SCREEN => LOST_SCREEN);
+							GAME_RESET => GAME_RESET, LOST_SCREEN => LOST_SCREEN);
 
 
 
@@ -138,19 +140,24 @@ process(CLK)
 	
 	begin
 	if (CLK'event and CLK = '1') then
-		if TICK = '1' then
-			if POSITION < 479 then
-				POSITION <= POSITION + 1;
-			else
-				if SPEED_VAR < 700000 then
-					SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
-					SPEED_INCREASE := SPEED_INCREASE - 1000;
+		if RST = '1' then
+			SPEED_VAR := 300000;
+			SPEED_INCREASE := 50000;
+			POSITION <= 0;	
+		else
+			if TICK = '1' then
+				if POSITION < 479 then
+					POSITION <= POSITION + 1;
+				else
+					if SPEED_VAR < 700000 then
+						SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
+						SPEED_INCREASE := SPEED_INCREASE - 1000;
+					end if;
+					
+					POSITION <= 0;
 				end if;
-				
-				POSITION <= 0;
 			end if;
 		end if;
-		
 --		if SPEED_TICK = '1' then
 --			SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
 --			SPEED_INCREASE := SPEED_INCREASE - 1;

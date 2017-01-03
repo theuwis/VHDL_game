@@ -129,21 +129,29 @@ BL_EN <= '1';
 
 -- process to determine if you can display data on the scren
 process(DCLK_BUFF)
-	begin
+	begin	
 	if (DCLK_BUFF'event and DCLK_BUFF = '1') then
-		if (H_VISABLE = '1') and (V_VISABLE = '1') then
-			DISP <= '1';
-			DISP_sign <= '1';
-			
-			RED <= RED_IN;
-			GREEN <= GREEN_IN;
-			BLUE <= BLUE_IN;
-		else
+		if RST = '1' then
 			DISP <= '0';
 			DISP_sign <= '0';
-			RED <= "00000000";
+			RED <=   "00000000";
 			GREEN <= "00000000";
-			BLUE <= "00000000";
+			BLUE <=  "00000000";
+		else
+			if (H_VISABLE = '1') and (V_VISABLE = '1') then
+				DISP <= '1';
+				DISP_sign <= '1';
+				
+				RED <= RED_IN;
+				GREEN <= GREEN_IN;
+				BLUE <= BLUE_IN;
+			else
+				DISP <= '0';
+				DISP_sign <= '0';
+				RED <= "00000000";
+				GREEN <= "00000000";
+				BLUE <= "00000000";
+			end if;
 		end if;
 	end if;
 end process;

@@ -5,13 +5,13 @@ set_property PACKAGE_PIN V16 [get_ports START]
 
 set_property IOSTANDARD LVCMOS33 [get_ports CLK]
 set_property IOSTANDARD LVCMOS33 [get_ports H_SYNC_O]
-set_property IOSTANDARD LVCMOS33 [get_ports RST]
+set_property IOSTANDARD LVCMOS33 [get_ports RST_BTN]
 set_property IOSTANDARD LVCMOS33 [get_ports V_SYNC_O]
 
 set_property PACKAGE_PIN L16 [get_ports CLK]
 set_property PACKAGE_PIN Y17 [get_ports H_SYNC_O]
 set_property PACKAGE_PIN H15 [get_ports V_SYNC_O]
-set_property PACKAGE_PIN R18 [get_ports RST]
+set_property PACKAGE_PIN R18 [get_ports RST_BTN]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {BLUE_OUT[7]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {BLUE_OUT[6]}]
@@ -128,3 +128,6 @@ set_property MARK_DEBUG false [get_nets {Y_TOUCH[6]}]
 set_property MARK_DEBUG false [get_nets {Y_TOUCH[7]}]
 set_property MARK_DEBUG false [get_nets MISO_IBUF]
 set_property MARK_DEBUG false [get_nets BUSY_IBUF]
+
+set_property MARK_DEBUG true [get_nets RST_BTN_IBUF]
+set_property MARK_DEBUG true [get_nets RST]
