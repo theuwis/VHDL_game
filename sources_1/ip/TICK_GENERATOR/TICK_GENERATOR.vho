@@ -56,8 +56,10 @@ COMPONENT TICK_GENERATOR
   PORT (
     CLK : IN STD_LOGIC;
     SCLR : IN STD_LOGIC;
+    LOAD : IN STD_LOGIC;
+    L : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
     THRESH0 : OUT STD_LOGIC;
-    Q : OUT STD_LOGIC_VECTOR(21 DOWNTO 0)
+    Q : OUT STD_LOGIC_VECTOR(19 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
@@ -70,6 +72,8 @@ your_instance_name : TICK_GENERATOR
   PORT MAP (
     CLK => CLK,
     SCLR => SCLR,
+    LOAD => LOAD,
+    L => L,
     THRESH0 => THRESH0,
     Q => Q
   );

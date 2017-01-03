@@ -1,7 +1,7 @@
 // Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2016.2 (win64) Build 1577090 Thu Jun  2 16:32:40 MDT 2016
-// Date        : Tue Dec 27 15:32:51 2016
+// Date        : Wed Dec 28 22:13:37 2016
 // Host        : DESKTOP-IB3KRIO running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               C:/Users/Tibo/Documents/programmable_logic/_game/_game.srcs/sources_1/ip/TICK_GENERATOR/TICK_GENERATOR_stub.v
@@ -14,10 +14,12 @@
 // The synthesis directives are for Synopsys Synplify support to prevent IO buffer insertion.
 // Please paste the declaration into a Verilog source file or add the file as an additional source.
 (* x_core_info = "c_counter_binary_v12_0_9,Vivado 2016.2" *)
-module TICK_GENERATOR(CLK, SCLR, THRESH0, Q)
-/* synthesis syn_black_box black_box_pad_pin="CLK,SCLR,THRESH0,Q[21:0]" */;
+module TICK_GENERATOR(CLK, SCLR, LOAD, L, THRESH0, Q)
+/* synthesis syn_black_box black_box_pad_pin="CLK,SCLR,LOAD,L[19:0],THRESH0,Q[19:0]" */;
   input CLK;
   input SCLR;
+  input LOAD;
+  input [19:0]L;
   output THRESH0;
-  output [21:0]Q;
+  output [19:0]Q;
 endmodule

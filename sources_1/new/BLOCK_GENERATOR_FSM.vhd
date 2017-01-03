@@ -7,27 +7,26 @@ entity BLOCK_GENERATOR_FSM is
 			RST : in STD_LOGIC;
 			BLOCK_POS : out INTEGER;
 			TICK : in STD_LOGIC);
---			BLOCK_COLOR : out STD_LOGIC_VECTOR(2 downto 0));
 end BLOCK_GENERATOR_FSM;
 
 architecture Behavioral of BLOCK_GENERATOR_FSM is
 	type fsm_state is (IDLE, PLACE_BLOCK, MOVE_BLOCK, CHECK);
 	signal old_state, new_state : fsm_state;
 	
-	signal POSITION : INTEGER;
+	signal POSITION : INTEGER RANGE 0 TO 479;
 begin
 
 
 BLOCK_POS <= POSITION;
 	-- transition process
-	process(TICK, old_state)
+	process(TICK, old_state) --todo eig geen CLK hierbij?
 	begin
 		case old_state is
 			when IDLE => --TODO trigger toevoegen
 				new_state <= PLACE_BLOCK;
 				
 			when PLACE_BLOCK =>
-				if POSITION < 50 then
+				if POSITION > 400 then
 		--			new_state <= CHECK;
 					new_state <= IDLE;
 				elsif TICK = '1' then
@@ -61,34 +60,24 @@ BLOCK_POS <= POSITION;
 	
 	-- update outputs
 	process(old_state)
-	variable POS : INTEGER range 0 to 480;
-	
 	begin
 		case old_state is
 			when IDLE =>
-				POS := 400;
---				POSITION <= 400;
-				--block color...
-			
+				POSITION <= 0;
+				
 			when PLACE_BLOCK =>
---				POSITION <= POSITION;
-				POS := POS;
+				POSITION <= POSITION;
 				
 			when MOVE_BLOCK =>
---				POSITION <= (POSITION - 1);
-				POS := POS - 1;
+				POSITION <= (POSITION + 1);
 			
 			when CHECK =>
---				POSITION <= 50;
-				POS := 50;
+				POSITION <= 0;
 				
 			when OTHERS =>
---				POSITION <= 50; --TODO ... kan gewoon weg?
-				POS := 50;
+				POSITION <= 0; --TODO ... kan gewoon weg?
 				
 		end case;
-		
-		POSITION <= POS;
 	end process;
 
 end Behavioral;

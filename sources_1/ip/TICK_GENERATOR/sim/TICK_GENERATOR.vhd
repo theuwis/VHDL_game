@@ -60,8 +60,10 @@ ENTITY TICK_GENERATOR IS
   PORT (
     CLK : IN STD_LOGIC;
     SCLR : IN STD_LOGIC;
+    LOAD : IN STD_LOGIC;
+    L : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
     THRESH0 : OUT STD_LOGIC;
-    Q : OUT STD_LOGIC_VECTOR(21 DOWNTO 0)
+    Q : OUT STD_LOGIC_VECTOR(19 DOWNTO 0)
   );
 END TICK_GENERATOR;
 
@@ -101,14 +103,16 @@ ARCHITECTURE TICK_GENERATOR_arch OF TICK_GENERATOR IS
       SINIT : IN STD_LOGIC;
       UP : IN STD_LOGIC;
       LOAD : IN STD_LOGIC;
-      L : IN STD_LOGIC_VECTOR(21 DOWNTO 0);
+      L : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
       THRESH0 : OUT STD_LOGIC;
-      Q : OUT STD_LOGIC_VECTOR(21 DOWNTO 0)
+      Q : OUT STD_LOGIC_VECTOR(19 DOWNTO 0)
     );
   END COMPONENT c_counter_binary_v12_0_9;
   ATTRIBUTE X_INTERFACE_INFO : STRING;
   ATTRIBUTE X_INTERFACE_INFO OF CLK: SIGNAL IS "xilinx.com:signal:clock:1.0 clk_intf CLK";
   ATTRIBUTE X_INTERFACE_INFO OF SCLR: SIGNAL IS "xilinx.com:signal:reset:1.0 sclr_intf RST";
+  ATTRIBUTE X_INTERFACE_INFO OF LOAD: SIGNAL IS "xilinx.com:signal:data:1.0 load_intf DATA";
+  ATTRIBUTE X_INTERFACE_INFO OF L: SIGNAL IS "xilinx.com:signal:data:1.0 l_intf DATA";
   ATTRIBUTE X_INTERFACE_INFO OF THRESH0: SIGNAL IS "xilinx.com:signal:data:1.0 thresh0_intf DATA";
   ATTRIBUTE X_INTERFACE_INFO OF Q: SIGNAL IS "xilinx.com:signal:data:1.0 q_intf DATA";
 BEGIN
@@ -117,17 +121,17 @@ BEGIN
       C_IMPLEMENTATION => 0,
       C_VERBOSITY => 0,
       C_XDEVICEFAMILY => "zynq",
-      C_WIDTH => 22,
+      C_WIDTH => 20,
       C_HAS_CE => 0,
       C_HAS_SCLR => 1,
-      C_RESTRICT_COUNT => 1,
+      C_RESTRICT_COUNT => 0,
       C_COUNT_TO => "100000",
       C_COUNT_BY => "1",
       C_COUNT_MODE => 0,
-      C_THRESH0_VALUE => "100000",
+      C_THRESH0_VALUE => "11111111111111111111",
       C_CE_OVERRIDES_SYNC => 0,
       C_HAS_THRESH0 => 1,
-      C_HAS_LOAD => 0,
+      C_HAS_LOAD => 1,
       C_LOAD_LOW => 0,
       C_LATENCY => 1,
       C_FB_LATENCY => 0,
@@ -144,8 +148,8 @@ BEGIN
       SSET => '0',
       SINIT => '0',
       UP => '1',
-      LOAD => '0',
-      L => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 22)),
+      LOAD => LOAD,
+      L => L,
       THRESH0 => THRESH0,
       Q => Q
     );
