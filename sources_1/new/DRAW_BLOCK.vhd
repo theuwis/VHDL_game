@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
+--use IEEE.STD_LOGIC_ARITH.ALL;
 
 ------------------------------------------------------
 -- draws a block on specific coordinates
@@ -39,10 +39,15 @@ begin
 process(X_1, X_2, Y_1, Y_2)
 	begin
 	if (CLK'event and CLK = '1') then
-		X_DES_VECT_1 <= CONV_STD_LOGIC_VECTOR(X_1, 9);
-		X_DES_VECT_2 <= CONV_STD_LOGIC_VECTOR(X_2, 9);
-		Y_DES_VECT_1 <= CONV_STD_LOGIC_VECTOR(Y_1, 9);
-		Y_DES_VECT_2 <= CONV_STD_LOGIC_VECTOR(Y_2, 9);
+		--my_slv <= std_logic_vector(to_unsigned(my_int, my_slv'length));
+		X_DES_VECT_1 <= STD_LOGIC_VECTOR(TO_UNSIGNED(X_1, X_DES_VECT_1'length));
+		X_DES_VECT_2 <= STD_LOGIC_VECTOR(TO_UNSIGNED(X_2, X_DES_VECT_2'length));
+		Y_DES_VECT_1 <= STD_LOGIC_VECTOR(TO_UNSIGNED(Y_1, Y_DES_VECT_1'length));
+		Y_DES_VECT_2 <= STD_LOGIC_VECTOR(TO_UNSIGNED(Y_2, Y_DES_VECT_2'length));
+--		X_DES_VECT_1 <= CONV_STD_LOGIC_VECTOR(X_1, 9);
+--		X_DES_VECT_2 <= CONV_STD_LOGIC_VECTOR(X_2, 9);
+--		Y_DES_VECT_1 <= CONV_STD_LOGIC_VECTOR(Y_1, 9);
+--		Y_DES_VECT_2 <= CONV_STD_LOGIC_VECTOR(Y_2, 9);
 	end if;
 end process;
 

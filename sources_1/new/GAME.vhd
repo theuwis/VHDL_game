@@ -35,7 +35,8 @@ entity GAME is
 			SCK : out STD_LOGIC;
 			SSEL : out STD_LOGIC;
 			
-			LEDS : out STD_LOGIC_VECTOR(3 downto 0));
+			LEDS : out STD_LOGIC_VECTOR(3 downto 0);
+			START : in STD_LOGIC);
 end GAME;
 
 architecture Behavioral of GAME is
@@ -90,7 +91,11 @@ architecture Behavioral of GAME is
 	    		
 	    		X_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
 	    		Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
-	    		BLOCK_POS : in STD_LOGIC_VECTOR(1 downto 0));
+	    		BLOCK_POS : in STD_LOGIC_VECTOR(1 downto 0);
+	    		BLOCK_COL : in STD_LOGIC_VECTOR(23 downto 0);
+	    		START_SCREEN: out BOOLEAN;
+	    		LOST_SCREEN : out BOOLEAN;
+	    		START : in STD_LOGIC);
 	end component;
 	
 	component SCORE_INCR_COUNTER is
@@ -185,6 +190,10 @@ architecture Behavioral of GAME is
 	-- game over screen
 	signal GAME_OVER_DRAW : BOOLEAN;
 	signal GAME_OVER_COLOR : STD_LOGIC_VECTOR(23 downto 0);
+	
+	-- game over
+	signal START_SCREEN : BOOLEAN;
+	signal LOST_SCREEN : BOOLEAN;
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -193,8 +202,9 @@ VGA: VGA_CONTROLLER port map(CLK => CLK, RST => RST, RED_IN => RED, GREEN_IN => 
 BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
 							GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
 incr: SCORE_INCR_COUNTER port map(CLK => CLK, THRESH0 => SCORE_INCR);
-GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK, RED => RED_BLOCK,
-							GREEN => GREEN_BLOCK, BLUE => BLUE_BLOCK, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_POS => BLOCK_POS);
+GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK, RED => RED_BLOCK, GREEN => GREEN_BLOCK,
+							BLUE => BLUE_BLOCK, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_POS => BLOCK_POS, BLOCK_COL => BLOCK_COL,
+							START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN, START => START);
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 COLOR_CONTROLLER: COLOR_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_COL => BLOCK_COL, LEDS => LEDS);
@@ -211,7 +221,7 @@ process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		-- draw game over screen
-		if BTN1 = '1' then
+		if (BTN1 = '1') or (LOST_SCREEN = true) then
 			if GAME_OVER_DRAW = true then
 				RED <=   GAME_OVER_COLOR(23 downto 16);
 				GREEN <= GAME_OVER_COLOR(15 downto 8);

@@ -18,29 +18,14 @@ entity GAME_CONTROLLER is
     		X_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
     		Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
     		
-    		BLOCK_POS : in STD_LOGIC_VECTOR(1 downto 0));
+    		BLOCK_POS : in STD_LOGIC_VECTOR(1 downto 0);
+    		BLOCK_COL : in STD_LOGIC_VECTOR(23 downto 0);
+    		START_SCREEN: out BOOLEAN;
+    		LOST_SCREEN : out BOOLEAN;
+    		START : in STD_LOGIC);
 end GAME_CONTROLLER;
 
 architecture Behavioral of GAME_CONTROLLER is
---	component DRAW_BLOCK is
---		port(	CLK : in STD_LOGIC;
---				RST : in STD_LOGIC;
---				X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
---				Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
---				X_1 : in INTEGER;
---				X_2 : in INTEGER;
---				Y_1 : in INTEGER;
---				Y_2 : in INTEGER;
---				DRAW : out BOOLEAN);
---	end component;
-	
---	component BLOCK_GENERATOR_FSM is
---		port(	CLK : in STD_LOGIC;
---				RST : in STD_LOGIC;
---				BLOCK_POS : out INTEGER;
---				TICK : in STD_LOGIC);
---	end component;
-	
 	-- generates a tick to move the wall forward
 	-- by loading in a higher value, the wall can move faster
 	component TICK_GENERATOR is
@@ -61,14 +46,28 @@ architecture Behavioral of GAME_CONTROLLER is
 	end component;
 	
 	component DRAW_WALL is
-	    Port ( CLK: in STD_LOGIC;
-	    	   RST: in STD_LOGIC;
-	    	   X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-	    	   Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-	    	   RANDOM: in STD_LOGIC_VECTOR(3 downto 0);
-	           POS : in INTEGER;
-	           DRAW : out BOOLEAN;
-	           COLOR : out STD_LOGIC_VECTOR(23 downto 0));
+		Port ( CLK: in STD_LOGIC;
+			   RST: in STD_LOGIC;
+			   X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+			   Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+			   RANDOM: in STD_LOGIC_VECTOR(3 downto 0);
+			   POS : in INTEGER;
+			   DRAW : out BOOLEAN;
+			   GAP_POS: out STD_LOGIC_VECTOR(1 downto 0); -- upper = 0, middle = 1, bottom = 2
+			   COLOR : out STD_LOGIC_VECTOR(23 downto 0));
+	end component;
+	
+	component GAME_CONTROLLER_FSM is
+		Port ( CLK : in STD_LOGIC;
+			   RST : in STD_LOGIC;
+			   X_POS : INTEGER range 0 to 479;
+			   GAP_POS : in STD_LOGIC_VECTOR (1 downto 0);
+			   BLOCK_POS : in STD_LOGIC_VECTOR (1 downto 0);
+			   COLOR_WALL: in STD_LOGIC_VECTOR (23 downto 0);
+			   COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);
+			   START : in STD_LOGIC;
+			   START_SCREEN : out BOOLEAN;
+			   LOST_SCREEN : out BOOLEAN);
 	end component;
 
 	-- signals used to move the wall over the screen
@@ -85,6 +84,8 @@ architecture Behavioral of GAME_CONTROLLER is
 	signal WALL_COLOR : STD_LOGIC_VECTOR(23 downto 0);
 	signal RAND_LOC : STD_LOGIC_VECTOR(3 downto 0);
 	
+	signal GAP_POS_sign : STD_LOGIC_VECTOR(1 downto 0);
+
 
 begin
 --block1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, X_1 => POSITION1, X_2 => POSITION2,
@@ -92,8 +93,13 @@ begin
 --blocks: BLOCK_GENERATOR_FSM port map(CLK => CLK, RST => RST, BLOCK_POS => POSITION1, TICK => TICK);
 tick_gen: TICK_GENERATOR port map(CLK => CLK, SCLR => RST, LOAD => TICK, L => SPEED, THRESH0 => TICK);
 wall_gen: DRAW_WALL port map(CLK => CLK, RST => RST, X_POS_CURRENT => X_POS, Y_POS_CURRENT => Y_POS, RANDOM => RAND_LOC,
-							POS => POSITION, DRAW => WALL_DRAW, COLOR => WALL_COLOR);
+							POS => POSITION, DRAW => WALL_DRAW, GAP_POS => GAP_POS_sign, COLOR => WALL_COLOR);
 speed_incr: DIFF_INCREASE port map(CLK => CLK, SCLR => RST, THRESH0 => SPEED_TICK);
+game_fsm: GAME_CONTROLLER_FSM port map(CLK => CLK, RST => RST, X_POS => POSITION, GAP_POS => GAP_POS_sign, BLOCK_POS => BLOCK_POS,
+							COLOR_WALL => WALL_COLOR, COLOR_BLOCK => BLOCK_COL, START => START, START_SCREEN => START_SCREEN,
+							LOST_SCREEN => LOST_SCREEN);
+
+
 
 RAND_LOC(1 downto 0) <= X_TOUCH(1 downto 0);
 RAND_LOC(3 downto 2) <= Y_TOUCH(1 downto 0);
