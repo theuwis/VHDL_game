@@ -15,7 +15,8 @@ entity DRAW_WALL is
            POS : in INTEGER;
            DRAW : out BOOLEAN;
            GAP_POS: out STD_LOGIC_VECTOR(1 downto 0); -- upper = 0, middle = 1, bottom = 2
-           COLOR : out STD_LOGIC_VECTOR(23 downto 0));
+           COLOR : out STD_LOGIC_VECTOR(23 downto 0);
+           WALL_COLOR : out STD_LOGIC_VECTOR(23 downto 0));
            
 end DRAW_WALL;
 
@@ -60,38 +61,55 @@ bottomblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_C
 			case RANDOM is
 				when "0000" => new_wall <= W1;	
 							   GAP_POS  <= "00";
+							   WALL_COLOR <= "111111110000000000000000";
 				when "0001" => new_wall <= W2;
 							   GAP_POS  <= "01";
+							   WALL_COLOR <= "111111110000000000000000";
 				when "0010" => new_wall <= W3;
 							   GAP_POS  <= "10";
+							   WALL_COLOR <= "111111110000000000000000";
 				when "0011" => new_wall <= W4;
 							   GAP_POS  <= "00";
+							    WALL_COLOR <= "000000001111111100000000";
 				when "0100" => new_wall <= W5;
 							   GAP_POS  <= "01";
+							   WALL_COLOR <= "000000001111111100000000";
 				when "0101" => new_wall <= W6;
 							   GAP_POS  <= "10";
+							   WALL_COLOR <= "000000001111111100000000";
 				when "0110" => new_wall <= W7;
 							   GAP_POS  <= "00";
+							   WALL_COLOR <= "000000001111111111111111";
 				when "0111" => new_wall <= W8;
 							   GAP_POS  <= "01";
+							   WALL_COLOR <= "000000001111111111111111";
 				when "1000" => new_wall <= W9;
 							   GAP_POS  <= "10";
+							   WALL_COLOR <= "000000001111111111111111";
 				when "1001" => new_wall <= W10;
 							   GAP_POS  <= "00";
+							   WALL_COLOR <= "111111110000000011111111";
 				when "1010" => new_wall <= W11;
 							   GAP_POS  <= "01";
+							   WALL_COLOR <= "111111110000000011111111";
 				when "1011" => new_wall <= W12;
 							   GAP_POS  <= "10";
+							   WALL_COLOR <= "111111110000000011111111";
 				when "1100" => new_wall <= W13;
 							   GAP_POS  <= "00";
+							   WALL_COLOR <= "000000000100001110101111";
 				when "1101" => new_wall <= W14;
 							   GAP_POS  <= "01";
+							   WALL_COLOR <= "000000000100001110101111";
 				when "1110" => new_wall <= W15;
 							   GAP_POS  <= "10";
+							   WALL_COLOR <= "000000000100001110101111";
 				when "1111" => new_wall <= W16;	
 							   GAP_POS  <= "00";
+							   WALL_COLOR <= "111111110000000000000000";
 				when others => new_wall <= W2;	
 							   GAP_POS  <= "01";
+							   WALL_COLOR <= "111111110000000000000000";
 			end case;
 		else
 			X_1<=pos;
@@ -186,9 +204,9 @@ bottomblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_C
 			when W12 => if(udraw = true) then
 							COLOR <= "000000000000000000000000";
 						elsif(mdraw = true) then
-							COLOR <= "111111110000000011111111";
-						elsif(bdraw = true) then
 							COLOR <= "000000000000000000000000";
+						elsif(bdraw = true) then
+							COLOR <= "111111110000000011111111";
 						end if;
 			-- no color	
 			when W13 => if(udraw = true) then

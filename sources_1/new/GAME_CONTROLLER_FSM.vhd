@@ -1,35 +1,6 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 01/03/2017 11:11:46 AM
--- Design Name: 
--- Module Name: GAMECONTROLLER_FSM - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity GAME_CONTROLLER_FSM is
     Port ( CLK : in STD_LOGIC;
@@ -47,7 +18,7 @@ end GAME_CONTROLLER_FSM;
 
 architecture Behavioral of GAME_CONTROLLER_FSM is
 
-type fsm_state is (start_scr,begin_game,begin_game2,test,move_wall, lost);
+type fsm_state is (start_scr,begin_game,test,move_wall, lost);
 signal old_state, new_state: fsm_state;
 
 begin
@@ -59,15 +30,14 @@ begin
 								else
 									new_state <= start_scr;
 								end if;
-			when begin_game =>	new_state <= begin_game2;
-			when begin_game2 => new_state <= move_wall;
-			when move_wall =>	if(X_POS =420) then
+			when begin_game => new_state <= move_wall;
+			when move_wall =>	if(X_POS = 370) then
 									new_state <= test;
 								else
 									new_state <= move_wall;
 								end if;
 			when test => 		if(GAP_POS = BLOCK_POS) then
-									if(COLOR_WALL = COLOR_BLOCK) then
+									if (COLOR_WALL = COLOR_BLOCK) then
 										new_state <= move_wall;
 									elsif (COLOR_WALL = "000000000100001110101111") then
 										new_state <= move_wall;
@@ -107,9 +77,6 @@ begin
 								START_SCREEN <= false;
 								GAME_RESET <= '0';
 			when begin_game =>	START_SCREEN <= true;
-								LOST_SCREEN <= false;
-								GAME_RESET <= '1';
-			when begin_game2 =>	START_SCREEN <= true;
 								LOST_SCREEN <= false;
 								GAME_RESET <= '1';
 			when others => 		START_SCREEN <= false;

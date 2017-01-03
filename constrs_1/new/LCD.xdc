@@ -129,5 +129,6 @@ set_property MARK_DEBUG false [get_nets {Y_TOUCH[7]}]
 set_property MARK_DEBUG false [get_nets MISO_IBUF]
 set_property MARK_DEBUG false [get_nets BUSY_IBUF]
 
-set_property MARK_DEBUG true [get_nets RST_BTN_IBUF]
-set_property MARK_DEBUG true [get_nets RST]
+
+set_property MARK_DEBUG false [get_nets RST]
+set_property MARK_DEBUG false [get_nets RST_BTN_IBUF]
