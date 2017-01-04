@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity VGA_CONTROLLER is
 	port(	CLK : in STD_LOGIC;
@@ -24,28 +25,15 @@ entity VGA_CONTROLLER is
 end VGA_CONTROLLER;
 
 architecture Behavioral of VGA_CONTROLLER is
-	-- generates 10MHz CLK for the screen (using a PLL)
-	component PLL_10MHZ is
-		port(	CLK_IN : in STD_LOGIC;
-				CLK_OUT : out STD_LOGIC;
-				RST : in STD_LOGIC);
-	end component;
-
-	-- buffer for the 10MHz CLK coming from the PLL
-	component CLK_BUFFER is
-		port(	CLK_IN : in STD_LOGIC;
-				CLK_OUT : out STD_LOGIC);
-	end component;
-	-- generates 10.4MHz CLK for the screen
-	--
+	-- comonent that generates 10.4MHz CLK for the DCLK using a prescaler
 	component DCLK_PRESCALER is
 		port(	CLK : IN STD_LOGIC;
 				SCLR : IN STD_LOGIC;
 				THRESH0 : OUT STD_LOGIC;
-				Q : OUT STD_LOGIC_VECTOR(2 DOWNTO 0));
+				Q : OUT STD_LOGIC_VECTOR(3 DOWNTO 0));
 	end component;
 	
-	-- counter for the HSYNC signal (0..531)
+	-- component for counter HSYNC signal (0..531)
 	component VGA_HSYCN_COUNTER is
 		port(	CLK : IN STD_LOGIC;
 				CE : IN STD_LOGIC;
@@ -54,7 +42,7 @@ architecture Behavioral of VGA_CONTROLLER is
 				Q : OUT STD_LOGIC_VECTOR(9 DOWNTO 0));
 	end component;
 	
-	-- counter for the VSYNC signal (0..297)
+	-- component for counter VSYNC signal (0..297)
 	component VGA_VSYNC_COUNTER is
 		port(	CLK : IN STD_LOGIC;
 				CE : IN STD_LOGIC;
@@ -63,7 +51,7 @@ architecture Behavioral of VGA_CONTROLLER is
 				Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0));
 	end component;
 
-	-- counter for the x position when the screen is visible (0..479)	
+	-- component for counter x position (when the screen is visible: 0..479)	
 	component VGA_X_POS is
 		port(	CLK : IN STD_LOGIC;
 				CE : IN STD_LOGIC;
@@ -72,7 +60,7 @@ architecture Behavioral of VGA_CONTROLLER is
 				Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0));
 	end component;
 	
-	-- counter for the u position when the screen is visible (0..271)
+	-- component for counter y position (when the screen is visible: 0..271)
 	component VGA_Y_POS is
 		port(	CLK : IN STD_LOGIC;
 				CE : IN STD_LOGIC;
@@ -81,152 +69,149 @@ architecture Behavioral of VGA_CONTROLLER is
 				Q : OUT STD_LOGIC_VECTOR(8 DOWNTO 0));
 	end component;
 
-	-- DCLK signals
-	signal DCLK_PLL : STD_LOGIC;
-	signal DCLK_BUFF : STD_LOGIC;
-	signal DCLK_sign : STD_LOGIC;
+	-- signals to generate DCLK
 	signal DISP_sign : STD_LOGIC;
-	
+	signal DCLK_sign : STD_LOGIC;
+	signal DCLK_count : STD_LOGIC_VECTOR(3 downto 0);
 	signal DCLK_DUT : STD_LOGIC := '0';
 	
-	-- HSYNC signals
+	-- signals to generate HSYNC
 	signal H_COUNTER : STD_LOGIC_VECTOR(9 downto 0);
 	signal H_SYNC : STD_LOGIC;
 	signal H_VISABLE : STD_LOGIC;
 	
-	-- VSYNC signals
+	-- signals to generate VSYNC
 	signal VCLK : STD_LOGIC;
+	signal VCLK_count : STD_LOGIC;
 	signal V_COUNTER : STD_LOGIC_VECTOR(8 downto 0);
 	signal V_SYNC : STD_LOGIC;
 	signal V_VISABLE : STD_LOGIC;
-	
-	--
-	signal RED : STD_LOGIC_VECTOR(7 downto 0); -- TODO , deze worden vervangen door gewoon de input?
-	signal GREEN : STD_LOGIC_VECTOR(7 downto 0);
-	signal BLUE : STD_LOGIC_VECTOR(7 downto 0);
-	
-	-- visible screen signals	
+		
+	-- signals for the visible screen coordinates	
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS_CE : STD_LOGIC;
 	
 begin
---DCLK_controller: PLL_10MHZ port map(CLK_IN => CLK, CLK_OUT => DCLK_PLL, RST => RST);
---DCLK_buffer: CLK_BUFFER port map(CLK_IN => DCLK_PLL, CLK_OUT => DCLK_BUFF);
-DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign);
+DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign, Q => DCLK_count);
 
+VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => CLK, CE => DCLK_sign, SCLR => '0', THRESH0 => VCLK, Q => H_COUNTER);
+VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => CLK, CE => VCLK_count, SCLR => '0', Q => V_COUNTER);
 
-
-VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => DCLK_DUT, CE => '1', SCLR => RST, THRESH0 => VCLK, Q => H_COUNTER);
-VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => VCLK, CE => '1', SCLR => RST, Q => V_COUNTER);
-
+--x_pos_counter: VGA_X_POS port map(CLK => DCLK_DUT, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
+--y_pos_counter: VGA_Y_POS port map(CLK => DCLK_DUT, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
 x_pos_counter: VGA_X_POS port map(CLK => DCLK_DUT, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
 y_pos_counter: VGA_Y_POS port map(CLK => DCLK_DUT, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
 
+-- always enable the backlight on the screen
+BL_EN <= '1';
+
+-- generate VCLK pulse
+VCLK_count <= VCLK and DCLK_sign;
+
+-- couple signals to the output
+DCLK <= DCLK_DUT;
+H_SYNC_O <= H_SYNC;
+V_SYNC_O <= V_SYNC;
+X_POS_OUT <= X_POS;
+Y_POS_OUT <= Y_POS;
+
+
+-- process that generates DCLK
+-- DCLK is high during 6 CLK, and low during the next 6 CLK
+-- DCLK_sign resets at 10 (0xA)
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		if RST = '1' then
 			DCLK_DUT <= '0';
 		else
-			if DCLK_sign = '1' then
-				DCLK_DUT <= not DCLK_DUT;
+			if DCLK_count < "0110" then
+				DCLK_DUT <= '1';
+			else
+				DCLK_DUT <= '0';
 			end if;
 		end if;
+
 	end if;
+--	if (CLK'event and CLK = '1') then
+--		if RST = '1' then
+--			DCLK_DUT <= '0';
+--		elsif DCLK_sign = '1' then
+--			DCLK_DUT <= not DCLK_DUT;
+--		end if;
+--	end if;
 end process;
 
--- TODO kan dit niet met port map ofzo?
-DCLK <= DCLK_DUT;
-H_SYNC_O <= H_SYNC;
-V_SYNC_O <= V_SYNC;
-
--- output positions
-X_POS_OUT <= X_POS;
-Y_POS_OUT <= Y_POS;
-
-
--- only a part of the input colors can be used
-RED_OUT <= RED;
-GREEN_OUT <= GREEN(7 downto 2);
-BLUE_OUT <= BLUE(7 downto 4);
-
--- always enable the backlight on the screen
-BL_EN <= '1';
-
 -- process to determine if you can display data on the scren
-process(DCLK_DUT)
+process(CLK)
 	begin	
-	if (DCLK_DUT'event and DCLK_DUT = '1') then
+	if (CLK'event and CLK = '1') then
 		if RST = '1' then
 			DISP <= '0';
 			DISP_sign <= '0';
-			RED <=   "00000000";
-			GREEN <= "00000000";
-			BLUE <=  "00000000";
+			
+			RED_OUT   <= "00000000";
+			GREEN_OUT <= "000000"; -- only b7-2 is used for GREEN
+			BLUE_OUT  <= "0000";   -- only b7-4 is used for BLUE
 		else
 			if (H_VISABLE = '1') and (V_VISABLE = '1') then
 				DISP <= '1';
 				DISP_sign <= '1';
 				
-				RED <= RED_IN;
-				GREEN <= GREEN_IN;
-				BLUE <= BLUE_IN;
+				RED_OUT   <= RED_IN;
+				GREEN_OUT <= GREEN_IN(7 downto 2); -- only b7-2 is used for GREEN
+				BLUE_OUT  <= BLUE_IN(7 downto 4);  -- only b7-4 is used for BLUE
 			else
 				DISP <= '0';
 				DISP_sign <= '0';
-				RED <= "00000000";
-				GREEN <= "00000000";
-				BLUE <= "00000000";
+				
+				RED_OUT   <= "00000000";
+				GREEN_OUT <= "000000"; -- only b7-2 is used for GREEN
+				BLUE_OUT  <= "0000";   -- only b7-4 is used for BLUE
 			end if;
 		end if;
 	end if;
 end process;
 
--- process used to generate H- and VSYNC signals
-process(DCLK_DUT)
+-- process that generate HSYNC and VSYNC signals
+process(CLK)
 	begin
-	if (DCLK_DUT'event and DCLK_DUT = '1') then
---		if V_SYNC = '1' then
-			case H_COUNTER is
-				when "0000000000" => -- 0
-					H_SYNC <= '0';
-					H_VISABLE <= '0';			
-				when "0000000001" => -- 1
-					H_SYNC <= '1';
---					H_SYNC <= '0';
-					H_VISABLE <= '0';
-				when "0000101011" => -- 43
-				--when "0000111011" =>
-					H_SYNC <= '1';
-					H_VISABLE <= '1';
-				when "1000001011" => --523 (43 + 480)
-				--when "1000000011" =>
-					H_SYNC <= '1';
-					H_VISABLE <= '0';
-				when OTHERS =>
-				
+	if (CLK'event and CLK = '1') then
+		case H_COUNTER is
+			when "0000000000" => -- 0 (pulse width: 0..1 => length = 1 DCLK)
+				H_SYNC <= '0';
+				H_VISABLE <= '0';			
+			when "0000000001" => -- 1 (back porch: 1..43 => length = 42 DCLK)
+				H_SYNC <= '1';
+				H_VISABLE <= '0';
+			when "0000101011" => -- 43 (display: 43..523 => length = 480 DCLK)
+				H_SYNC <= '1';
+				H_VISABLE <= '1';
+			when "1000001011" => --523 (front porch: 523..531 => length = 8 DCLK)
+				H_SYNC <= '1';
+				H_VISABLE <= '0';
+			when OTHERS =>
+				H_SYNC <= H_SYNC;
+				H_VISABLE <= H_VISABLE;
 			end case;
---		end if;
 		
 		case V_COUNTER is
-			when "000000000" => -- 0
+			when "000000000" => -- 0 (pulse width: 0..10 => length = 10 VCLK)
 				V_SYNC <= '0';
 				V_VISABLE <= '0';
-			when "000001010" => -- 10
+			when "000001010" => -- 10 (back porch: 10..21 => length = 11 VCLK)
 				V_SYNC <= '1';
---				V_SYNC <= '0';
 				V_VISABLE <= '0';
-			when "000010101" => -- 21
-			--when "000110101" =>
+			when "000010101" => -- 21 (display: 21..293 => length = 272 VCLK)
 				V_SYNC <= '1';
 				V_VISABLE <= '1';
-			when "100100101" => -- 293
-			--when "100000101" =>
+			when "100100101" => -- 293 (front porch: 293..297 => length = 4 VCLK)
 				V_SYNC <= '1';
 				V_VISABLE <= '0';
 			when OTHERS =>
-			
+				V_SYNC <= V_SYNC;
+				V_VISABLE <= V_VISABLE;
 		end case;
 	end if;
 end process;
