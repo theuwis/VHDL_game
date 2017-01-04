@@ -1,19 +1,18 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-
 entity GAME_CONTROLLER_FSM is
-    Port ( CLK : in STD_LOGIC;
-           RST : in STD_LOGIC;
-           X_POS : INTEGER range 0 to 479;
-           GAP_POS : in STD_LOGIC_VECTOR (1 downto 0);
-           BLOCK_POS : in STD_LOGIC_VECTOR (1 downto 0);
-           COLOR_WALL: in STD_LOGIC_VECTOR (23 downto 0);
-           COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);
-           START : in STD_LOGIC;
-           START_SCREEN : out BOOLEAN;
-           GAME_RESET: out STD_LOGIC;
-           LOST_SCREEN : out BOOLEAN);
+	port(	CLK : in STD_LOGIC;
+			RST : in STD_LOGIC;
+			X_POS : INTEGER range 0 to 479;
+			GAP_POS : in STD_LOGIC_VECTOR (1 downto 0);
+			BLOCK_POS : in STD_LOGIC_VECTOR (1 downto 0);
+			COLOR_WALL: in STD_LOGIC_VECTOR (23 downto 0);
+			COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);
+			START : in STD_LOGIC;
+			START_SCREEN : out BOOLEAN;
+			GAME_RESET: out STD_LOGIC;
+			LOST_SCREEN : out BOOLEAN);
 end GAME_CONTROLLER_FSM;
 
 architecture Behavioral of GAME_CONTROLLER_FSM is

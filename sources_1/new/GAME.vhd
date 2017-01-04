@@ -105,19 +105,18 @@ architecture Behavioral of GAME is
 				Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0));
 	end component;
 	
+	-- component dealing with the picoblaze and touchscreen
 	component TOUCH_TOP is
-	    Port ( CLK : in STD_LOGIC;
-	           CLR: in STD_LOGIC;
-	           INTERRUPT_REQUEST : in STD_LOGIC;
-	           SDO : out STD_LOGIC;
-	           SDI : in STD_LOGIC;
-	           DCLK : out STD_LOGIC;
-	           BUSY : in STD_LOGIC;
-	           CS : out STD_LOGIC;
-	           X_POS : out STD_LOGIC_VECTOR(7 downto 0);
-	           Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
-	           
-	          -- LEDS: out STD_LOGIC_VECTOR(3 downto 0));
+		port(	CLK : in STD_LOGIC;
+				CLR: in STD_LOGIC;
+				INTERRUPT_REQUEST : in STD_LOGIC;
+				SDO : out STD_LOGIC;
+				SDI : in STD_LOGIC;
+				DCLK : out STD_LOGIC;
+				BUSY : in STD_LOGIC;
+				CS : out STD_LOGIC;
+				X_POS : out STD_LOGIC_VECTOR(7 downto 0);
+				Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
 	
 
