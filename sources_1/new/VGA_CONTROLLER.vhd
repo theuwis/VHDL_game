@@ -36,6 +36,14 @@ architecture Behavioral of VGA_CONTROLLER is
 		port(	CLK_IN : in STD_LOGIC;
 				CLK_OUT : out STD_LOGIC);
 	end component;
+	-- generates 10.4MHz CLK for the screen
+	--
+	component DCLK_PRESCALER is
+		port(	CLK : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
+				THRESH0 : OUT STD_LOGIC;
+				Q : OUT STD_LOGIC_VECTOR(2 DOWNTO 0));
+	end component;
 	
 	-- counter for the HSYNC signal (0..531)
 	component VGA_HSYCN_COUNTER is
@@ -76,7 +84,10 @@ architecture Behavioral of VGA_CONTROLLER is
 	-- DCLK signals
 	signal DCLK_PLL : STD_LOGIC;
 	signal DCLK_BUFF : STD_LOGIC;
+	signal DCLK_sign : STD_LOGIC;
 	signal DISP_sign : STD_LOGIC;
+	
+	signal DCLK_DUT : STD_LOGIC := '0';
 	
 	-- HSYNC signals
 	signal H_COUNTER : STD_LOGIC_VECTOR(9 downto 0);
@@ -100,17 +111,33 @@ architecture Behavioral of VGA_CONTROLLER is
 	signal Y_POS_CE : STD_LOGIC;
 	
 begin
-DCLK_controller: PLL_10MHZ port map(CLK_IN => CLK, CLK_OUT => DCLK_PLL, RST => RST);
-DCLK_buffer: CLK_BUFFER port map(CLK_IN => DCLK_PLL, CLK_OUT => DCLK_BUFF);
+--DCLK_controller: PLL_10MHZ port map(CLK_IN => CLK, CLK_OUT => DCLK_PLL, RST => RST);
+--DCLK_buffer: CLK_BUFFER port map(CLK_IN => DCLK_PLL, CLK_OUT => DCLK_BUFF);
+DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign);
 
-VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => DCLK_BUFF, CE => '1', SCLR => RST, THRESH0 => VCLK, Q => H_COUNTER);
+
+
+VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => DCLK_DUT, CE => '1', SCLR => RST, THRESH0 => VCLK, Q => H_COUNTER);
 VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => VCLK, CE => '1', SCLR => RST, Q => V_COUNTER);
 
-x_pos_counter: VGA_X_POS port map(CLK => DCLK_BUFF, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
-y_pos_counter: VGA_Y_POS port map(CLK => DCLK_BUFF, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
+x_pos_counter: VGA_X_POS port map(CLK => DCLK_DUT, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
+y_pos_counter: VGA_Y_POS port map(CLK => DCLK_DUT, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
+
+process(CLK)
+	begin
+	if (CLK'event and CLK = '1') then
+		if RST = '1' then
+			DCLK_DUT <= '0';
+		else
+			if DCLK_sign = '1' then
+				DCLK_DUT <= not DCLK_DUT;
+			end if;
+		end if;
+	end if;
+end process;
 
 -- TODO kan dit niet met port map ofzo?
-DCLK <= DCLK_BUFF;
+DCLK <= DCLK_DUT;
 H_SYNC_O <= H_SYNC;
 V_SYNC_O <= V_SYNC;
 
@@ -128,9 +155,9 @@ BLUE_OUT <= BLUE(7 downto 4);
 BL_EN <= '1';
 
 -- process to determine if you can display data on the scren
-process(DCLK_BUFF)
+process(DCLK_DUT)
 	begin	
-	if (DCLK_BUFF'event and DCLK_BUFF = '1') then
+	if (DCLK_DUT'event and DCLK_DUT = '1') then
 		if RST = '1' then
 			DISP <= '0';
 			DISP_sign <= '0';
@@ -157,9 +184,9 @@ process(DCLK_BUFF)
 end process;
 
 -- process used to generate H- and VSYNC signals
-process(DCLK_BUFF)
+process(DCLK_DUT)
 	begin
-	if (DCLK_BUFF'event and DCLK_BUFF = '1') then
+	if (DCLK_DUT'event and DCLK_DUT = '1') then
 --		if V_SYNC = '1' then
 			case H_COUNTER is
 				when "0000000000" => -- 0
@@ -167,12 +194,14 @@ process(DCLK_BUFF)
 					H_VISABLE <= '0';			
 				when "0000000001" => -- 1
 					H_SYNC <= '1';
-					H_SYNC <= '0';
+--					H_SYNC <= '0';
 					H_VISABLE <= '0';
 				when "0000101011" => -- 43
+				--when "0000111011" =>
 					H_SYNC <= '1';
 					H_VISABLE <= '1';
 				when "1000001011" => --523 (43 + 480)
+				--when "1000000011" =>
 					H_SYNC <= '1';
 					H_VISABLE <= '0';
 				when OTHERS =>
@@ -186,12 +215,14 @@ process(DCLK_BUFF)
 				V_VISABLE <= '0';
 			when "000001010" => -- 10
 				V_SYNC <= '1';
-				V_SYNC <= '0';
+--				V_SYNC <= '0';
 				V_VISABLE <= '0';
 			when "000010101" => -- 21
+			--when "000110101" =>
 				V_SYNC <= '1';
 				V_VISABLE <= '1';
 			when "100100101" => -- 293
+			--when "100000101" =>
 				V_SYNC <= '1';
 				V_VISABLE <= '0';
 			when OTHERS =>
