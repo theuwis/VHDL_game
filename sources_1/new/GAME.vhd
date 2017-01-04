@@ -5,6 +5,7 @@
 -- TODO: spel einde
 -- TODO: spel start
 -- TODO: overal NUMERIC gebruiken ipv ARITH
+-- TODO: kan niet voorbij eerste rode blok na programmeren
 ---------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -168,6 +169,17 @@ architecture Behavioral of GAME is
 				THRESH0 : OUT STD_LOGIC;
 				Q : OUT STD_LOGIC_VECTOR(20 DOWNTO 0));
 	end component;
+	
+	component START_GAME_SCREEN is
+		port(	CLK : in STD_LOGIC;
+			RST : in STD_LOGIC;
+			DCLK : in STD_LOGIC;
+			XPOS : in STD_LOGIC_VECTOR(8 downto 0);
+			YPOS : in STD_LOGIC_VECTOR(8 downto 0);
+			
+			START_DRAW : out BOOLEAN;
+			DATA : out STD_LOGIC_VECTOR(23 downto 0));
+	end component;
 
 	-- VGA control
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
@@ -208,6 +220,10 @@ architecture Behavioral of GAME is
 	signal GAME_OVER_DRAW : BOOLEAN;
 	signal GAME_OVER_COLOR : STD_LOGIC_VECTOR(23 downto 0);
 	
+	-- start screen
+	signal START_DRAW : BOOLEAN;
+	signal START_COLOR : STD_LOGIC_VECTOR(23 downto 0);
+	
 	-- game over
 	signal START_SCREEN : BOOLEAN;
 	signal LOST_SCREEN : BOOLEAN;
@@ -239,6 +255,9 @@ POSITION_CONTROLLER: POSITION_CHANGE port map(CLK => CLK, RST => DEB_RST, X_TOUC
 							DRAW_MOVING_BLOCK => DRAW_GAME_BLOCK, BLOCK_POS => BLOCK_POS);
 GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
 							GAME_OVER_DRAW => GAME_OVER_DRAW, DATA => GAME_OVER_COLOR);
+START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
+							START_DRAW => START_DRAW, DATA => START_COLOR);
+
 
 debounce_sample: DEB_SAMPLE port map(CLK => CLK, SCLR => DEB_RST, THRESH0 => DEB_SAMP);
 debounce_start: DEBOUNCE_FSM port map(CLK => CLK, RST => DEB_RST, SAMPLE => DEB_SAMP, SW => START, SW_DEB => DEB_START);
@@ -253,13 +272,16 @@ DEB_RST <= (RESTART_GAME or DEB_RST_OUT);
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
-		-- draw game over screen
-		
 		if START_SCREEN = true then
-			RED <=   "00000000";
-			GREEN <= "11111111";
-			BLUE <=  "00000000";
-
+			if START_DRAW = true then
+				RED <=   START_COLOR(23 downto 16);
+				GREEN <= START_COLOR(15 downto 8);
+				BLUE  <= START_COLOR(7 downto 0);
+			else
+				RED <=   "00000000";
+				GREEN <= "01000011";
+				BLUE <=  "10101111";
+			end if;
 		else
 			if (BTN1 = '1') or (LOST_SCREEN = true) then
 				if GAME_OVER_DRAW = true then
