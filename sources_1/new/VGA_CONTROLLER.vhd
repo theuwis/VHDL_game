@@ -89,8 +89,10 @@ architecture Behavioral of VGA_CONTROLLER is
 		
 	-- signals for the visible screen coordinates	
 	signal X_POS : STD_LOGIC_VECTOR(8 downto 0);
+	signal X_POS_CE : STD_LOGIC;
 	signal Y_POS : STD_LOGIC_VECTOR(8 downto 0);
 	signal Y_POS_CE : STD_LOGIC;
+	signal Y_POS_CE_temp : STD_LOGIC;
 	
 begin
 DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign, Q => DCLK_count);
@@ -98,18 +100,19 @@ DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign,
 VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => CLK, CE => DCLK_sign, SCLR => '0', THRESH0 => VCLK, Q => H_COUNTER);
 VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => CLK, CE => VCLK_count, SCLR => '0', Q => V_COUNTER);
 
---x_pos_counter: VGA_X_POS port map(CLK => DCLK_DUT, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
---y_pos_counter: VGA_Y_POS port map(CLK => DCLK_DUT, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
-x_pos_counter: VGA_X_POS port map(CLK => DCLK_DUT, CE => DISP_sign, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE);
-y_pos_counter: VGA_Y_POS port map(CLK => DCLK_DUT, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
+x_pos_counter: VGA_X_POS port map(CLK => CLK, CE => X_POS_CE, SCLR => '0', Q => X_POS, THRESH0 => Y_POS_CE_temp);
+y_pos_counter: VGA_Y_POS port map(CLK => CLK, CE => Y_POS_CE, SCLR => '0', Q => Y_POS);
+
 
 -- always enable the backlight on the screen
 BL_EN <= '1';
 
--- generate VCLK pulse
+-- generate CE's
 VCLK_count <= VCLK and DCLK_sign;
+X_POS_CE <= DISP_sign and DCLK_sign;
+Y_POS_CE <= Y_POS_CE_temp and DCLK_sign;
 
--- couple signals to the output
+-- couple some signals to the output
 DCLK <= DCLK_DUT;
 H_SYNC_O <= H_SYNC;
 V_SYNC_O <= V_SYNC;
@@ -119,28 +122,16 @@ Y_POS_OUT <= Y_POS;
 
 -- process that generates DCLK
 -- DCLK is high during 6 CLK, and low during the next 6 CLK
--- DCLK_sign resets at 10 (0xA)
+-- DCLK_sign resets at 11
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
-		if RST = '1' then
-			DCLK_DUT <= '0';
+		if DCLK_count < "0110" then
+			DCLK_DUT <= '1';
 		else
-			if DCLK_count < "0110" then
-				DCLK_DUT <= '1';
-			else
-				DCLK_DUT <= '0';
-			end if;
+			DCLK_DUT <= '0';
 		end if;
-
 	end if;
---	if (CLK'event and CLK = '1') then
---		if RST = '1' then
---			DCLK_DUT <= '0';
---		elsif DCLK_sign = '1' then
---			DCLK_DUT <= not DCLK_DUT;
---		end if;
---	end if;
 end process;
 
 -- process to determine if you can display data on the scren
