@@ -39,6 +39,9 @@ entity GAME is
 end GAME;
 
 architecture Behavioral of GAME is
+	-- component that deals with all the VGA stuff
+	-- tells you which pixel it is drawing (x, y)
+	-- you can pass it which color it needs to draw
 	component VGA_CONTROLLER is
 		port(	CLK : in STD_LOGIC;
 				RST : in STD_LOGIC;
@@ -77,6 +80,9 @@ architecture Behavioral of GAME is
 				BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
 	
+	-- component used for the gameplay:
+	-- generates random walls and moves them, increases difficulty, handles the moving
+	-- and changing color of the block, checks if the game has ended or not
 	component GAME_CONTROLLER is
 		port(	CLK : in STD_LOGIC;
 				RST : in STD_LOGIC;
@@ -98,6 +104,7 @@ architecture Behavioral of GAME is
 				LEDS : out STD_LOGIC_VECTOR(3 downto 0));
 	end component;
 	
+	-- component that increments the score at a regular interval
 	component SCORE_INCR_COUNTER is
 		port(	CLK : IN STD_LOGIC;
 				SCLR : IN STD_LOGIC;
@@ -119,43 +126,36 @@ architecture Behavioral of GAME is
 				Y_POS : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
 	
-
-	
+	-- component that draw the game over screen	
 	component GAME_OVER_SCREEN is
-	    Port ( CLK : in STD_LOGIC;
-	           RST : in STD_LOGIC;
-	           DCLK : in STD_LOGIC;
-	           XPOS : in STD_LOGIC_VECTOR(8 downto 0);
-	           YPOS : in STD_LOGIC_VECTOR(8 downto 0);
-	           
-	           GAME_OVER_DRAW : out BOOLEAN;
-	           DATA : out STD_LOGIC_VECTOR(23 downto 0));
+		port(	CLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				DCLK : in STD_LOGIC;
+				XPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				YPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				
+				GAME_OVER_DRAW : out BOOLEAN;
+				DATA : out STD_LOGIC_VECTOR(23 downto 0));
 	end component;
 	
-	-- debounce
-	component DEBOUNCE_FSM is
-	    Port ( CLK : in STD_LOGIC;
-	           RST : in STD_LOGIC;
-	           SAMPLE : in STD_LOGIC;
-	           SW : in STD_LOGIC;
-	           SW_DEB : out STD_LOGIC);
+	-- component used for debouncing buttons
+	component DEBOUNCE_BTN is
+		port(	CLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				SW_IN : in STD_LOGIC;
+				SW_OUT : out STD_LOGIC);
 	end component;
-	component DEB_SAMPLE is
-		port(	CLK : IN STD_LOGIC;
-				SCLR : IN STD_LOGIC;
-				THRESH0 : OUT STD_LOGIC;
-				Q : OUT STD_LOGIC_VECTOR(20 DOWNTO 0));
-	end component;
+	
 	
 	component START_GAME_SCREEN is
 		port(	CLK : in STD_LOGIC;
-			RST : in STD_LOGIC;
-			DCLK : in STD_LOGIC;
-			XPOS : in STD_LOGIC_VECTOR(8 downto 0);
-			YPOS : in STD_LOGIC_VECTOR(8 downto 0);
-			
-			START_DRAW : out BOOLEAN;
-			DATA : out STD_LOGIC_VECTOR(23 downto 0));
+				RST : in STD_LOGIC;
+				DCLK : in STD_LOGIC;
+				XPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				YPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				
+				START_DRAW : out BOOLEAN;
+				DATA : out STD_LOGIC_VECTOR(23 downto 0));
 	end component;
 
 	-- VGA control
@@ -174,25 +174,16 @@ architecture Behavioral of GAME is
 	-- signals for the game visuals
 	signal DRAW_GAME : BOOLEAN;
 	signal COLOR_GAME : STD_LOGIC_VECTOR(23 downto 0);
---	signal RED_GAME : STD_LOGIC_VECTOR(7 downto 0);
---	signal GREEN_GAME : STD_LOGIC_VECTOR(7 downto 0);
---	signal BLUE_GAME : STD_LOGIC_VECTOR(7 downto 0);
 	
 	-- ROM's
 	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
 	
 	-- score counter
 	signal SCORE_INCR : STD_LOGIC;
---	signal SW_SAMPLE : STD_LOGIC;
 	
 	-- touchscreen
 	signal X_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
 	signal Y_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
-	
-	-- signals for movable block
---	signal BLOCK_COL : STD_LOGIC_VECTOR(23 downto 0);
-	signal DRAW_GAME_BLOCK : BOOLEAN;
---	signal BLOCK_POS : STD_LOGIC_VECTOR(1 downto 0);
 	
 	-- game over screen
 	signal GAME_OVER_DRAW : BOOLEAN;
@@ -206,8 +197,7 @@ architecture Behavioral of GAME is
 	signal START_SCREEN : BOOLEAN;
 	signal LOST_SCREEN : BOOLEAN;
 	
-	--signal for start game btn
-	signal DEB_SAMP : STD_LOGIC;
+	--signal for start and restart buttons
 	signal DEB_START : STD_LOGIC;
 	signal DEB_RST_OUT : STD_LOGIC;
 	signal DEB_RST : STD_LOGIC;
@@ -222,27 +212,19 @@ VGA: VGA_CONTROLLER port map(CLK => CLK, RST => DEB_RST, RED_IN => RED, GREEN_IN
 							V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
 BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => DEB_RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
 							GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
-incr: SCORE_INCR_COUNTER port map(CLK => CLK, SCLR => DEB_RST, THRESH0 => SCORE_INCR);
-
---GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => DEB_RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_BLOCK, RED => RED_BLOCK, GREEN => GREEN_BLOCK,
---							BLUE => BLUE_BLOCK, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, DRAW_GAME_BLOCK => DRAW_GAME_BLOCK, BLOCK_COL => BLOCK_COL, LEDS => LEDS,
---							START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN, GAME_RESET => RESTART_GAME, START => DEB_START);		
+incr: SCORE_INCR_COUNTER port map(CLK => CLK, SCLR => DEB_RST, THRESH0 => SCORE_INCR);	
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => DEB_RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_GAME, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH,
 							COLOR => COLOR_GAME, LEDS => LEDS, START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN,
-							GAME_RESET => RESTART_GAME, START => DEB_START);
-
-			
+							GAME_RESET => RESTART_GAME, START => DEB_START);	
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => DEB_RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
 							GAME_OVER_DRAW => GAME_OVER_DRAW, DATA => GAME_OVER_COLOR);
 START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
 							START_DRAW => START_DRAW, DATA => START_COLOR);
+DEBOUNCE_START: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => START, SW_OUT => DEB_START);
+DEBOUNCE_RST: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => RST_BTN, SW_OUT => DEB_RST_OUT);
 
-
-debounce_sample: DEB_SAMPLE port map(CLK => CLK, SCLR => DEB_RST, THRESH0 => DEB_SAMP);
-debounce_start: DEBOUNCE_FSM port map(CLK => CLK, RST => DEB_RST, SAMPLE => DEB_SAMP, SW => START, SW_DEB => DEB_START);
-debounce_rst: DEBOUNCE_FSM port map(CLK => CLK, RST => DEB_RST, SAMPLE => DEB_SAMP, SW => RST_BTN, SW_DEB => DEB_RST_OUT);
 
 DCLK <= DCLK_ROM;
 GND <= '0';
@@ -263,6 +245,7 @@ process(CLK)
 				GREEN <= "01000011";
 				BLUE <=  "10101111";
 			end if;
+			
 		else
 			if LOST_SCREEN = true then
 				if GAME_OVER_DRAW = true then
@@ -282,23 +265,13 @@ process(CLK)
 					GREEN <= GREEN_BG;
 					BLUE <=  BLUE_BG;
 				
+				-- draw the game elements
 				elsif DRAW_GAME = true then
 					RED <=	 COLOR_GAME(23 downto 16);
 					GREEN <= COLOR_GAME(15 downto 8);
 					BLUE <=  COLOR_GAME(7 downto 0);
---				-- draw the block that has to be moved by the player
---				elsif DRAW_GAME_BLOCK = true then
---					RED <=	 BLOCK_COL(23 downto 16);
---					GREEN <= BLOCK_COL(15 downto 8);
---					BLUE <=  BLOCK_COL(7 downto 0);
-						
---				-- draw the wall
---				elsif DRAW_BLOCK = true then
---					RED <=   RED_BLOCK;
---					GREEN <= GREEN_BLOCK;
---					BLUE <=  BLUE_BLOCK;
-				
-				-- everything else get a blue background color
+					
+				-- every pixels that doesn't have a background or game element gets a blue background color
 				else
 					RED <=   "00000000"; -- 0
 					GREEN <= "01000011"; -- 67
