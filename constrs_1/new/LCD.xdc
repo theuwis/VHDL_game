@@ -1,7 +1,5 @@
-set_property IOSTANDARD LVCMOS33 [get_ports BTN1]
-set_property PACKAGE_PIN Y16 [get_ports BTN1]
 set_property IOSTANDARD LVCMOS33 [get_ports START]
-set_property PACKAGE_PIN V16 [get_ports START]
+set_property PACKAGE_PIN Y16 [get_ports START]
 
 set_property IOSTANDARD LVCMOS33 [get_ports CLK]
 set_property IOSTANDARD LVCMOS33 [get_ports H_SYNC_O]

@@ -70,7 +70,7 @@ bottomblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_C
 							   WALL_COLOR <= "111111110000000000000000";
 				when "0011" => new_wall <= W4;
 							   GAP_POS  <= "00";
-							    WALL_COLOR <= "000000001111111100000000";
+							   WALL_COLOR <= "000000001111111100000000";
 				when "0100" => new_wall <= W5;
 							   GAP_POS  <= "01";
 							   WALL_COLOR <= "000000001111111100000000";
