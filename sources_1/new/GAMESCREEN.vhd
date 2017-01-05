@@ -39,16 +39,11 @@ architecture Behavioral of GAMESCREEN is
 	component SCORE_TEXT_COUNTER is
 		port(	CLK : IN STD_LOGIC;
 				CE : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
 				Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0));
 	end component;
 	
-	
-	
---	-- used to display the current score
---	component SCORE_NUMBERS is
---		port(	a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
---				spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0));
---	end component;
+	-- component to read the SCORE ROM
 	component SCORE_COUNTER is
 		port(	CLK : in STD_LOGIC;
 				RST : in STD_LOGIC;
@@ -59,9 +54,12 @@ architecture Behavioral of GAMESCREEN is
 				GREEN_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
 				BLUE_SCORE : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
+	
+	-- component to generate the address for the SCORE ROM
 	component SCORE_NUMBERS_COUNTER is
 		port(	CLK : IN STD_LOGIC;
 				CE : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
 				Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 	end component;
 		
@@ -139,7 +137,7 @@ button4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_PO
 score_text_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 399, X_2 => 470,
 								Y_1 => 225, Y_2 => 242, DRAW => DRAW_SCORE_TEXT);
 score_text_rom: SCORE_TEXT port map(a => ADR_SCORE_TEXT, spo => OUT_SCORE_TEXT);
-score_text_count: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => EN_SCORE_TEXT, Q => ADR_SCORE_TEXT);
+score_text_count: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => EN_SCORE_TEXT, SCLR => RST, Q => ADR_SCORE_TEXT);
 
 score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
 								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
@@ -152,10 +150,10 @@ score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XP
 
 score_getadr: SCORE_COUNTER port map(CLK => CLK, RST => RST, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => RED_SCORE, GREEN_SCORE => GREEN_SCORE, BLUE_SCORE => BLUE_SCORE);
 
-score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1, Q => ADR_SCORE_1);
-score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_10, Q => ADR_SCORE_10);
-score_count_100: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_100, Q => ADR_SCORE_100);
-score_count_1000: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1000, Q => ADR_SCORE_1000);
+score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1, SCLR => RST, Q => ADR_SCORE_1);
+score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_10, SCLR => RST, Q => ADR_SCORE_10);
+score_count_100: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_100, SCLR => RST, Q => ADR_SCORE_100);
+score_count_1000: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1000, SCLR => RST, Q => ADR_SCORE_1000);
 
 -- process that generates DRAW_BG signal for the top module
 process(CLK)

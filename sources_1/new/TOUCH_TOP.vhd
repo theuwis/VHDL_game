@@ -59,8 +59,6 @@ architecture behavioral of TOUCH_TOP is
 	signal interrupt_ack : std_logic;
 	signal kcpsm6_sleep : std_logic;
 	signal kcpsm6_reset : std_logic;
---	signal clk_signal : std_logic;
-
 	signal cpu_reset : std_logic;
 --	signal rdl : std_logic;
 	signal int_request : std_logic;
@@ -87,6 +85,7 @@ processor: kcpsm6
 				clk => CLK);
 
 kcpsm6_sleep <= '0';
+int_request <= '0';
 --interrupt <= interrupt_ack;
 
 program_rom: TOUCHSCREEN_ASM				--Name to match your PSM file

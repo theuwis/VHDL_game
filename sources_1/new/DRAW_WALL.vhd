@@ -50,7 +50,7 @@ bottomblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_C
 	
 DRAW <= bdraw or mdraw or udraw;
 
-process(POS)
+process(POS, RANDOM)
 	begin
 		if (POS = 478) then
 			case RANDOM is
@@ -129,7 +129,7 @@ process(POS)
 		end if;
 end process;
 	
-process(bdraw,mdraw,udraw)
+process(bdraw, mdraw, udraw, new_wall)
 	begin
 		case new_wall is
 		-- red

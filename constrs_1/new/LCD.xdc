@@ -105,9 +105,9 @@ set_property MARK_DEBUG false [get_nets {TOUCH_CONTROLLER/out_port[7]}]
 
 
 
-set_property MARK_DEBUG false [get_nets SSEL_OBUF]
-set_property MARK_DEBUG false [get_nets SCK_OBUF]
-set_property MARK_DEBUG false [get_nets MOSI_OBUF]
+#set_property MARK_DEBUG false [get_nets SSEL_OBUF]
+#set_property MARK_DEBUG false [get_nets SCK_OBUF]
+#set_property MARK_DEBUG false [get_nets MOSI_OBUF]
 set_property MARK_DEBUG false [get_nets {X_TOUCH[0]}]
 set_property MARK_DEBUG false [get_nets {X_TOUCH[1]}]
 set_property MARK_DEBUG false [get_nets {X_TOUCH[2]}]
@@ -124,8 +124,8 @@ set_property MARK_DEBUG false [get_nets {Y_TOUCH[4]}]
 set_property MARK_DEBUG false [get_nets {Y_TOUCH[5]}]
 set_property MARK_DEBUG false [get_nets {Y_TOUCH[6]}]
 set_property MARK_DEBUG false [get_nets {Y_TOUCH[7]}]
-set_property MARK_DEBUG false [get_nets MISO_IBUF]
-set_property MARK_DEBUG false [get_nets BUSY_IBUF]
+#set_property MARK_DEBUG false [get_nets MISO_IBUF]
+#set_property MARK_DEBUG false [get_nets BUSY_IBUF]
 
 
 set_property MARK_DEBUG false [get_nets RST]

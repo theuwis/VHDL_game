@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2016 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2017 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -55,9 +55,10 @@
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
 SCORE_NUMBERS_COUNTER your_instance_name (
-  .CLK(CLK),  // input wire CLK
-  .CE(CE),    // input wire CE
-  .Q(Q)      // output wire [7 : 0] Q
+  .CLK(CLK),    // input wire CLK
+  .CE(CE),      // input wire CE
+  .SCLR(SCLR),  // input wire SCLR
+  .Q(Q)        // output wire [7 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
