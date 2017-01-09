@@ -16,10 +16,10 @@ entity DRAW_BLOCK is
 			Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
 			
 			-- coordinates of the block to needs to be drawn
-			X_1 : in INTEGER;
-			X_2 : in INTEGER;
-			Y_1 : in INTEGER;
-			Y_2 : in INTEGER;
+			X_1 : in INTEGER range 0 to 479;
+			X_2 : in INTEGER range 0 to 479;
+			Y_1 : in INTEGER range 0 to 271;
+			Y_2 : in INTEGER range 0 to 271;
 			
 			-- returns true if the block can be drawn; false otherwise
 			DRAW : out BOOLEAN);

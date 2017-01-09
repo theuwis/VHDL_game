@@ -11,6 +11,7 @@ entity VGA_CONTROLLER is
 			GREEN_OUT : out STD_LOGIC_VECTOR(7 downto 2);
 			BLUE_OUT : out STD_LOGIC_VECTOR(7 downto 4);
 			DCLK : out STD_LOGIC;
+			DCLK_temp : out STD_LOGIC;
 			H_SYNC_O : out STD_LOGIC;
 			V_SYNC_O : out STD_LOGIC;
 			DISP : out STD_LOGIC;
@@ -95,13 +96,13 @@ architecture Behavioral of VGA_CONTROLLER is
 	signal Y_POS_CE_temp : STD_LOGIC;
 	
 begin
-DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign, Q => DCLK_count);
+DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => '0', THRESH0 => DCLK_sign, Q => DCLK_count);
 
-VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => CLK, CE => DCLK_sign, SCLR => '0', THRESH0 => VCLK, Q => H_COUNTER);
-VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => CLK, CE => VCLK_count, SCLR => '0', Q => V_COUNTER);
+VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => CLK, CE => DCLK_sign, SCLR => RST, THRESH0 => VCLK, Q => H_COUNTER);
+VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => CLK, CE => VCLK_count, SCLR => RST, Q => V_COUNTER);
 
-x_pos_counter: VGA_X_POS port map(CLK => CLK, CE => X_POS_CE, SCLR => '0', Q => X_POS, THRESH0 => Y_POS_CE_temp);
-y_pos_counter: VGA_Y_POS port map(CLK => CLK, CE => Y_POS_CE, SCLR => '0', Q => Y_POS);
+x_pos_counter: VGA_X_POS port map(CLK => CLK, CE => X_POS_CE, SCLR => RST, Q => X_POS, THRESH0 => Y_POS_CE_temp);
+y_pos_counter: VGA_Y_POS port map(CLK => CLK, CE => Y_POS_CE, SCLR => RST, Q => Y_POS);
 
 
 -- always enable the backlight on the screen
@@ -114,6 +115,7 @@ Y_POS_CE <= Y_POS_CE_temp and DCLK_sign;
 
 -- couple some signals to the output
 DCLK <= DCLK_DUT;
+DCLK_temp <= DCLK_sign;
 H_SYNC_O <= H_SYNC;
 V_SYNC_O <= V_SYNC;
 X_POS_OUT <= X_POS;

@@ -4,7 +4,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity SCORE_COUNTER is
 	port(	CLK : in STD_LOGIC;
-    		RST : in STD_LOGIC;
 			SCORE : in INTEGER;
 			ADR : in STD_LOGIC_VECTOR(7 downto 0);
 			

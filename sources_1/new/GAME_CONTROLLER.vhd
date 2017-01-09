@@ -89,7 +89,7 @@ architecture Behavioral of GAME_CONTROLLER is
 	end component;
 
 	-- signals used to move the wall over the screen
-	signal POSITION : INTEGER RANGE 0 TO 479;
+	signal POSITION : INTEGER RANGE 0 TO 479 := 478;
 	signal TICK : STD_LOGIC;
 	
 	-- signals used to control the speed of the walls

@@ -59,6 +59,7 @@ USE c_counter_binary_v12_0_9.c_counter_binary_v12_0_9;
 ENTITY SCORE_INCR_COUNTER IS
   PORT (
     CLK : IN STD_LOGIC;
+    CE : IN STD_LOGIC;
     SCLR : IN STD_LOGIC;
     THRESH0 : OUT STD_LOGIC;
     Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
@@ -108,6 +109,7 @@ ARCHITECTURE SCORE_INCR_COUNTER_arch OF SCORE_INCR_COUNTER IS
   END COMPONENT c_counter_binary_v12_0_9;
   ATTRIBUTE X_INTERFACE_INFO : STRING;
   ATTRIBUTE X_INTERFACE_INFO OF CLK: SIGNAL IS "xilinx.com:signal:clock:1.0 clk_intf CLK";
+  ATTRIBUTE X_INTERFACE_INFO OF CE: SIGNAL IS "xilinx.com:signal:clockenable:1.0 ce_intf CE";
   ATTRIBUTE X_INTERFACE_INFO OF SCLR: SIGNAL IS "xilinx.com:signal:reset:1.0 sclr_intf RST";
   ATTRIBUTE X_INTERFACE_INFO OF THRESH0: SIGNAL IS "xilinx.com:signal:data:1.0 thresh0_intf DATA";
   ATTRIBUTE X_INTERFACE_INFO OF Q: SIGNAL IS "xilinx.com:signal:data:1.0 q_intf DATA";
@@ -118,7 +120,7 @@ BEGIN
       C_VERBOSITY => 0,
       C_XDEVICEFAMILY => "zynq",
       C_WIDTH => 25,
-      C_HAS_CE => 0,
+      C_HAS_CE => 1,
       C_HAS_SCLR => 1,
       C_RESTRICT_COUNT => 0,
       C_COUNT_TO => "1",
@@ -139,7 +141,7 @@ BEGIN
     )
     PORT MAP (
       CLK => CLK,
-      CE => '1',
+      CE => CE,
       SCLR => SCLR,
       SSET => '0',
       SINIT => '0',

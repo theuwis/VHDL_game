@@ -9,7 +9,12 @@ entity GAME_OVER_SCREEN is
 			YPOS : in STD_LOGIC_VECTOR(8 downto 0);
 			
 			GAME_OVER_DRAW : out BOOLEAN;
-			DATA : out STD_LOGIC_VECTOR(23 downto 0));
+			DATA : out STD_LOGIC_VECTOR(23 downto 0);
+			
+			SCORE_1 : in INTEGER range 0 to 9;
+			SCORE_10 : in INTEGER range 0 to 9;
+			SCORE_100 : in INTEGER range 0 to 9;
+			SCORE_1000 : in INTEGER range 0 to 9);
 end GAME_OVER_SCREEN;
 
 architecture Behavioral of GAME_OVER_SCREEN is
@@ -23,6 +28,7 @@ architecture Behavioral of GAME_OVER_SCREEN is
 	component GAME_OVER_COUNT is
 		port(	CLK : in STD_LOGIC;
 				CE : in STD_LOGIC;
+				SCLR : IN STD_LOGIC;
 				Q : out STD_LOGIC_VECTOR(13 downto 0));
 	end component;
 	
@@ -65,6 +71,25 @@ architecture Behavioral of GAME_OVER_SCREEN is
 				DRAW : out BOOLEAN);
 	end component;
 	
+	-- component to read the SCORE ROM
+	component SCORE_COUNTER is
+		port(	CLK : in STD_LOGIC;
+				SCORE : in INTEGER;
+				ADR : in STD_LOGIC_VECTOR(7 downto 0);
+				
+				RED_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
+				GREEN_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
+				BLUE_SCORE : out STD_LOGIC_VECTOR(7 downto 0));
+	end component;
+	
+	-- component to generate the address for the SCORE ROM
+	component SCORE_NUMBERS_COUNTER is
+		port(	CLK : IN STD_LOGIC;
+				CE : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
+				Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+	end component;
+	
 	-- signals to display tha GAME OVER text
 	signal GO_ADR : STD_LOGIC_VECTOR(13 downto 0);
 	signal GO_OUT : STD_LOGIC_VECTOR(23 downto 0);
@@ -83,57 +108,175 @@ architecture Behavioral of GAME_OVER_SCREEN is
 	signal START_DRAW : BOOLEAN;
 	signal START_EN : STD_LOGIC;
 	
-	
-	-- TODO wss wissen
---	signal GAME_DRAW : BOOLEAN;
-	
-	
+	-- signals for the score
+	signal ADR_SCORE : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_1 : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_10 : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_100 : STD_LOGIC_VECTOR(7 downto 0);
+	signal ADR_SCORE_1000 : STD_LOGIC_VECTOR(7 downto 0);
+	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
+	signal EN_SCORE_1 : STD_LOGIC;
+	signal EN_SCORE_10 : STD_LOGIC;
+	signal EN_SCORE_100 : STD_LOGIC;
+	signal EN_SCORE_1000 : STD_LOGIC;
+	signal DRAW_SCORE_1 : BOOLEAN;
+	signal DRAW_SCORE_10 : BOOLEAN;
+	signal DRAW_SCORE_100 : BOOLEAN;
+	signal DRAW_SCORE_1000 : BOOLEAN;
+	signal SCORE : INTEGER range 0 to 9;
+	signal SCORE_COLOR : STD_LOGIC_VECTOR(23 downto 0);
+
 
 begin
 GO_ROM: GAME_OVER_ROM port map(a => GO_ADR, spo => GO_OUT);
-GO_COUNT: GAME_OVER_COUNT port map(CLK => DCLK, CE => GO_EN, Q => GO_ADR);
+GO_COUNT: GAME_OVER_COUNT port map(CLK => CLK, CE => GO_EN, SCLR => RST, Q => GO_ADR);
 GO_DRAW0: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 112, X_2 => 367,
 							  Y_1 => 51, Y_2 => 85, DRAW => GO_DRAW);
-								--Y_1 => 101, Y_2 => 135, DRAW => GO_DRAW);
 
 SCORE_TEXT_ROM: SCORE_TEXT port map(a => SCORE_TEXT_ADR, spo => SCORE_TEXT_OUT);
-SCORE_TEXT_COUNT: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => SCORE_TEXT_EN, SCLR => RST, Q => SCORE_TEXT_ADR);
+SCORE_TEXT_COUNT: SCORE_TEXT_COUNTER port map(CLK => CLK, CE => SCORE_TEXT_EN, SCLR => RST, Q => SCORE_TEXT_ADR);
 SCORE_TEXT_DRAW0: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 205, X_2 => 276,
 								Y_1 => 113, Y_2 => 130, DRAW => SCORE_TEXT_DRAW);
 
-START_ROM0: START_ROM port map(a => START_ADR, spo => START_OUT);
-COUNT: START_COUNT port map(CLK => DCLK, CE => START_EN, SCLR => '0', Q => START_ADR);
-DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
-								Y_1 => 170, Y_2 => 229, DRAW => START_DRAW);
 
-GAME_OVER_DRAW <= GO_DRAW or SCORE_TEXT_DRAW or START_DRAW;
+
+--score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
+--								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
+--score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 444, X_2 => 455,
+--								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_10);
+--score_100_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 429, X_2 => 440,
+--								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_100);
+--score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 414, X_2 => 425,
+--								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1000);
+score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 262, X_2 => 273,
+								Y_1 => 137, Y_2 => 156, DRAW => DRAW_SCORE_1);
+score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 247, X_2 => 258,
+								Y_1 => 137, Y_2 => 156, DRAW => DRAW_SCORE_10);
+score_100_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 232, X_2 => 243,
+								Y_1 => 137, Y_2 => 156, DRAW => DRAW_SCORE_100);
+score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 217, X_2 => 228,
+								Y_1 => 137, Y_2 => 156, DRAW => DRAW_SCORE_1000);
+								
+START_ROM0: START_ROM port map(a => START_ADR, spo => START_OUT);
+								COUNT: START_COUNT port map(CLK => CLK, CE => START_EN, SCLR => RST, Q => START_ADR);
+								DRAW: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
+																Y_1 => 170, Y_2 => 229, DRAW => START_DRAW);
+
+
+score_getadr: SCORE_COUNTER port map(CLK => CLK, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => SCORE_COLOR(23 downto 16),
+								GREEN_SCORE => SCORE_COLOR(15 downto 8), BLUE_SCORE => SCORE_COLOR(7 downto 0));
+
+score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_1, SCLR => RST, Q => ADR_SCORE_1);
+score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_10, SCLR => RST, Q => ADR_SCORE_10);
+score_count_100: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_100, SCLR => RST, Q => ADR_SCORE_100);
+score_count_1000: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_1000, SCLR => RST, Q => ADR_SCORE_1000);
+
+
+								
+								
+GAME_OVER_DRAW <= GO_DRAW or SCORE_TEXT_DRAW or START_DRAW or DRAW_SCORE_1 or DRAW_SCORE_10 or DRAW_SCORE_100 or DRAW_SCORE_1000;
 
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		if GO_DRAW = true then
-			GO_EN <= '1';
+			GO_EN <= DCLK;
 			SCORE_TEXT_EN <= '0';
 			START_EN <= '0';
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
+			
 			DATA <= GO_OUT;
+			
 		elsif SCORE_TEXT_DRAW = true then
 			GO_EN <= '0';
-			SCORE_TEXT_EN <= '1';
+			SCORE_TEXT_EN <= DCLK;
 			START_EN <= '0';
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
+			
 			DATA <= SCORE_TEXT_OUT;
+			
 		elsif START_DRAW = true then
 			GO_EN <= '0';
 			SCORE_TEXT_EN <= '0';
-			START_EN <= '1';
-				
-			DATA <= START_OUT;
+			START_EN <= DCLK;
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
+					
+			DATA <= START_OUT;	
+			
+		elsif DRAW_SCORE_1 = true then
+			SCORE <= SCORE_1;
+			ADR_SCORE <= ADR_SCORE_1;
+			
+			GO_EN <= '0';
+			SCORE_TEXT_EN <= '0';
+			START_EN <= '0';
+			EN_SCORE_1 <= DCLK;
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
+			
+			DATA <= SCORE_COLOR;
+			
+		elsif (DRAW_SCORE_10 = true) then
+			SCORE <= SCORE_10;
+			ADR_SCORE <= ADR_SCORE_10;
+			
+			GO_EN <= '0';
+			SCORE_TEXT_EN <= '0';
+			START_EN <= '0';
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= DCLK;
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
+			
+			DATA <= SCORE_COLOR;
+			
+		elsif (DRAW_SCORE_100 = true) then
+			SCORE <= SCORE_100;
+			ADR_SCORE <= ADR_SCORE_100;
+			
+			GO_EN <= '0';
+			SCORE_TEXT_EN <= '0';
+			START_EN <= '0';
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= DCLK;
+			EN_SCORE_1000 <= '0';
+			
+			DATA <= SCORE_COLOR;
+			
+		elsif (DRAW_SCORE_1000 = true) then
+			SCORE <= SCORE_1000;
+			ADR_SCORE <= ADR_SCORE_1000;
+			
+			GO_EN <= '0';
+			SCORE_TEXT_EN <= '0';
+			START_EN <= '0';
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= DCLK;
+			
+			DATA <= SCORE_COLOR;
+			
 		else
 			GO_EN <= '0';
 			SCORE_TEXT_EN <= '0';
 			START_EN <= '0';
-			
+			EN_SCORE_1 <= '0';
+			EN_SCORE_10 <= '0';
+			EN_SCORE_100 <= '0';
+			EN_SCORE_1000 <= '0';
 		end if;
-	
 	end if;
 end process;
 

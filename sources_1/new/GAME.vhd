@@ -51,6 +51,7 @@ architecture Behavioral of GAME is
 				GREEN_OUT : out STD_LOGIC_VECTOR(7 downto 2);
 				BLUE_OUT : out STD_LOGIC_VECTOR(7 downto 4);
 				DCLK : out STD_LOGIC;
+				DCLK_temp : out STD_LOGIC;
 				H_SYNC_O : out STD_LOGIC;
 				V_SYNC_O : out STD_LOGIC;
 				DISP : out STD_LOGIC;
@@ -77,7 +78,12 @@ architecture Behavioral of GAME is
 				DRAW_BG : out BOOLEAN;
 				RED_BG : out STD_LOGIC_VECTOR(7 downto 0);
 				GREEN_BG : out STD_LOGIC_VECTOR(7 downto 0);
-				BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0));
+				BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0);
+				
+				SCORE_1_OUT : out INTEGER range 0 to 9;
+				SCORE_10_OUT : out INTEGER range 0 to 9;
+				SCORE_100_OUT : out INTEGER range 0 to 9;
+				SCORE_1000_OUT : out INTEGER range 0 to 9);
 	end component;
 	
 	-- component used for the gameplay:
@@ -107,6 +113,7 @@ architecture Behavioral of GAME is
 	-- component that increments the score at a regular interval
 	component SCORE_INCR_COUNTER is
 		port(	CLK : IN STD_LOGIC;
+				CE : IN STD_LOGIC;
 				SCLR : IN STD_LOGIC;
 				THRESH0 : OUT STD_LOGIC;
 				Q : OUT STD_LOGIC_VECTOR(24 DOWNTO 0));
@@ -135,7 +142,11 @@ architecture Behavioral of GAME is
 				YPOS : in STD_LOGIC_VECTOR(8 downto 0);
 				
 				GAME_OVER_DRAW : out BOOLEAN;
-				DATA : out STD_LOGIC_VECTOR(23 downto 0));
+				DATA : out STD_LOGIC_VECTOR(23 downto 0);
+				SCORE_1 : in INTEGER range 0 to 9;
+				SCORE_10 : in INTEGER range 0 to 9;
+				SCORE_100 : in INTEGER range 0 to 9;
+				SCORE_1000 : in INTEGER range 0 to 9);
 	end component;
 	
 	-- component used for debouncing buttons
@@ -177,9 +188,11 @@ architecture Behavioral of GAME is
 	
 	-- ROM's
 	signal DCLK_ROM : STD_LOGIC; --TODO mss CLK buff bij gebruiken
+	signal DCLK_temp : STD_LOGIC;
 	
 	-- score counter
 	signal SCORE_INCR : STD_LOGIC;
+	signal CE_SCORE_INCR : STD_LOGIC;
 	
 	-- touchscreen
 	signal X_TOUCH : STD_LOGIC_VECTOR(7 downto 0);
@@ -202,26 +215,36 @@ architecture Behavioral of GAME is
 	signal DEB_RST_OUT : STD_LOGIC;
 	signal DEB_RST : STD_LOGIC;
 	
-	--signal used to RESET internally
+	--signals used to RESET
 	signal RST : STD_LOGIC;
 	signal RESTART_GAME : STD_LOGIC;
+	
+	--signals used to transfer score to GAME OVER screen
+	signal SCORE_1 : INTEGER range 0 to 9;
+	signal SCORE_10 : INTEGER range 0 to 9;
+	signal SCORE_100 : INTEGER range 0 to 9;
+	signal SCORE_1000 : INTEGER range 0 to 9;
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => DEB_RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
-							RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK_ROM, H_SYNC_O => H_SYNC_O,
+							RED_OUT => RED_OUT, GREEN_OUT => GREEN_OUT, BLUE_OUT => BLUE_OUT, DCLK => DCLK_ROM, DCLK_temp => DCLK_temp, H_SYNC_O => H_SYNC_O,
 							V_SYNC_O => V_SYNC_O, DISP => DISP, BL_EN => BL_EN);
-BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_ROM, RST => DEB_RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
-							GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR);
-INCR_SCORE: SCORE_INCR_COUNTER port map(CLK => CLK, SCLR => DEB_RST, THRESH0 => SCORE_INCR);	
+BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_temp, RST => DEB_RST, XPOS => X_POS, YPOS => Y_POS, DRAW_BG => DRAW_BG, RED_BG => RED_BG,
+							GREEN_BG => GREEN_BG, BLUE_BG => BLUE_BG, SCORE_UP => SCORE_INCR, SCORE_1_OUT => SCORE_1, SCORE_10_OUT => SCORE_10,
+							SCORE_100_OUT => SCORE_100, SCORE_1000_OUT => SCORE_1000);
+							--TODO DCLK_temp vervangen
+INCR_SCORE: SCORE_INCR_COUNTER port map(CLK => CLK, CE => CE_SCORE_INCR, SCLR => DEB_RST, THRESH0 => SCORE_INCR);	
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => DEB_RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_GAME, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH,
 							COLOR => COLOR_GAME, LEDS => LEDS, START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN,
 							GAME_RESET => RESTART_GAME, START => DEB_START);	
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => DEB_RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
-GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
-							GAME_OVER_DRAW => GAME_OVER_DRAW, DATA => GAME_OVER_COLOR);
-START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_ROM, XPOS => X_POS, YPOS => Y_POS,
+GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS, GAME_OVER_DRAW => GAME_OVER_DRAW,
+							DATA => GAME_OVER_COLOR, SCORE_1 => SCORE_1, SCORE_10 => SCORE_10, SCORE_100 => SCORE_100, SCORE_1000 => SCORE_1000);
+							--DCLK temp toevoegen!!!
+START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS,
 							START_DRAW => START_DRAW, DATA => START_COLOR);
+							--TODO DCLK_temp vervaangen
 DEBOUNCE_START: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => START, SW_OUT => DEB_START);
 DEBOUNCE_RST: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => RST_BTN, SW_OUT => DEB_RST_OUT);
 
@@ -282,5 +305,17 @@ process(CLK)
 	end if;
 end process;
 
+-- process to enable the score counter
+-- if the game ended the score counter won't increase anymore
+process(CLK)
+	begin
+	if (CLK'event and CLK = '1') then
+		if LOST_SCREEN = false then
+			CE_SCORE_INCR <= '1';
+		else
+			CE_SCORE_INCR <= '0';
+		end if;
+	end if;
+end process;
 
 end Behavioral;

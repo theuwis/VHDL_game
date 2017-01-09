@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2016 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2017 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -56,6 +56,7 @@ COMPONENT GAME_OVER_COUNT
   PORT (
     CLK : IN STD_LOGIC;
     CE : IN STD_LOGIC;
+    SCLR : IN STD_LOGIC;
     Q : OUT STD_LOGIC_VECTOR(13 DOWNTO 0)
   );
 END COMPONENT;
@@ -69,6 +70,7 @@ your_instance_name : GAME_OVER_COUNT
   PORT MAP (
     CLK => CLK,
     CE => CE,
+    SCLR => SCLR,
     Q => Q
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------

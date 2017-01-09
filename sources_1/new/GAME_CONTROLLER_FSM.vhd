@@ -57,7 +57,7 @@ process(X_POS, START, old_state)
 					
 			when lost =>
 				if (START = '1') then
-					new_state <= start_scr;
+					new_state <= begin_game;
 				else
 					new_state <= lost;
 				end if;

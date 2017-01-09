@@ -38,27 +38,25 @@ architecture Behavioral of START_GAME_SCREEN is
 	end component;
 	
 	signal START_ADR : STD_LOGIC_VECTOR(13 DOWNTO 0);
-	signal START_OUT : STD_LOGIC_VECTOR(23 downto 0);
 	signal START_EN : STD_LOGIC;
 	signal GAME_DRAW : BOOLEAN;
+	
 begin
-ROM: START_ROM port map(a => START_ADR, spo => START_OUT);
-COUNT: START_COUNT port map(CLK => DCLK, CE => START_EN, SCLR => '0', Q => START_ADR);
+ROM: START_ROM port map(a => START_ADR, spo => DATA);
+COUNT: START_COUNT port map(CLK => CLK, CE => START_EN, SCLR => RST, Q => START_ADR);
 DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
 								Y_1 => 106, Y_2 => 165, DRAW => GAME_DRAW);
 
-DATA <= START_OUT; --TODO geen sign voor nodig?
 START_DRAW <= GAME_DRAW;
---TODO: RST?
+
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		if GAME_DRAW = true then
-			START_EN <= '1';
+			START_EN <= DCLK;
 		else
 			START_EN <= '0';
 		end if;
-	
 	end if;
 end process;
 end Behavioral;
