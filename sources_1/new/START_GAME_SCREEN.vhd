@@ -13,17 +13,52 @@ entity START_GAME_SCREEN is
 end START_GAME_SCREEN;
 
 architecture Behavioral of START_GAME_SCREEN is
+	-- component that stores the ROM with 'PRESS BTN Y16 TO START' text
 	component START_ROM is
-		port(	a : IN STD_LOGIC_VECTOR(13 DOWNTO 0);
-				spo : OUT STD_LOGIC_VECTOR(23 DOWNTO 0));
+		port(	a : IN STD_LOGIC_VECTOR(13 downto 0);
+				spo : OUT STD_LOGIC_VECTOR(23 downto 0));
 	end component;
 
+	-- component that generates the address for the START text ROM
 	component START_COUNT is
 		port(	CLK : in STD_LOGIC;
 				CE : in STD_LOGIC;
 				SCLR : in STD_LOGIC;
 				Q : out STD_LOGIC_VECTOR(13 downto 0));
 	end component;
+	
+	-- component that stores the ROM with the dancing monkey
+	component MONKEY_ROM is
+		port(	a : in STD_LOGIC_VECTOR(15 downto 0);
+				spo : OUT STD_LOGIC_VECTOR(23 downto 0));
+	end component;
+	
+	-- component that generates the address for the dancing monkey ROM
+	component MONKEY_COUNT is
+		port(	CLK : in STD_LOGIC;
+				CE : in STD_LOGIC;
+				SCLR : in STD_LOGIC;
+				LOAD : IN STD_LOGIC;
+				L : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+				Q : out STD_LOGIC_VECTOR(15 downto 0));
+	end component;
+	
+	-- component that says which frame from the monkey gif has to be shown
+	component MONKEY_SELECT is
+		port(	CLK : in STD_LOGIC;
+				CE : in STD_LOGIC;
+				SCLR : in STD_LOGIC;
+				Q : out STD_LOGIC_VECTOR(3 downto 0));
+	end component;
+	
+	-- component used as a prescaler for the MONKEY_SELECT (determines framerate, ~67ms between each frame)
+	component MONKEY_SELECT_PRESCALER is
+		port(	CLK : in STD_LOGIC;
+				SCLR : in STD_LOGIC;
+				THRESH0 : out STD_LOGIC;
+				Q : out STD_LOGIC_VECTOR(23 downto 0));
+	end component;
+	
 	
 	component DRAW_BLOCK is
 		port(	CLK : in STD_LOGIC;
@@ -37,26 +72,115 @@ architecture Behavioral of START_GAME_SCREEN is
 				DRAW : out BOOLEAN);
 	end component;
 	
-	signal START_ADR : STD_LOGIC_VECTOR(13 DOWNTO 0);
+	-- signals to display the START text
+	signal START_ADR : STD_LOGIC_VECTOR(13 downto 0);
+	signal START_OUT : STD_LOGIC_VECTOR(23 downto 0);
 	signal START_EN : STD_LOGIC;
 	signal GAME_DRAW : BOOLEAN;
 	
+	-- signals to display the dancing monkey
+	signal MONKEY_ADR : STD_LOGIC_VECTOR(15 downto 0);
+	signal MONKEY_OUT : STD_LOGIC_VECTOR(23 downto 0);
+	signal MONKEY_EN : STD_LOGIC;
+	signal MONKEY_DRAW : BOOLEAN;
+	signal LOAD_ADR : STD_LOGIC_VECTOR(15 downto 0);
+	signal LOAD : STD_LOGIC;
+	signal MONKEY_NUMBER : STD_LOGIC_VECTOR(3 downto 0);
+	signal MONKEY_NEXT_FRAME : STD_LOGIC;
+	
 begin
-ROM: START_ROM port map(a => START_ADR, spo => DATA);
-COUNT: START_COUNT port map(CLK => CLK, CE => START_EN, SCLR => RST, Q => START_ADR);
-DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
+STR_ROM: START_ROM port map(a => START_ADR, spo => START_OUT);
+STR_COUNT: START_COUNT port map(CLK => CLK, CE => START_EN, SCLR => RST, Q => START_ADR);
+STR_DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
 								Y_1 => 106, Y_2 => 165, DRAW => GAME_DRAW);
 
-START_DRAW <= GAME_DRAW;
+MKY_ROM: MONKEY_ROM port map(a => MONKEY_ADR, spo => MONKEY_OUT);
+MKY_COUNT: MONKEY_COUNT port map(CLK => CLK, CE => MONKEY_EN, SCLR => RST, LOAD => LOAD, L => LOAD_ADR, Q => MONKEY_ADR);
+MKY_DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 220, X_2 => 275,
+								Y_1 => 190, Y_2 => 239, DRAW => MONKEY_DRAW);
+
+MKY_SELECT: MONKEY_SELECT port map(CLK => CLK, CE => MONKEY_NEXT_FRAME, SCLR => RST, Q => MONKEY_NUMBER);
+MKY_PRESCALER: MONKEY_SELECT_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => MONKEY_NEXT_FRAME);
+
+
+
+START_DRAW <= GAME_DRAW or MONKEY_DRAW;
 
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		if GAME_DRAW = true then
 			START_EN <= DCLK;
+			MONKEY_EN <= '0';
+			DATA <= START_OUT;
+		elsif MONKEY_DRAW = true then
+			START_EN <= '0';
+			MONKEY_EN <= DCLK;
+			DATA <= MONKEY_OUT;
 		else
 			START_EN <= '0';
+			MONKEY_EN <= '0';
 		end if;
 	end if;
 end process;
+
+
+process(CLK)
+	begin
+	if (CLK'event and CLK = '1') then
+		case (MONKEY_NUMBER) is
+			when "0000" =>
+				LOAD_ADR <= X"0000";
+			when "0001" =>
+				LOAD_ADR <= X"0AF0";
+			when "0010" =>
+				LOAD_ADR <= X"15E0";
+			when "0011" =>
+				LOAD_ADR <= X"20D0";
+			when "0100" =>
+				LOAD_ADR <= X"2BC0";
+			when "0101" =>
+				LOAD_ADR <= X"36B0";
+			when "0110" =>
+				LOAD_ADR <= X"41A0";
+			when "0111" =>
+				LOAD_ADR <= X"4C90";
+			when "1000" =>
+				LOAD_ADR <= X"5780";
+			when "1001" =>
+				LOAD_ADR <= X"6270";
+			when "1010" =>
+				LOAD_ADR <= X"6D60";
+			when "1011" =>
+				LOAD_ADR <= X"7850";
+			when "1100" =>
+				LOAD_ADR <= X"8340";
+
+			when OTHERS =>
+				LOAD_ADR <= X"0000";
+		end case;
+
+		if (MONKEY_ADR = X"0AEF") or (MONKEY_ADR = X"15DF") or (MONKEY_ADR = X"20CF") or (MONKEY_ADR = X"2BBF") or (MONKEY_ADR = X"36AF") or
+		   (MONKEY_ADR = X"419F") or (MONKEY_ADR = X"4C8F") or (MONKEY_ADR = X"577F") or (MONKEY_ADR = X"626F") or (MONKEY_ADR = X"6D5F") or
+		   (MONKEY_ADR = X"784F") or (MONKEY_ADR = X"833F") or (MONKEY_ADR = X"8E2F") then
+				-- or X"15DF" or X"20CF" or X"2BBF" or X"36AF" or X"419F" or
+				-- X"4C8F" or X"577F" or X"626F" or X"6D5F" or X"784F" or X"833F") then
+			LOAD <= '1';
+		else
+			LOAD <= '0';
+		end if;
+--		if MONKEY_ADR = X"0AEF" then
+--			LOAD <= '1';
+--			LOAD_ADR <= X"0000";
+--		else
+--			LOAD <= '0';
+--		end if;
+	end if;
+end process;
 end Behavioral;
+
+
+
+
+
+

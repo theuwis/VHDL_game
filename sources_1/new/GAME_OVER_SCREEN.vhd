@@ -90,7 +90,7 @@ architecture Behavioral of GAME_OVER_SCREEN is
 				Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 	end component;
 	
-	-- signals to display tha GAME OVER text
+	-- signals to display the GAME OVER text
 	signal GO_ADR : STD_LOGIC_VECTOR(13 downto 0);
 	signal GO_OUT : STD_LOGIC_VECTOR(23 downto 0);
 	signal GO_DRAW : BOOLEAN;
@@ -138,16 +138,6 @@ SCORE_TEXT_COUNT: SCORE_TEXT_COUNTER port map(CLK => CLK, CE => SCORE_TEXT_EN, S
 SCORE_TEXT_DRAW0: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 205, X_2 => 276,
 								Y_1 => 113, Y_2 => 130, DRAW => SCORE_TEXT_DRAW);
 
-
-
---score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
---								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
---score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 444, X_2 => 455,
---								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_10);
---score_100_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 429, X_2 => 440,
---								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_100);
---score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 414, X_2 => 425,
---								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1000);
 score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 262, X_2 => 273,
 								Y_1 => 137, Y_2 => 156, DRAW => DRAW_SCORE_1);
 score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 247, X_2 => 258,
@@ -158,9 +148,9 @@ score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XP
 								Y_1 => 137, Y_2 => 156, DRAW => DRAW_SCORE_1000);
 								
 START_ROM0: START_ROM port map(a => START_ADR, spo => START_OUT);
-								COUNT: START_COUNT port map(CLK => CLK, CE => START_EN, SCLR => RST, Q => START_ADR);
-								DRAW: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
-																Y_1 => 170, Y_2 => 229, DRAW => START_DRAW);
+START_COUNT0: START_COUNT port map(CLK => CLK, CE => START_EN, SCLR => RST, Q => START_ADR);
+START_DRAW0: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 140, X_2 => 339,
+								Y_1 => 170, Y_2 => 229, DRAW => START_DRAW);
 
 
 score_getadr: SCORE_COUNTER port map(CLK => CLK, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => SCORE_COLOR(23 downto 16),
