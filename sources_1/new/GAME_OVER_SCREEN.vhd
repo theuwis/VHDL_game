@@ -122,7 +122,9 @@ architecture Behavioral of GAME_OVER_SCREEN is
 	
 	-- signal used to convert ROM (1 and 0) to color (white and blue)
 	signal DATA_1_bit : STD_LOGIC_VECTOR(0 downto 0);
-
+	
+	-- signal to display that a new highscore has been reached
+	signal NEW_HIGH_SCORE : BOOLEAN;
 
 begin
 GO_ROM: GAME_OVER_ROM port map(a => GO_ADR, spo => GO_OUT);
@@ -261,9 +263,36 @@ process(CLK)
 		
 		-- convert ROM to real colors
 		if DATA_1_BIT = "1" then
-			DATA <= X"FFFFFF";
+			if (SCORE_TEXT_DRAW = true) and (NEW_HIGH_SCORE = true) then	-- if a high score has been reached, SCORE will be red
+				DATA <= X"FF0000";
+			else
+				DATA <= X"FFFFFF";
+			end if;
 		else
 			DATA <= X"0043AF";
+		end if;
+	end if;
+end process;
+
+-- process to check if a new high-score has been reached
+process(CLK)
+	variable HISCORE_1 : INTEGER range 0 to 9 := 0;
+	variable HISCORE_10 : INTEGER range 0 to 9 := 0;
+	variable HISCORE_100 : INTEGER range 0 to 9 := 0;
+	variable HISCORE_1000 : INTEGER range 0 to 9 := 0;
+	
+	begin
+	if (CLK'event and CLK = '1') then
+		if RST = '1' then
+			NEW_HIGH_SCORE <= false;
+		else
+			if (SCORE_1 + SCORE_10 * 10 + SCORE_100 * 100 + SCORE_1000 * 1000) > (HISCORE_1 + HISCORE_10 * 10 + HISCORE_100 * 100 + HISCORE_1000 * 1000) then
+				NEW_HIGH_SCORE <= true;
+				HISCORE_1 := SCORE_1;
+				HISCORE_10 := SCORE_10;
+				HISCORE_100 := SCORE_100;
+				HISCORE_1000 := SCORE_1000;
+			end if;
 		end if;
 	end if;
 end process;
