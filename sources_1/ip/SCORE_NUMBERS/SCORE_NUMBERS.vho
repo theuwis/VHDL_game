@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2016 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2017 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -55,7 +55,7 @@
 COMPONENT SCORE_NUMBERS
   PORT (
     a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    spo : OUT STD_LOGIC_VECTOR(239 DOWNTO 0)
+    spo : OUT STD_LOGIC_VECTOR(9 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------

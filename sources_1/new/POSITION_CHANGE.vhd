@@ -5,7 +5,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity POSITION_CHANGE is
 	port(	CLK : in STD_LOGIC;
 			RST : in STD_LOGIC;
-			
 			X_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
 			Y_TOUCH : in STD_LOGIC_VECTOR(7 downto 0);
 			X_POS : in STD_LOGIC_VECTOR(8 downto 0);
@@ -15,13 +14,14 @@ entity POSITION_CHANGE is
 end POSITION_CHANGE;
 
 architecture Behavioral of POSITION_CHANGE is
-	-- which row is active
+	-- signals to indicate which row is active
 	signal ROW1 : BOOLEAN := true;
 	signal ROW2 : BOOLEAN;
 	signal ROW3 : BOOLEAN;
 	
 begin
 
+-- process to draw the movable block in the correct lane
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
@@ -44,6 +44,9 @@ process(CLK)
 	end if;
 end process;
 
+-- process that checks on which lane you have pressed
+-- if you pressed on a certain lane for 100.000 measurements the position is registered
+-- this is to avoid fake triggers due to noise
 process(Y_TOUCH)
 	variable COUNT_ROW1 : INTEGER RANGE 0 TO 100000;
 	variable COUNT_ROW2 : INTEGER RANGE 0 TO 100000;

@@ -56,7 +56,7 @@
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
 START_ROM your_instance_name (
   .a(a),      // input wire [13 : 0] a
-  .spo(spo)  // output wire [23 : 0] spo
+  .spo(spo)  // output wire [0 : 0] spo
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 

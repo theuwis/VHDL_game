@@ -5,14 +5,14 @@ entity GAME_CONTROLLER_FSM is
 	port(	CLK : in STD_LOGIC;
 			RST : in STD_LOGIC;
 			X_POS : INTEGER range 0 to 479;
-			GAP_POS : in STD_LOGIC_VECTOR (1 downto 0);
-			BLOCK_POS : in STD_LOGIC_VECTOR (1 downto 0);
-			COLOR_WALL: in STD_LOGIC_VECTOR (23 downto 0);
-			COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);
-			START : in STD_LOGIC;
-			START_SCREEN : out BOOLEAN;
-			GAME_RESET: out STD_LOGIC;
-			LOST_SCREEN : out BOOLEAN);
+			GAP_POS : in STD_LOGIC_VECTOR (1 downto 0);		-- gives the position of the block in the wall through which you can move
+			BLOCK_POS : in STD_LOGIC_VECTOR (1 downto 0);	-- gives the position of the block that has to move through the wall
+			COLOR_WALL: in STD_LOGIC_VECTOR (23 downto 0);	-- gives the color of the block in the wall through which you can move
+			COLOR_BLOCK: in STD_LOGIC_VECTOR (23 downto 0);	-- gives the color of the block that has to move through the wall
+			START : in STD_LOGIC;							-- input button to start the game
+			START_SCREEN : out BOOLEAN;						-- output that says when to draw start game screen
+			GAME_RESET: out STD_LOGIC;						-- game reset signal to reset the game before you start
+			LOST_SCREEN : out BOOLEAN);						-- output that says when you have lost the game
 end GAME_CONTROLLER_FSM;
 
 architecture Behavioral of GAME_CONTROLLER_FSM is
@@ -26,7 +26,7 @@ process(X_POS, START, old_state)
 	begin
 		case old_state is
 			when start_scr =>
-				if(START = '1') then
+				if (START = '1') then
 					new_state <= begin_game;
 				else
 					new_state <= start_scr;
@@ -36,7 +36,7 @@ process(X_POS, START, old_state)
 				new_state <= move_wall;
 			
 			when move_wall =>
-				if(X_POS = 370) then
+				if (X_POS = 370) then
 					new_state <= test;
 				else
 					new_state <= move_wall;
@@ -57,7 +57,7 @@ process(X_POS, START, old_state)
 					
 			when lost =>
 				if (START = '1') then
-					new_state <= begin_game;
+					new_state <= start_scr;
 				else
 					new_state <= lost;
 				end if;
@@ -69,7 +69,7 @@ end process;
 	
 process(CLK) 
 	begin
-	if (CLK'event and CLK='1') then
+	if (CLK'event and CLK = '1') then
 		if RST = '1' then
 			old_state <= start_scr;
 		else

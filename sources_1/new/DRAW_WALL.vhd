@@ -1,37 +1,33 @@
--- DRAW_WALL sets OUTPUT draw high when Colour color from the wall has to be written to the screen.
--- 4 random bits comming from the LSB's of the x and y position measurement of the touchscreen make sure
--- a random Wall configuration is made
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-
+-- entity that sets the output DRAW high when the color from the wall has to be written to the screen.
+-- 4 random bits comming from the LSB's of the X and Y position measurement of the touchscreen make sure
+-- a random wall configuration is made (16 possibilities)
 entity DRAW_WALL is
-    Port ( CLK: in STD_LOGIC;
-    	   RST: in STD_LOGIC;
-    	   X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-    	   Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-    	   RANDOM: in STD_LOGIC_VECTOR(3 downto 0);
-           POS : in INTEGER;
-           DRAW : out BOOLEAN;
-           GAP_POS: out STD_LOGIC_VECTOR(1 downto 0); -- upper = 0, middle = 1, bottom = 2
-           COLOR : out STD_LOGIC_VECTOR(23 downto 0);
-           WALL_COLOR : out STD_LOGIC_VECTOR(23 downto 0));
-           
+	port(	CLK: in STD_LOGIC;
+			RST: in STD_LOGIC;
+			X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+			Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+			RANDOM: in STD_LOGIC_VECTOR(3 downto 0);		-- noise on the touchscreen LSB's is used as random generator
+			POS : in INTEGER;								-- gives the current position of the wall
+			DRAW : out BOOLEAN;								-- when to draw the wall
+			GAP_POS: out STD_LOGIC_VECTOR(1 downto 0);		-- gives the position of the gap through which you can move
+			COLOR : out STD_LOGIC_VECTOR(23 downto 0);		-- gives the color of the block through which you can move (static)
+			WALL_COLOR : out STD_LOGIC_VECTOR(23 downto 0));-- gives the color of the block through which you can move (dynamic)
 end DRAW_WALL;
 
 architecture Behavioral of DRAW_WALL is
 
 component DRAW_BLOCK is
-		port(	CLK : in STD_LOGIC;
-				RST : in STD_LOGIC;
-				X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-				Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-				X_1 : in INTEGER;
-				X_2 : in INTEGER;
-				Y_1 : in INTEGER;
-				Y_2 : in INTEGER;
-				DRAW : out BOOLEAN);
+	port(	CLK : in STD_LOGIC;
+			X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+			Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+			X_1 : in INTEGER range 0 to 479;	-- x of top left corner of the block
+			X_2 : in INTEGER range 0 to 479;	-- x of bottom right corner of the block
+			Y_1 : in INTEGER range 0 to 271;	-- y of top left corner of the block
+			Y_2 : in INTEGER range 0 to 271;	-- y of the bottom right corner of the block
+			DRAW : out BOOLEAN);				-- returns TRUE if the block can be drawn
 	end component;
 	
 	signal X_1 : INTEGER range 0 to 479;
@@ -54,11 +50,11 @@ component DRAW_BLOCK is
 	signal random_nr: STD_LOGIC_VECTOR(3 downto 0);
 begin
 
-upperblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_CURRENT, Y_POS_CURRENT => Y_POS_CURRENT,
+upperblock: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => X_POS_CURRENT, Y_POS_CURRENT => Y_POS_CURRENT,
 								X_1 => X_1, X_2 => X_2, Y_1 => 4, Y_2 => 67,DRAW => udraw);
-middleblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_CURRENT, Y_POS_CURRENT => Y_POS_CURRENT,
+middleblock: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => X_POS_CURRENT, Y_POS_CURRENT => Y_POS_CURRENT,
 								 X_1 => X_1, X_2 => X_2, Y_1 => 72, Y_2 => 135,DRAW => mdraw);
-bottomblock: DRAW_BLOCK port map(CLK => CLK, RST => RST,X_POS_CURRENT => X_POS_CURRENT, Y_POS_CURRENT => Y_POS_CURRENT,
+bottomblock: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => X_POS_CURRENT, Y_POS_CURRENT => Y_POS_CURRENT,
 								X_1 => X_1, X_2 => X_2, Y_1 => 140, Y_2 => 203,DRAW => bdraw);	
 	
 	DRAW <= bdraw or mdraw  or udraw;

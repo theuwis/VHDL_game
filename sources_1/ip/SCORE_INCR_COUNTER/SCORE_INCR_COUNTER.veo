@@ -59,7 +59,7 @@ SCORE_INCR_COUNTER your_instance_name (
   .CE(CE),            // input wire CE
   .SCLR(SCLR),        // input wire SCLR
   .THRESH0(THRESH0),  // output wire THRESH0
-  .Q(Q)              // output wire [24 : 0] Q
+  .Q(Q)              // output wire [23 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 

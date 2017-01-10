@@ -1,28 +1,19 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-------------------------------------------------------
--- draws a block on specific coordinates
---
--- coodrinates (X1,Y1) (X2,Y2) can be entered in int's,
--- so no binary conversion is needed!
-------------------------------------------------------
 
+-- entity that draws a block on specific coordinates
+-- coodrinates (X1,Y1) (X2,Y2) can be entered in int's,
+-- so no binary conversion by the programmer is needed
 entity DRAW_BLOCK is
 	port(	CLK : in STD_LOGIC;
-			RST : in STD_LOGIC;
-			-- current position to draw
 			X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
 			Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-			
-			-- coordinates of the block to needs to be drawn
-			X_1 : in INTEGER range 0 to 479;
-			X_2 : in INTEGER range 0 to 479;
-			Y_1 : in INTEGER range 0 to 271;
-			Y_2 : in INTEGER range 0 to 271;
-			
-			-- returns true if the block can be drawn; false otherwise
-			DRAW : out BOOLEAN);
+			X_1 : in INTEGER range 0 to 479;	-- x of top left corner of the block
+			X_2 : in INTEGER range 0 to 479;	-- x of bottom right corner of the block
+			Y_1 : in INTEGER range 0 to 271;	-- y of top left corner of the block
+			Y_2 : in INTEGER range 0 to 271;	-- y of the bottom right corner of the block
+			DRAW : out BOOLEAN);				-- returns TRUE if the block can be drawn
 end DRAW_BLOCK;
 
 architecture Behavioral of DRAW_BLOCK is

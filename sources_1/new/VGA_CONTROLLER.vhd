@@ -1,7 +1,10 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
 
+-- entity that deals with all the VGA stuff
+-- tells you which pixel it is drawing (X_POS_OUT, Y_POS_OUT), you can pass
+-- it which color it needs to draw (RED_IN, GREEN_IN, BLUE_IN)
+-- X_POS_OUT goes from 0 .. 479 (binary), Y_POS_OUT goes from 0 .. 271 (binary)
 entity VGA_CONTROLLER is
 	port(	CLK : in STD_LOGIC;
 			RST : in STD_LOGIC;
@@ -26,7 +29,7 @@ entity VGA_CONTROLLER is
 end VGA_CONTROLLER;
 
 architecture Behavioral of VGA_CONTROLLER is
-	-- comonent that generates 10.4MHz CLK for the DCLK using a prescaler
+	-- comonent that generates a 10.4MHz CLK for the DCLK using a prescaler
 	component DCLK_PRESCALER is
 		port(	CLK : IN STD_LOGIC;
 				SCLR : IN STD_LOGIC;
@@ -96,7 +99,7 @@ architecture Behavioral of VGA_CONTROLLER is
 	signal Y_POS_CE_temp : STD_LOGIC;
 	
 begin
-DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => '0', THRESH0 => DCLK_sign, Q => DCLK_count);
+DCLK_gen: DCLK_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => DCLK_sign, Q => DCLK_count);
 
 VGA_HSYNC: VGA_HSYCN_COUNTER port map(CLK => CLK, CE => DCLK_sign, SCLR => RST, THRESH0 => VCLK, Q => H_COUNTER);
 VGA_VSYNC: VGA_VSYNC_COUNTER port map(CLK => CLK, CE => VCLK_count, SCLR => RST, Q => V_COUNTER);
@@ -124,7 +127,7 @@ Y_POS_OUT <= Y_POS;
 
 -- process that generates DCLK
 -- DCLK is high during 6 CLK, and low during the next 6 CLK
--- DCLK_sign resets at 11
+-- DCLK_sign's count is restricted to 0..11
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then

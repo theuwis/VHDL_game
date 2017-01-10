@@ -6,9 +6,8 @@ entity COLOR_CHANGE is
 			RST : in STD_LOGIC;
 			X_TOUCH : in STD_LOGIC_VECTOR (7 downto 0);
 			Y_TOUCH : in STD_LOGIC_VECTOR (7 downto 0);
-			
-			BLOCK_COL : out STD_LOGIC_VECTOR (23 downto 0));
---			LEDS : OUT STD_LOGIC_VECTOR(3 downto 0));
+			BLOCK_COL : out STD_LOGIC_VECTOR (23 downto 0);
+			LEDS : OUT STD_LOGIC_VECTOR(3 downto 0));
 end COLOR_CHANGE;
 
 architecture Behavioral of COLOR_CHANGE is
@@ -18,6 +17,9 @@ begin
 
 BLOCK_COL <= BLOCK_COL_sign;
 
+-- process that checks on which color you have pressed
+-- if you pressed on a certain color for 100.000 measurements the color is registered
+-- this is to avoid fake triggers due to noise
 process(Y_TOUCH)
 	variable COUNT_RED : INTEGER RANGE 0 TO 100000;
 	variable COUNT_PINK : INTEGER RANGE 0 TO 100000;
@@ -32,7 +34,7 @@ process(Y_TOUCH)
 			COUNT_GREEN:= 0;
 			COUNT_CYAN := 0;
 		
---			LEDS(3) <= '1';
+			LEDS(3) <= '1';
 		
 			if COUNT_PINK = 100000 then
 				BLOCK_COL_sign(23 downto 16) <= "11111111";
@@ -45,7 +47,7 @@ process(Y_TOUCH)
 			COUNT_GREEN:= COUNT_GREEN + 1;
 			COUNT_CYAN := 0;
 		
---			LEDS(2) <= '1';
+			LEDS(2) <= '1';
 			
 			if COUNT_GREEN = 100000 then
 				BLOCK_COL_sign(23 downto 16) <= "00000000";
@@ -58,7 +60,7 @@ process(Y_TOUCH)
 			COUNT_GREEN:= 0;
 			COUNT_CYAN := COUNT_CYAN + 1;
 		
---			LEDS(1) <= '1';
+			LEDS(1) <= '1';
 			
 			if COUNT_CYAN = 100000 then
 				BLOCK_COL_sign(23 downto 16) <= "00000000";
@@ -72,7 +74,7 @@ process(Y_TOUCH)
 			COUNT_GREEN:= 0;
 			COUNT_CYAN := 0;
 			
---			LEDS(0) <= '1';
+			LEDS(0) <= '1';
 		
 			if COUNT_RED = 100000 then
 				BLOCK_COL_sign(23 downto 16) <= "11111111";
@@ -80,7 +82,7 @@ process(Y_TOUCH)
 				BLOCK_COL_sign(7 downto 0) <=   "00000000";
 			end if;
 		else
---			LEDS <= "0000";
+			LEDS <= "0000";
 			COUNT_RED  := 0;
 			COUNT_PINK := 0;
 			COUNT_GREEN:= 0;

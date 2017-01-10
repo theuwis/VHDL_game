@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2016 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2017 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -59,7 +59,7 @@ module SCORE_TEXT (
 );
 
 input wire [10 : 0] a;
-output wire [23 : 0] spo;
+output wire [0 : 0] spo;
 
   dist_mem_gen_v8_0_10 #(
     .C_FAMILY("zynq"),
@@ -92,11 +92,11 @@ output wire [23 : 0] spo;
     .C_REG_A_D_INPUTS(0),
     .C_REG_DPRA_INPUT(0),
     .C_SYNC_ENABLE(1),
-    .C_WIDTH(24),
+    .C_WIDTH(1),
     .C_PARSER_TYPE(1)
   ) inst (
     .a(a),
-    .d(24'B0),
+    .d(1'B0),
     .dpra(11'B0),
     .clk(1'D0),
     .we(1'D0),

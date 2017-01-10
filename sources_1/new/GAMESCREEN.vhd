@@ -2,68 +2,61 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+-- entity that generates the background for the game
+-- this includes the horizontal black lines, the 4 colored blocks at the bottom and the score
 entity GAMESCREEN is
 	port(	CLK : in STD_LOGIC;
 			DCLK : in STD_LOGIC;
 			RST : in STD_LOGIC;
 			XPOS : in STD_LOGIC_VECTOR(8 downto 0);
 			YPOS : in STD_LOGIC_VECTOR(8 downto 0);
-			
-			SCORE_UP : in STD_LOGIC;
-			
-			-- control signals for the top module (to know when to draw)
-			DRAW_BG : out BOOLEAN;
-			RED_BG : out STD_LOGIC_VECTOR(7 downto 0);
-			GREEN_BG : out STD_LOGIC_VECTOR(7 downto 0);
-			BLUE_BG : out STD_LOGIC_VECTOR(7 downto 0);
-			SCORE_1_OUT : out INTEGER range 0 to 9;
-			SCORE_10_OUT : out INTEGER range 0 to 9;
-			SCORE_100_OUT : out INTEGER range 0 to 9;
-			SCORE_1000_OUT : out INTEGER range 0 to 9);
+			SCORE_UP : in STD_LOGIC;						-- increase the score
+			DRAW_BG : out BOOLEAN;							-- draw the background pixels
+			DATA_BG : out STD_LOGIC_VECTOR(23 downto 0);	-- color of the background pixels
+			SCORE_1_OUT : out INTEGER range 0 to 9;			-- score xxx1
+			SCORE_10_OUT : out INTEGER range 0 to 9;		-- score xx1x
+			SCORE_100_OUT : out INTEGER range 0 to 9;		-- score x1xx
+			SCORE_1000_OUT : out INTEGER range 0 to 9);		-- score 1xxx
 end GAMESCREEN;
 
 architecture Behavioral of GAMESCREEN is
 	component DRAW_BLOCK is
-	port(	CLK : in STD_LOGIC;
-			RST : in STD_LOGIC;
-			X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-			Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
-			X_1 : in INTEGER;
-			X_2 : in INTEGER;
-			Y_1 : in INTEGER;
-			Y_2 : in INTEGER;
-			DRAW : out BOOLEAN);
-	end component;
-	
-	-- used to display the text 'SCORE'
-	component SCORE_TEXT is
-		port(	a : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-				spo : OUT STD_LOGIC_VECTOR(23 DOWNTO 0));
-	end component;
-	component SCORE_TEXT_COUNTER is
-		port(	CLK : IN STD_LOGIC;
-				CE : IN STD_LOGIC;
-				SCLR : IN STD_LOGIC;
-				Q : OUT STD_LOGIC_VECTOR(10 DOWNTO 0));
-	end component;
-	
-	-- component to read the SCORE ROM
-	component SCORE_COUNTER is
 		port(	CLK : in STD_LOGIC;
-				SCORE : in INTEGER;
-				ADR : in STD_LOGIC_VECTOR(7 downto 0);
-				
-				RED_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
-				GREEN_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
-				BLUE_SCORE : out STD_LOGIC_VECTOR(7 downto 0));
+				X_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+				Y_POS_CURRENT : in STD_LOGIC_VECTOR(8 downto 0);
+				X_1 : in INTEGER range 0 to 479;	-- x of top left corner of the block
+				X_2 : in INTEGER range 0 to 479;	-- x of bottom right corner of the block
+				Y_1 : in INTEGER range 0 to 271;	-- y of top left corner of the block
+				Y_2 : in INTEGER range 0 to 271;	-- y of the bottom right corner of the block
+				DRAW : out BOOLEAN);				-- returns TRUE if the block can be drawn
+	end component;
+	
+	-- component that stores the ROM with 'SCORE' text
+	component SCORE_TEXT is
+		port(	a : in STD_LOGIC_VECTOR(10 downto 0);
+				spo : out STD_LOGIC_VECTOR(0 downto 0));
+	end component;
+	
+	-- component that generates the address for the SCORE text ROM
+	component SCORE_TEXT_COUNTER is
+		port(	CLK : in STD_LOGIC;
+				CE : in STD_LOGIC;
+				SCLR : in STD_LOGIC;
+				Q : out STD_LOGIC_VECTOR(10 downto 0));
+	end component;
+	
+	-- component that stores the ROM with numbers 0..9 text
+	component SCORE_NUMBERS is
+		port(	a : in STD_LOGIC_VECTOR(7 downto 0);
+				spo : out STD_LOGIC_VECTOR(9 downto 0));
 	end component;
 	
 	-- component to generate the address for the SCORE ROM
 	component SCORE_NUMBERS_COUNTER is
-		port(	CLK : IN STD_LOGIC;
-				CE : IN STD_LOGIC;
-				SCLR : IN STD_LOGIC;
-				Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+		port(	CLK : in STD_LOGIC;
+				CE : in STD_LOGIC;
+				SCLR : in STD_LOGIC;
+				Q : out STD_LOGIC_VECTOR(7 downto 0));
 	end component;
 		
 	-- signals for background lines and buttons
@@ -78,7 +71,7 @@ architecture Behavioral of GAMESCREEN is
 	
 	-- signals for the 'SCORE' text
 	signal ADR_SCORE_TEXT : STD_LOGIC_VECTOR(10 downto 0);
-	signal OUT_SCORE_TEXT : STD_LOGIC_VECTOR(23 downto 0);
+	signal OUT_SCORE_TEXT : STD_LOGIC_VECTOR(0 downto 0);
 	signal EN_SCORE_TEXT : STD_LOGIC;
 	signal DRAW_SCORE_TEXT : BOOLEAN;
 	
@@ -88,7 +81,7 @@ architecture Behavioral of GAMESCREEN is
 	signal ADR_SCORE_10 : STD_LOGIC_VECTOR(7 downto 0);
 	signal ADR_SCORE_100 : STD_LOGIC_VECTOR(7 downto 0);
 	signal ADR_SCORE_1000 : STD_LOGIC_VECTOR(7 downto 0);
-	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
+	signal OUT_SCORE : STD_LOGIC_VECTOR(9 downto 0);
 	signal EN_SCORE_1 : STD_LOGIC;
 	signal EN_SCORE_10 : STD_LOGIC;
 	signal EN_SCORE_100 : STD_LOGIC;
@@ -102,64 +95,51 @@ architecture Behavioral of GAMESCREEN is
 	signal SCORE_10 : INTEGER range 0 to 9;
 	signal SCORE_100 : INTEGER range 0 to 9;
 	signal SCORE_1000 : INTEGER range 0 to 9;
-	
-	
-	-- signals for updating the score
-	signal RED_SCORE : STD_LOGIC_VECTOR(7 downto 0);
-	signal GREEN_SCORE : STD_LOGIC_VECTOR(7 downto 0);
-	signal BLUE_SCORE : STD_LOGIC_VECTOR(7 downto 0);
-	
-	
 
-	
+	-- signal used to convert ROM (1 and 0) to color (white and blue)
+	signal DATA_1_bit : STD_LOGIC_VECTOR(0 downto 0);	
 	
 begin
 -- draws boundary lines on the screen
-line1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
+line1: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
 								Y_1 => 0, Y_2 => 4, DRAW => FIELD_LINE1);
-line2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
+line2: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
 								Y_1 => 67, Y_2 => 72, DRAW => FIELD_LINE2);
-line3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
+line3: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
 								Y_1 => 135, Y_2 => 140, DRAW => FIELD_LINE3);
-line4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
+line4: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 0, X_2 => 479,
 								Y_1 => 203, Y_2 => 218, DRAW => FIELD_LINE4);
 
 -- draws gamebuttons on the screen
-button1: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 327, X_2 => 379,
+button1: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 327, X_2 => 379,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON1);
-button2: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 81, X_2 => 133,
+button2: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 81, X_2 => 133,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON2);
-button3: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 163, X_2 => 215,
+button3: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 163, X_2 => 215,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON3);
-button4: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 245, X_2 => 297,
+button4: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 245, X_2 => 297,
 								Y_1 => 219, Y_2 => 271, DRAW => FIELD_BUTTON4);
 
 -- writes 'SCORE' on the screen
-score_text_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 399, X_2 => 470,
+score_text_draw: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 399, X_2 => 470,
 								Y_1 => 225, Y_2 => 242, DRAW => DRAW_SCORE_TEXT);
 score_text_rom: SCORE_TEXT port map(a => ADR_SCORE_TEXT, spo => OUT_SCORE_TEXT);
---score_text_count: SCORE_TEXT_COUNTER port map(CLK => DCLK, CE => EN_SCORE_TEXT, SCLR => RST, Q => ADR_SCORE_TEXT);
 score_text_count: SCORE_TEXT_COUNTER port map(CLK => CLK, CE => EN_SCORE_TEXT, SCLR => RST, Q => ADR_SCORE_TEXT);
 
-score_1_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
-score_10_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 444, X_2 => 455,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_10);
-score_100_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 429, X_2 => 440,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_100);
-score_1000_draw: DRAW_BLOCK port map(CLK => CLK, RST => RST, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 414, X_2 => 425,
-								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1000);
-
-score_getadr: SCORE_COUNTER port map(CLK => CLK, SCORE => SCORE, ADR => ADR_SCORE, RED_SCORE => RED_SCORE, GREEN_SCORE => GREEN_SCORE, BLUE_SCORE => BLUE_SCORE);
-
---score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1, SCLR => RST, Q => ADR_SCORE_1);
---score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_10, SCLR => RST, Q => ADR_SCORE_10);
---score_count_100: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_100, SCLR => RST, Q => ADR_SCORE_100);
---score_count_1000: SCORE_NUMBERS_COUNTER port map(CLK => DCLK, CE => EN_SCORE_1000, SCLR => RST, Q => ADR_SCORE_1000);
+-- writes the score on the screen
+SCORE_ROM: SCORE_NUMBERS port map(a => ADR_SCORE, spo => OUT_SCORE);
 score_count_1: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_1, SCLR => RST, Q => ADR_SCORE_1);
 score_count_10: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_10, SCLR => RST, Q => ADR_SCORE_10);
 score_count_100: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_100, SCLR => RST, Q => ADR_SCORE_100);
 score_count_1000: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => EN_SCORE_1000, SCLR => RST, Q => ADR_SCORE_1000);
+score_1_draw: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 459, X_2 => 470,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1);
+score_10_draw: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 444, X_2 => 455,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_10);
+score_100_draw: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 429, X_2 => 440,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_100);
+score_1000_draw: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 414, X_2 => 425,
+								Y_1 => 247, Y_2 => 266, DRAW => DRAW_SCORE_1000);
 
 SCORE_1_OUT <= SCORE_1;
 SCORE_10_OUT <= SCORE_10;
@@ -171,70 +151,89 @@ process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		if (FIELD_LINE1 = true) or (FIELD_LINE2 = true) or (FIELD_LINE3 = true) or (FIELD_LINE4 = true) then
-			RED_BG <=   "00000000";
-			GREEN_BG <= "00000000";
-			BLUE_BG <=  "00000000";
+			DATA_BG <= X"000000";
 			DRAW_BG <= true;
 		elsif FIELD_BUTTON1 = true then
-			RED_BG <=   "11111111";
-			GREEN_BG <= "00000000";
-			BLUE_BG <=  "00000000";
+			DATA_BG <= X"FF0000";
 			DRAW_BG <= true;
 		elsif FIELD_BUTTON2 = true then
-			RED_BG <=   "11111111";
-			GREEN_BG <= "00000000";
-			BLUE_BG <=  "11111111";
+			DATA_BG <= X"FF00FF";
 			DRAW_BG <= true;
 		elsif FIELD_BUTTON3 = true then
-			RED_BG <=   "00000000";
-			GREEN_BG <= "11111111";
-			BLUE_BG <=  "00000000";
+			DATA_BG <= X"00FF00";
 			DRAW_BG <= true;
 		elsif FIELD_BUTTON4 = true then
-			RED_BG <=   "00000000";
-			GREEN_BG <= "11111111";
-			BLUE_BG <=  "11111111";
-			DRAW_BG <= true;
-		elsif DRAW_SCORE_TEXT = true then
+			DATA_BG <= X"00FFFF";
+			DRAW_BG <= true;	
+		elsif (DRAW_SCORE_TEXT = true) or (DRAW_SCORE_1 = true) or (DRAW_SCORE_10 = true) or (DRAW_SCORE_100 = true) or (DRAW_SCORE_1000 = true) then
+			if (DRAW_SCORE_TEXT = true) then
 				EN_SCORE_TEXT <= DCLK;
-				RED_BG <=   OUT_SCORE_TEXT(23 downto 16);
-				GREEN_BG <= OUT_SCORE_TEXT(15 downto 8);
-				BLUE_BG <=  OUT_SCORE_TEXT(7 downto 0);
-				DRAW_BG <= true;
-		elsif (DRAW_SCORE_1 = true) or (DRAW_SCORE_10 = true) or (DRAW_SCORE_100 = true) or (DRAW_SCORE_1000 = true) then
-			if (DRAW_SCORE_1 = true) then
+				EN_SCORE_1 <= '0';
+				EN_SCORE_10 <= '0';
+				EN_SCORE_100 <= '0';
+				EN_SCORE_1000 <= '0';
+				
+				DATA_1_bit <= OUT_SCORE_TEXT;
+				
+			elsif (DRAW_SCORE_1 = true) then
 				SCORE <= SCORE_1;
 				ADR_SCORE <= ADR_SCORE_1;
+				
+				EN_SCORE_TEXT <= '0';
 				EN_SCORE_1 <= DCLK;
 				EN_SCORE_10 <= '0';
 				EN_SCORE_100 <= '0';
 				EN_SCORE_1000 <= '0';
+				
+				DATA_1_bit <= OUT_SCORE(SCORE downto SCORE);
+				
 			elsif (DRAW_SCORE_10 = true) then
 				SCORE <= SCORE_10;
 				ADR_SCORE <= ADR_SCORE_10;
+				
+				EN_SCORE_TEXT <= '0';
 				EN_SCORE_1 <= '0';
 				EN_SCORE_10 <= DCLK;
 				EN_SCORE_100 <= '0';
 				EN_SCORE_1000 <= '0';
+				
+				DATA_1_bit <= OUT_SCORE(SCORE downto SCORE);
+				
 			elsif (DRAW_SCORE_100 = true) then
 				SCORE <= SCORE_100;
 				ADR_SCORE <= ADR_SCORE_100;
+				
+				EN_SCORE_TEXT <= '0';
 				EN_SCORE_1 <= '0';
 				EN_SCORE_10 <= '0';
 				EN_SCORE_100 <= DCLK;
 				EN_SCORE_1000 <= '0';
+				
+				DATA_1_bit <= OUT_SCORE(SCORE downto SCORE);
+				
 			elsif (DRAW_SCORE_1000 = true) then
 				SCORE <= SCORE_1000;
 				ADR_SCORE <= ADR_SCORE_1000;
+				
+				EN_SCORE_TEXT <= '0';
 				EN_SCORE_1 <= '0';
 				EN_SCORE_10 <= '0';
 				EN_SCORE_100 <= '0';
 				EN_SCORE_1000 <= DCLK;
+				
+				DATA_1_bit <= OUT_SCORE(SCORE downto SCORE);
+				
 			end if;
-			RED_BG <=   RED_SCORE;
-			GREEN_BG <= GREEN_SCORE;
-			BLUE_BG <=  BLUE_SCORE;
+			
+			-- convert ROM to real colors
+			if DATA_1_BIT = "1" then
+				DATA_BG <= X"FFFFFF";
+			else
+				DATA_BG <= X"0043AF";
+			end if;
+			
 			DRAW_BG <= true;
+		
 		else
 			EN_SCORE_TEXT <= '0';
 			EN_SCORE_1 <= '0';
@@ -246,6 +245,7 @@ process(CLK)
 	end if;
 end process;
 
+-- process that adjust the score (range 0 .. 9999)
 process(CLK)
 	variable SCORE_VAR_1 : INTEGER range 0 to 9;
 	variable SCORE_VAR_10 : INTEGER range 0 to 9;
