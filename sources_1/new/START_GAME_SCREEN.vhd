@@ -62,6 +62,40 @@ architecture Behavioral of START_GAME_SCREEN is
 				Q : out STD_LOGIC_VECTOR(24 downto 0));
 	end component;
 	
+	-- component that stores the ROM with DIFFICULTY text
+	component DIFFICULTY_ROM is
+		port(	a : in STD_LOGIC_VECTOR(11 downto 0);
+				spo : out STD_LOGIC_VECTOR(0 downto 0));
+	end component;
+	
+	-- component that generates the address for the DIFFICULTY text ROM
+	component DIFFICULTY_COUNT is
+		port(	CLK : in STD_LOGIC;
+				CE : in STD_LOGIC;
+				SCLR : in STD_LOGIC;
+				THRESH0 : out STD_LOGIC;
+				Q : out STD_LOGIC_VECTOR(11 downto 0));
+	end component;
+	
+	-- component to read the SCORE ROM
+	component SCORE_COUNTER is
+		port(	CLK : in STD_LOGIC;
+				SCORE : in INTEGER;
+				ADR : in STD_LOGIC_VECTOR(7 downto 0);
+				
+				RED_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
+				GREEN_SCORE : out STD_LOGIC_VECTOR(7 downto 0);
+				BLUE_SCORE : out STD_LOGIC_VECTOR(7 downto 0));
+	end component;
+	
+	-- component to generate the address for the SCORE ROM
+	component SCORE_NUMBERS_COUNTER is
+		port(	CLK : IN STD_LOGIC;
+				CE : IN STD_LOGIC;
+				SCLR : IN STD_LOGIC;
+				Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+	end component;
+	
 	-- component used to draw rectangles
 	component DRAW_BLOCK is
 		port(	CLK : in STD_LOGIC;
@@ -91,7 +125,18 @@ architecture Behavioral of START_GAME_SCREEN is
 	signal MONKEY_NUMBER : STD_LOGIC_VECTOR(3 downto 0);
 	signal MONKEY_NEXT_FRAME : STD_LOGIC;
 	signal DIFF_SPEED : STD_LOGIC_VECTOR(24 downto 0);
---	signal DIFF_LOAD : STD_LOGIC;
+
+	-- signals to display the DIFFICULTY text
+	signal DIFF_ADR : STD_LOGIC_VECTOR(11 downto 0);
+	signal DIFF_OUT : STD_LOGIC_VECTOR(0 downto 0);
+	signal DIFF_EN : STD_LOGIC;
+	signal DIFF_DRAW : BOOLEAN;
+
+	-- signals for the level number
+	signal LEVEL_ADR : STD_LOGIC_VECTOR(7 downto 0);
+	signal LEVEL_OUT : STD_LOGIC_VECTOR(23 downto 0);
+	signal LEVEL_EN : STD_LOGIC;
+	signal LEVEL_DRAW : BOOLEAN;
 	
 begin
 STR_ROM: START_ROM port map(a => START_ADR, spo => START_OUT);
@@ -107,23 +152,57 @@ MKY_DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_P
 MKY_SELECT: MONKEY_SELECT port map(CLK => CLK, CE => MONKEY_NEXT_FRAME, SCLR => RST, Q => MONKEY_NUMBER);
 MKY_PRESCALER: MONKEY_SELECT_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => MONKEY_NEXT_FRAME, LOAD => MONKEY_NEXT_FRAME, L => DIFF_SPEED);
 
-START_DRAW <= GAME_DRAW or MONKEY_DRAW;
+DIFF_ROM: DIFFICULTY_ROM port map(a => DIFF_ADR, spo => DIFF_OUT);
+DIFF_COUNT: DIFFICULTY_COUNT port map(CLK => CLK, CE => DIFF_EN, SCLR => RST, Q => DIFF_ADR);
+DIFF_DRAW0: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 151, X_2 => 302,
+								Y_1 => 245, Y_2 => 262, DRAW => DIFF_DRAW);
 
--- process that tells the TOP when to draw the START GAME text or the monkey
+LVL_COUNT: SCORE_NUMBERS_COUNTER port map(CLK => CLK, CE => LEVEL_EN, SCLR => RST, Q => LEVEL_ADR);
+LVL_DRAW0: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_POS_CURRENT => YPOS, X_1 => 309, X_2 => 320,
+								Y_1 => 245, Y_2 => 264, DRAW => LEVEL_DRAW);
+score_getadr: SCORE_COUNTER port map(CLK => CLK, SCORE => DIFF_LEVEL, ADR => LEVEL_ADR, RED_SCORE => LEVEL_OUT(23 downto 16),
+								GREEN_SCORE => LEVEL_OUT(15 downto 8), BLUE_SCORE => LEVEL_OUT(7 downto 0));
+
+
+START_DRAW <= GAME_DRAW or MONKEY_DRAW or DIFF_DRAW or LEVEL_DRAW;
+
+-- process that tells the TOP when to draw what
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
 		if GAME_DRAW = true then
 			START_EN <= DCLK;
 			MONKEY_EN <= '0';
+			DIFF_EN <= '0';
+			LEVEL_EN <= '0';
 			DATA <= START_OUT;
 		elsif MONKEY_DRAW = true then
 			START_EN <= '0';
 			MONKEY_EN <= DCLK;
+			DIFF_EN <= '0';
+			LEVEL_EN <= '0';
 			DATA <= MONKEY_OUT;
+		elsif DIFF_DRAW = true then
+			START_EN <= '0';
+			MONKEY_EN <= '0';
+			DIFF_EN <= DCLK;
+			LEVEL_EN <= '0';
+			if DIFF_OUT = "1" then
+				DATA <= X"FFFFFF";
+			else
+				DATA <= X"0043AF";
+			end if;
+		elsif LEVEL_DRAW = true then
+			START_EN <= '0';
+			MONKEY_EN <= '0';
+			DIFF_EN <= '0';
+			LEVEL_EN <= DCLK;
+			DATA <= LEVEL_OUT;
 		else
 			START_EN <= '0';
 			MONKEY_EN <= '0';
+			DIFF_EN <= '0';
+			LEVEL_EN <= '0';
 		end if;
 	end if;
 end process;
@@ -149,7 +228,7 @@ process(CLK)
 				DIFF_SPEED <= "1" & X"C00000";
 			
 			when OTHERS =>
-				DIFF_SPEED <= B"0" & X"000000";
+				DIFF_SPEED <= "0" & X"000000";
 		end case;
 	end if;
 end process;

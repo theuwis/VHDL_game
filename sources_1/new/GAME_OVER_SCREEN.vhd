@@ -114,7 +114,6 @@ architecture Behavioral of GAME_OVER_SCREEN is
 	signal ADR_SCORE_10 : STD_LOGIC_VECTOR(7 downto 0);
 	signal ADR_SCORE_100 : STD_LOGIC_VECTOR(7 downto 0);
 	signal ADR_SCORE_1000 : STD_LOGIC_VECTOR(7 downto 0);
-	signal OUT_SCORE : STD_LOGIC_VECTOR(239 downto 0);
 	signal EN_SCORE_1 : STD_LOGIC;
 	signal EN_SCORE_10 : STD_LOGIC;
 	signal EN_SCORE_100 : STD_LOGIC;

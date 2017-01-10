@@ -44,7 +44,11 @@ signal old_state, new_state : fsm_state;
 		process(CLK) --state buffer
 		begin
 			if(CLK'event and CLK = '0') then
-				old_state <= new_state;
+				if RST = '1' then
+					old_state <= S0;
+				else
+					old_state <= new_state;
+				end if;
 			end if;
 		end process;
 		
