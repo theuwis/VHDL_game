@@ -27,7 +27,6 @@ entity GAME is
 			BL_EN : out STD_LOGIC;
 			GND : out STD_LOGIC;
 						
-		--	SDO : out STD_LOGIC;
 			MISO : in STD_LOGIC;
 			MOSI : out STD_LOGIC;
 			BUSY : in STD_LOGIC;
@@ -35,7 +34,8 @@ entity GAME is
 			SSEL : out STD_LOGIC;
 			
 			LEDS : out STD_LOGIC_VECTOR(3 downto 0);
-			START : in STD_LOGIC);
+			START : in STD_LOGIC;
+			DIFF_CHANGE : in STD_LOGIC);
 end GAME;
 
 architecture Behavioral of GAME is
@@ -107,6 +107,8 @@ architecture Behavioral of GAME is
 				START : in STD_LOGIC;
 				GAME_RESET: out STD_LOGIC;
 				
+				DIFF_CHANGE : in STD_LOGIC;
+				DIFF_LEVEL : out INTEGER range 0 to 4;
 				LEDS : out STD_LOGIC_VECTOR(3 downto 0));
 	end component;
 	
@@ -164,6 +166,7 @@ architecture Behavioral of GAME is
 				DCLK : in STD_LOGIC;
 				XPOS : in STD_LOGIC_VECTOR(8 downto 0);
 				YPOS : in STD_LOGIC_VECTOR(8 downto 0);
+				DIFF_LEVEL : in INTEGER range 0 to 4;
 				
 				START_DRAW : out BOOLEAN;
 				DATA : out STD_LOGIC_VECTOR(23 downto 0));
@@ -224,6 +227,10 @@ architecture Behavioral of GAME is
 	signal SCORE_10 : INTEGER range 0 to 9;
 	signal SCORE_100 : INTEGER range 0 to 9;
 	signal SCORE_1000 : INTEGER range 0 to 9;
+	
+	-- signal used to change difficulty
+	signal DIFF_CHANGE_DEB : STD_LOGIC;
+	signal DIFF_LEVEL : INTEGER range 0 to 4;
 
 begin
 VGA: VGA_CONTROLLER port map(CLK => CLK, RST => DEB_RST, RED_IN => RED, GREEN_IN => GREEN, BLUE_IN => BLUE, X_POS_OUT => X_POS, Y_POS_OUT => Y_POS,
@@ -235,19 +242,19 @@ BACKGROUND: GAMESCREEN port map(CLK => CLK, DCLK => DCLK_temp, RST => DEB_RST, X
 							--TODO DCLK_temp vervangen
 INCR_SCORE: SCORE_INCR_COUNTER port map(CLK => CLK, CE => CE_SCORE_INCR, SCLR => DEB_RST, THRESH0 => SCORE_INCR);	
 GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => DEB_RST, X_POS => X_POS, Y_POS => Y_POS, DRAW => DRAW_GAME, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH,
-							COLOR => COLOR_GAME, LEDS => LEDS, START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN,
-							GAME_RESET => RESTART_GAME, START => DEB_START);	
+							COLOR => COLOR_GAME, LEDS => LEDS, START_SCREEN => START_SCREEN, LOST_SCREEN => LOST_SCREEN, DIFF_CHANGE => DIFF_CHANGE_DEB,
+							DIFF_LEVEL => DIFF_LEVEL, GAME_RESET => RESTART_GAME, START => DEB_START);	
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => DEB_RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS, GAME_OVER_DRAW => GAME_OVER_DRAW,
 							DATA => GAME_OVER_COLOR, SCORE_1 => SCORE_1, SCORE_10 => SCORE_10, SCORE_100 => SCORE_100, SCORE_1000 => SCORE_1000);
 							--DCLK temp toevoegen!!!
-START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS,
+START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS, DIFF_LEVEL => DIFF_LEVEL,
 							START_DRAW => START_DRAW, DATA => START_COLOR);
 							--TODO DCLK_temp vervaangen
 DEBOUNCE_START: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => START, SW_OUT => DEB_START);
 DEBOUNCE_RST: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => RST_BTN, SW_OUT => DEB_RST_OUT);
-
+DEBOUNCE_DIFF: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => DIFF_CHANGE, SW_OUT => DIFF_CHANGE_DEB);
 
 DCLK <= DCLK_ROM;
 GND <= '0';

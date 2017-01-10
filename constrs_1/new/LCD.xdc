@@ -1,5 +1,6 @@
 # I/O - BUTTONS #
 set_property PACKAGE_PIN Y16 [get_ports START]
+set_property PACKAGE_PIN V16 [get_ports DIFF_CHANGE]
 set_property PACKAGE_PIN R18 [get_ports RST_BTN]
 
 # I/O - LEDS #
@@ -50,6 +51,7 @@ set_property PACKAGE_PIN V20 [get_ports GND]
 ##################################################################
 # TYPES #
 set_property IOSTANDARD LVCMOS33 [get_ports START]
+set_property IOSTANDARD LVCMOS33 [get_ports DIFF_CHANGE]
 set_property IOSTANDARD LVCMOS33 [get_ports RST_BTN]
 set_property IOSTANDARD LVCMOS33 [get_ports {LEDS[3]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {LEDS[2]}]

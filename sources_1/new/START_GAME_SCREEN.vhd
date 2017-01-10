@@ -7,6 +7,7 @@ entity START_GAME_SCREEN is
 			DCLK : in STD_LOGIC;
 			XPOS : in STD_LOGIC_VECTOR(8 downto 0);
 			YPOS : in STD_LOGIC_VECTOR(8 downto 0);
+			DIFF_LEVEL : in INTEGER range 0 to 4;
 			
 			START_DRAW : out BOOLEAN;
 			DATA : out STD_LOGIC_VECTOR(23 downto 0));
@@ -56,10 +57,12 @@ architecture Behavioral of START_GAME_SCREEN is
 		port(	CLK : in STD_LOGIC;
 				SCLR : in STD_LOGIC;
 				THRESH0 : out STD_LOGIC;
-				Q : out STD_LOGIC_VECTOR(23 downto 0));
+				LOAD : in STD_LOGIC;
+				L : in STD_LOGIC_VECTOR(24 downto 0);
+				Q : out STD_LOGIC_VECTOR(24 downto 0));
 	end component;
 	
-	
+	-- component used to draw rectangles
 	component DRAW_BLOCK is
 		port(	CLK : in STD_LOGIC;
 				RST : in STD_LOGIC;
@@ -87,6 +90,8 @@ architecture Behavioral of START_GAME_SCREEN is
 	signal LOAD : STD_LOGIC;
 	signal MONKEY_NUMBER : STD_LOGIC_VECTOR(3 downto 0);
 	signal MONKEY_NEXT_FRAME : STD_LOGIC;
+	signal DIFF_SPEED : STD_LOGIC_VECTOR(24 downto 0);
+--	signal DIFF_LOAD : STD_LOGIC;
 	
 begin
 STR_ROM: START_ROM port map(a => START_ADR, spo => START_OUT);
@@ -100,12 +105,11 @@ MKY_DRAW: DRAW_BLOCK port map(CLK => CLK, RST => '0', X_POS_CURRENT => XPOS, Y_P
 								Y_1 => 190, Y_2 => 239, DRAW => MONKEY_DRAW);
 
 MKY_SELECT: MONKEY_SELECT port map(CLK => CLK, CE => MONKEY_NEXT_FRAME, SCLR => RST, Q => MONKEY_NUMBER);
-MKY_PRESCALER: MONKEY_SELECT_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => MONKEY_NEXT_FRAME);
-
-
+MKY_PRESCALER: MONKEY_SELECT_PRESCALER port map(CLK => CLK, SCLR => RST, THRESH0 => MONKEY_NEXT_FRAME, LOAD => MONKEY_NEXT_FRAME, L => DIFF_SPEED);
 
 START_DRAW <= GAME_DRAW or MONKEY_DRAW;
 
+-- process that tells the TOP when to draw the START GAME text or the monkey
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
@@ -124,7 +128,33 @@ process(CLK)
 	end if;
 end process;
 
+-- process that sets the monkey's speed (= difficulty)
+process(CLK)
+	begin
+	if (CLK'event and CLK = '1') then
+		case DIFF_LEVEL is
+			when 0 => --989680
+				DIFF_SPEED <= "0" & X"000000";
+			
+			when 1 =>
+				DIFF_SPEED <= "1" & X"200000";
+				
+			when 2 =>
+				DIFF_SPEED <= "1" & X"600000";
+			
+			when 3 =>
+				DIFF_SPEED <= "1" & X"800000";
+				
+			when 4 =>
+				DIFF_SPEED <= "1" & X"C00000";
+			
+			when OTHERS =>
+				DIFF_SPEED <= B"0" & X"000000";
+		end case;
+	end if;
+end process;
 
+-- process that selects the right frame from the monkey gif
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then
@@ -163,24 +193,10 @@ process(CLK)
 		if (MONKEY_ADR = X"0AEF") or (MONKEY_ADR = X"15DF") or (MONKEY_ADR = X"20CF") or (MONKEY_ADR = X"2BBF") or (MONKEY_ADR = X"36AF") or
 		   (MONKEY_ADR = X"419F") or (MONKEY_ADR = X"4C8F") or (MONKEY_ADR = X"577F") or (MONKEY_ADR = X"626F") or (MONKEY_ADR = X"6D5F") or
 		   (MONKEY_ADR = X"784F") or (MONKEY_ADR = X"833F") or (MONKEY_ADR = X"8E2F") then
-				-- or X"15DF" or X"20CF" or X"2BBF" or X"36AF" or X"419F" or
-				-- X"4C8F" or X"577F" or X"626F" or X"6D5F" or X"784F" or X"833F") then
 			LOAD <= '1';
 		else
 			LOAD <= '0';
 		end if;
---		if MONKEY_ADR = X"0AEF" then
---			LOAD <= '1';
---			LOAD_ADR <= X"0000";
---		else
---			LOAD <= '0';
---		end if;
 	end if;
 end process;
 end Behavioral;
-
-
-
-
-
-

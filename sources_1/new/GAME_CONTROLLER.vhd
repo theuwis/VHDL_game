@@ -20,6 +20,8 @@ entity GAME_CONTROLLER is
 			START : in STD_LOGIC;
 			GAME_RESET: out STD_LOGIC;
 			
+			DIFF_CHANGE : in STD_LOGIC;
+			DIFF_LEVEL : out INTEGER range 0 to 4;
 			LEDS : out STD_LOGIC_VECTOR(3 downto 0));
 end GAME_CONTROLLER;
 
@@ -84,8 +86,8 @@ architecture Behavioral of GAME_CONTROLLER is
 				X_TOUCH : in STD_LOGIC_VECTOR (7 downto 0);
 				Y_TOUCH : in STD_LOGIC_VECTOR (7 downto 0);
 				
-				BLOCK_COL : out STD_LOGIC_VECTOR (23 downto 0);
-				LEDS : OUT STD_LOGIC_VECTOR(3 downto 0));
+				BLOCK_COL : out STD_LOGIC_VECTOR (23 downto 0));
+--				LEDS : OUT STD_LOGIC_VECTOR(3 downto 0));
 	end component;
 
 	-- signals used to move the wall over the screen
@@ -109,6 +111,10 @@ architecture Behavioral of GAME_CONTROLLER is
 	signal BLOCK_POS : STD_LOGIC_VECTOR(1 downto 0);
 	signal BLOCK_COL : STD_LOGIC_VECTOR(23 downto 0);
 	signal DRAW_GAME_BLOCK : BOOLEAN;
+	
+	-- signal to indicate the difficulty on the LEDS
+	signal DIFF_LEDS : STD_LOGIC_VECTOR(4 downto 0) := "00001";
+
 
 begin
 TICK_GEN: TICK_GENERATOR port map(CLK => CLK, SCLR => RST, LOAD => TICK, L => SPEED, THRESH0 => TICK);
@@ -119,7 +125,7 @@ GAME_FSM: GAME_CONTROLLER_FSM port map(CLK => CLK, RST => '0', X_POS => POSITION
 						GAME_RESET => GAME_RESET, LOST_SCREEN => LOST_SCREEN);
 POSITION_CONTROLLER: POSITION_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, X_POS => X_POS, Y_POS => Y_POS,
 						DRAW_MOVING_BLOCK => DRAW_GAME_BLOCK, BLOCK_POS => BLOCK_POS);
-COLOR_CONTROLLER: COLOR_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_COL => BLOCK_COL, LEDS => LEDS);
+COLOR_CONTROLLER: COLOR_CHANGE port map(CLK => CLK, RST => RST, X_TOUCH => X_TOUCH, Y_TOUCH => Y_TOUCH, BLOCK_COL => BLOCK_COL);--, LEDS => LEDS);
 
 -- use the LSB's of the touchscreen to generate a random wall position and color
 RAND_LOC(1 downto 0) <= X_TOUCH(1 downto 0);
@@ -127,6 +133,9 @@ RAND_LOC(3 downto 2) <= Y_TOUCH(1 downto 0);
 
 -- tells the TOP when to draw the walls or block
 DRAW <= DRAW_WALLS or DRAW_GAME_BLOCK;
+
+-- show DIFF on LEDS
+LEDS <= DIFF_LEDS(4 downto 1);
 
 -- process that passes the right color to the TOP (needs to know if it is drawing the block or the wall)
 process(CLK)	
@@ -145,27 +154,45 @@ process(CLK)
 	end if;
 end process;
 
--- process that increases the speed of the walls
+-- process that increases the speed of the walls and set difficulty
 -- the speed is increased every time a new wall is drawn, up to a certain limit
+-- difficuly can be set by buttons, up to a certain level (0-4)
 process(CLK)
 	variable SPEED_VAR : INTEGER RANGE 0 TO 2**20 := 300000;
-	variable SPEED_INCREASE : INTEGER RANGE 0 TO 50000 := 50000;
+	variable SPEED_INCREASE : INTEGER := 50000; --RANGE 0 TO 100000 := 50000;
+	variable SPEED_LIMIT : INTEGER := 500000; --RANGE 0 TO 1000000 := 500000;
+	variable LEVEL : INTEGER RANGE 0 TO 4 := 0;
 	
 	begin
 	if (CLK'event and CLK = '1') then
 		if RST = '1' then
 			SPEED_VAR := 300000;
-			SPEED_INCREASE := 50000;
+			SPEED_INCREASE := 50000 + (100000 * 4);--LEVEL;
 			POSITION <= 0;	
 		else
+			if DIFF_CHANGE = '1' then
+				DIFF_LEDS <= DIFF_LEDS(3 downto 0) & DIFF_LEDS(4);
+				
+				if LEVEL < 4 then
+--					SPEED_INCREASE := SPEED_INCREASE + 100000;
+					SPEED_LIMIT := SPEED_LIMIT + 100000;
+					LEVEL := LEVEL + 1;
+				else
+--					SPEED_INCREASE := 50000;
+					SPEED_LIMIT := 500000;
+					LEVEL := 0;
+				end if;
+			end if;
+		
+		
 			if TICK = '1' then
 				if POSITION < 479 then
 					POSITION <= POSITION + 1;
 				else
 					POSITION <= 0;
 					
-					-- increase wall speed only if SPEED < 700000
-					if SPEED_VAR < 700000 then
+					-- increase wall speed only if SPEED < SPEED_LIMIT
+					if SPEED_VAR < 1000000 then
 						SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
 						SPEED_INCREASE := SPEED_INCREASE - 1000;
 					end if;
@@ -174,6 +201,7 @@ process(CLK)
 		end if;
 		
 		SPEED <= STD_LOGIC_VECTOR(TO_UNSIGNED(SPEED_VAR, SPEED'length));
+		DIFF_LEVEL <= LEVEL;
 	end if;
 end process;
 

@@ -57,8 +57,10 @@
 MONKEY_SELECT_PRESCALER your_instance_name (
   .CLK(CLK),          // input wire CLK
   .SCLR(SCLR),        // input wire SCLR
+  .LOAD(LOAD),        // input wire LOAD
+  .L(L),              // input wire [24 : 0] L
   .THRESH0(THRESH0),  // output wire THRESH0
-  .Q(Q)              // output wire [23 : 0] Q
+  .Q(Q)              // output wire [24 : 0] Q
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
