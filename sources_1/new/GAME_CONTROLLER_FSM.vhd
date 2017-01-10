@@ -30,7 +30,7 @@ process(X_POS, START, old_state)
 					new_state <= begin_game;
 				else
 					new_state <= start_scr;
-					end if;
+				end if;
 			
 			when begin_game =>
 				new_state <= move_wall;

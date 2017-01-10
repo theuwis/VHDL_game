@@ -108,6 +108,7 @@ architecture Behavioral of START_GAME_SCREEN is
 	signal START_OUT : STD_LOGIC_VECTOR(0 downto 0);
 	signal START_EN : STD_LOGIC;
 	signal GAME_DRAW : BOOLEAN;
+	signal FLICKER : BOOLEAN;
 	
 	-- signals to display the dancing monkey
 	signal MONKEY_ADR : STD_LOGIC_VECTOR(15 downto 0);
@@ -171,7 +172,11 @@ process(CLK)
 			if START_OUT = "1" then
 				DATA <= X"FFFFFF";
 			else
-				DATA <= X"0043AF";
+				if FLICKER = false then
+					DATA <= X"0043AF";
+				else
+					DATA <= X"FF43AF";
+				end if;
 			end if;
 		elsif MONKEY_DRAW = true then
 			START_EN <= '0';
@@ -204,6 +209,20 @@ process(CLK)
 			MONKEY_EN <= '0';
 			DIFF_EN <= '0';
 			LEVEL_EN <= '0';
+		end if;
+	end if;
+end process;
+
+-- process that generates flickering of PRESS BTN
+process(CLK)
+	variable COUNT : INTEGER range 0 to 2**26 := 0;
+	begin
+	if (CLK'event and CLK = '1') then
+		if COUNT < 2**26 then
+			COUNT := COUNT + 1;
+		else
+			COUNT := 0;
+			FLICKER <= not FLICKER;
 		end if;
 	end if;
 end process;

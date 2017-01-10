@@ -130,7 +130,8 @@ architecture Behavioral of GAME is
 				SCORE_1 : in INTEGER range 0 to 9;			-- used to display the score (xxx1)
 				SCORE_10 : in INTEGER range 0 to 9;			-- 	"		"		"		 (xx1x)
 				SCORE_100 : in INTEGER range 0 to 9;		-- 	"		"		"		 (x1xx)
-				SCORE_1000 : in INTEGER range 0 to 9);		-- 	"		"		"		 (1xxx)
+				SCORE_1000 : in INTEGER range 0 to 9;		-- 	"		"		"		 (1xxx)
+				LOST_SCREEN : in BOOLEAN);					-- used for starting the dynamic background
 	end component;
 	
 	-- component used to draw the start screen, which includes difficulty setting
@@ -224,7 +225,7 @@ GAME_CONTROL: GAME_CONTROLLER port map(CLK => CLK, RST => DEB_RST, X_POS => X_PO
 TOUCH_CONTROLLER: TOUCH_TOP port map(CLK => CLK, CLR => DEB_RST, INTERRUPT_REQUEST => '0', SDO => MOSI, SDI => MISO, DCLK => SCK, BUSY => BUSY,
 							CS => SSEL, X_POS => X_TOUCH, Y_POS => Y_TOUCH);
 GAME_OVER_SCRN: GAME_OVER_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS, GAME_OVER_DRAW => GAME_OVER_DRAW,
-							DATA => GAME_OVER_COLOR, SCORE_1 => SCORE_1, SCORE_10 => SCORE_10, SCORE_100 => SCORE_100, SCORE_1000 => SCORE_1000);
+							DATA => GAME_OVER_COLOR, SCORE_1 => SCORE_1, SCORE_10 => SCORE_10, SCORE_100 => SCORE_100, SCORE_1000 => SCORE_1000, LOST_SCREEN => LOST_SCREEN);
 START_SCRN: START_GAME_SCREEN port map(CLK => CLK, RST => DEB_RST, DCLK => DCLK_temp, XPOS => X_POS, YPOS => Y_POS, DIFF_LEVEL => DIFF_LEVEL,
 							START_DRAW => START_DRAW, DATA => START_COLOR);
 DEBOUNCE_START: DEBOUNCE_BTN port map(CLK => CLK, RST => DEB_RST, SW_IN => START, SW_OUT => DEB_START);
@@ -253,16 +254,9 @@ process(CLK)
 			
 		else
 			if LOST_SCREEN = true then				-- if LOST_SCREEN is enabled, the LOST_SCREEN needs to be displayed
-				if GAME_OVER_DRAW = true then
-					RED <=   GAME_OVER_COLOR(23 downto 16);
-					GREEN <= GAME_OVER_COLOR(15 downto 8);
-					BLUE  <= GAME_OVER_COLOR(7 downto 0);
-				else								-- background color
-					RED <=   "00000000"; -- 0
-					GREEN <= "01000011"; -- 67
-					BLUE <=  "10101111"; -- 175
-				end if;
-	
+				RED <=   GAME_OVER_COLOR(23 downto 16);
+				GREEN <= GAME_OVER_COLOR(15 downto 8);
+				BLUE  <= GAME_OVER_COLOR(7 downto 0);
 			else
 				if DRAW_BG = true then				-- draw the background elements
 					RED <=	 DATA_BG(23 downto 16);

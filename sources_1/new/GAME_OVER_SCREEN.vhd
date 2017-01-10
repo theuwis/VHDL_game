@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 
 entity GAME_OVER_SCREEN is
@@ -13,7 +14,8 @@ entity GAME_OVER_SCREEN is
 			SCORE_1 : in INTEGER range 0 to 9;			-- used to display the score (xxx1)
 			SCORE_10 : in INTEGER range 0 to 9;			-- 	"		"		"		 (xx1x)
 			SCORE_100 : in INTEGER range 0 to 9;		-- 	"		"		"		 (x1xx)
-			SCORE_1000 : in INTEGER range 0 to 9);		-- 	"		"		"		 (1xxx)
+			SCORE_1000 : in INTEGER range 0 to 9;		-- 	"		"		"		 (1xxx)
+			LOST_SCREEN : in BOOLEAN);					-- used for starting the dynamic background
 end GAME_OVER_SCREEN;
 
 architecture Behavioral of GAME_OVER_SCREEN is
@@ -125,6 +127,9 @@ architecture Behavioral of GAME_OVER_SCREEN is
 	
 	-- signal to display that a new highscore has been reached
 	signal NEW_HIGH_SCORE : BOOLEAN;
+	
+	-- signal for dynamic background colors
+	signal DYNAMIC_COL : STD_LOGIC_VECTOR(23 downto 0);
 
 begin
 GO_ROM: GAME_OVER_ROM port map(a => GO_ADR, spo => GO_OUT);
@@ -262,14 +267,19 @@ process(CLK)
 		end if;
 		
 		-- convert ROM to real colors
-		if DATA_1_BIT = "1" then
-			if (SCORE_TEXT_DRAW = true) and (NEW_HIGH_SCORE = true) then	-- if a high score has been reached, SCORE will be red
-				DATA <= X"FF0000";
+		if (GO_DRAW = true) or (SCORE_TEXT_DRAW = true) or (START_DRAW = true) or (DRAW_SCORE_1 = true) or (DRAW_SCORE_10 = true) or
+		   (DRAW_SCORE_100 = true) or (DRAW_SCORE_1000 = true) then
+			if DATA_1_BIT = "1" then
+				if (SCORE_TEXT_DRAW = true) and (NEW_HIGH_SCORE = true) then	-- if a high score has been reached, SCORE will be red
+					DATA <= X"FF0000";
+				else
+					DATA <= X"FFFFFF";
+				end if;
 			else
-				DATA <= X"FFFFFF";
+				DATA <= DYNAMIC_COL;
 			end if;
 		else
-			DATA <= X"0043AF";
+			DATA <= DYNAMIC_COL;
 		end if;
 	end if;
 end process;
@@ -293,6 +303,72 @@ process(CLK)
 				HISCORE_100 := SCORE_100;
 				HISCORE_1000 := SCORE_1000;
 			end if;
+		end if;
+	end if;
+end process;
+
+-- process to generate dynamic background color
+process(CLK)
+	variable COUNT : INTEGER range 0 to 2**21 := 0;
+	variable RED : INTEGER range 0 to 255 := 0;
+	variable GRN : INTEGER range 0 to 255 := 67;
+	variable BLU : INTEGER range 0 to 255 := 175;
+	variable RED_DIR : STD_LOGIC := '0'; -- 1 = count up, 0 = count down
+	variable GRN_DIR : STD_LOGIC := '1';
+	variable BLU_DIR : STD_LOGIC := '1';
+	
+	begin
+	if (CLK'event and CLK = '1') then
+		if RST = '1' then
+			COUNT := 0;
+			RED := 0; GRN := 67; BLU := 175;
+			RED_DIR := '0'; GRN_DIR := '1'; BLU_DIR := '1';
+		else
+			if LOST_SCREEN = false then
+				COUNT := 0;
+				RED := 0;
+				GRN := 67;
+				BLU := 175;
+				RED_DIR := '0';
+				GRN_DIR := '1';
+				BLU_DIR := '1';
+			else
+				if COUNT < 2**21 then
+					COUNT := COUNT + 1;
+				
+				else
+					COUNT := 0;
+								
+					if (RED = 0) or (RED = 200) then
+						RED_DIR := not RED_DIR;
+					end if;
+					if (GRN = 0) or (GRN = 200) then
+						GRN_DIR := not GRN_DIR;
+					end if;
+					if (BLU = 0) or (BLU = 200) then
+						BLU_DIR := not BLU_DIR;
+					end if;
+					
+					if RED_DIR = '1' then
+						RED := RED + 1;
+					else
+						RED := RED - 1;
+					end if;
+					if GRN_DIR = '1' then
+						GRN := GRN + 1;
+					else
+						GRN := GRN - 1;
+					end if;
+					if BLU_DIR = '1' then
+						BLU := BLU + 1;
+					else
+						BLU := BLU - 1;
+					end if;
+				end if;
+			end if;
+			DYNAMIC_COL(23 downto 16) <= STD_LOGIC_VECTOR(TO_UNSIGNED(RED, 8));
+			DYNAMIC_COL(15 downto 8)  <= STD_LOGIC_VECTOR(TO_UNSIGNED(GRN, 8));
+			DYNAMIC_COL(7 downto 0)   <= STD_LOGIC_VECTOR(TO_UNSIGNED(BLU, 8));
 		end if;
 	end if;
 end process;
