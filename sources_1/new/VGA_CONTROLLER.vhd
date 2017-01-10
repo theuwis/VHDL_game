@@ -6,26 +6,26 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- it which color it needs to draw (RED_IN, GREEN_IN, BLUE_IN)
 -- X_POS_OUT goes from 0 .. 479 (binary), Y_POS_OUT goes from 0 .. 271 (binary)
 entity VGA_CONTROLLER is
-	port(	CLK : in STD_LOGIC;
-			RST : in STD_LOGIC;
-			
-			-- control signals for the screen
-			RED_OUT : out STD_LOGIC_VECTOR(7 downto 0);
-			GREEN_OUT : out STD_LOGIC_VECTOR(7 downto 2);
-			BLUE_OUT : out STD_LOGIC_VECTOR(7 downto 4);
-			DCLK : out STD_LOGIC;
-			DCLK_temp : out STD_LOGIC;
-			H_SYNC_O : out STD_LOGIC;
-			V_SYNC_O : out STD_LOGIC;
-			DISP : out STD_LOGIC;
-			BL_EN : out STD_LOGIC;
-    		
-			-- signals used to change screen
-			RED_IN : in STD_LOGIC_VECTOR(7 downto 0);
-			GREEN_IN : in STD_LOGIC_VECTOR(7 downto 0);
-			BLUE_IN : in STD_LOGIC_VECTOR(7 downto 0);
-			X_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0);
-			Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));
+		port(	CLK : in STD_LOGIC;
+				RST : in STD_LOGIC;
+				
+				-- control signals for the screen
+				RED_OUT : out STD_LOGIC_VECTOR(7 downto 0);
+				GREEN_OUT : out STD_LOGIC_VECTOR(7 downto 2);
+				BLUE_OUT : out STD_LOGIC_VECTOR(7 downto 4);
+				DCLK : out STD_LOGIC;							-- DCLK signal for the screen, with a DUT of 50%
+				DCLK_temp : out STD_LOGIC;						-- also DCLK, but the pusle width is only 1 CLK cycle (for ROM CE etc)
+				H_SYNC_O : out STD_LOGIC;
+				V_SYNC_O : out STD_LOGIC;
+				DISP : out STD_LOGIC;
+				BL_EN : out STD_LOGIC;
+				
+				-- signals used to change screen
+				RED_IN : in STD_LOGIC_VECTOR(7 downto 0);		-- pass this the RED component of the pixel you want to color
+				GREEN_IN : in STD_LOGIC_VECTOR(7 downto 0);		-- pass this the GREEN component of the pixel you want to color
+				BLUE_IN : in STD_LOGIC_VECTOR(7 downto 0);		-- pass this the BLUE component of the pixel you want to color
+				X_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0);	-- give the X pixel it is drawing, relative to the screen (0..479)
+				Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));	-- give the Y pixel it is drawing, relative to the screen (0..271)
 end VGA_CONTROLLER;
 
 architecture Behavioral of VGA_CONTROLLER is

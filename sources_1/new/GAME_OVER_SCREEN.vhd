@@ -156,6 +156,7 @@ score_1000_draw: DRAW_BLOCK port map(CLK => CLK, X_POS_CURRENT => XPOS, Y_POS_CU
 	
 GAME_OVER_DRAW <= GO_DRAW or SCORE_TEXT_DRAW or START_DRAW or DRAW_SCORE_1 or DRAW_SCORE_10 or DRAW_SCORE_100 or DRAW_SCORE_1000;
 
+-- process to draw the different elements on the screen
 process(CLK)
 	begin
 	if (CLK'event and CLK = '1') then

@@ -149,29 +149,29 @@ end process;
 -- process that increases the speed of the walls and set difficulty
 -- the speed is increased every time a new wall is drawn, up to a certain limit
 -- difficuly can be set by buttons, up to a certain level (0-4)
+-- the difficulty increases the starting speed and has a hihger speed limit
 process(CLK)
-	variable SPEED_VAR : INTEGER RANGE 0 TO 2**20 := 300000;
-	variable SPEED_INCREASE : INTEGER := 50000; --RANGE 0 TO 100000 := 50000;
-	variable SPEED_LIMIT : INTEGER := 500000; --RANGE 0 TO 1000000 := 500000;
+	variable SPEED_VAR : INTEGER range 0 to 2**20 := 300000;
+	variable SPEED_LIMIT : INTEGER range 0 to 800000 := 500000; -- 500.000 .. 800.000 with 75.000 increments per level
+	variable SPEED_INCREASE : INTEGER range 0 to 50000 := 50000;
 	variable LEVEL : INTEGER RANGE 0 TO 4 := 0;
 	
 	begin
 	if (CLK'event and CLK = '1') then
 		if RST = '1' then
-			SPEED_VAR := 300000;
-			SPEED_INCREASE := 50000 + (100000 * 4);--LEVEL;
+			SPEED_VAR := 300000 + (50000 * LEVEL);
+			SPEED_LIMIT := 500000 + (75000 * LEVEL);
+			SPEED_INCREASE := 50000;
 			POSITION <= 0;	
 		else
 			if DIFF_CHANGE = '1' then
 				if LEVEL < 4 then
---					SPEED_INCREASE := SPEED_INCREASE + 100000;
-					SPEED_LIMIT := SPEED_LIMIT + 100000;
 					LEVEL := LEVEL + 1;
 				else
---					SPEED_INCREASE := 50000;
-					SPEED_LIMIT := 500000;
 					LEVEL := 0;
 				end if;
+				SPEED_VAR := 300000 + (50000 * LEVEL);
+				SPEED_LIMIT := 500000 + (75000 * LEVEL);
 			end if;
 		
 		
@@ -181,8 +181,8 @@ process(CLK)
 				else
 					POSITION <= 0;
 					
-					-- increase wall speed only if SPEED < SPEED_LIMIT
-					if SPEED_VAR < 1000000 then
+					-- increase wall speed only if SPEED < SPEED_LIMIT + SPEED_INCREASE
+					if SPEED_VAR < (SPEED_LIMIT + SPEED_INCREASE) then
 						SPEED_VAR := SPEED_VAR + SPEED_INCREASE;
 						SPEED_INCREASE := SPEED_INCREASE - 1000;
 					end if;

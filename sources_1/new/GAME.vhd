@@ -22,11 +22,11 @@ entity GAME is
 			SCK : out STD_LOGIC;
 			SSEL : out STD_LOGIC;
 			
-			-- I/O (START = Y16; DIFF = V16; RST = R18)
+			-- I/O
 			LEDS : out STD_LOGIC_VECTOR(3 downto 0);
-			START : in STD_LOGIC;
-			DIFF_CHANGE : in STD_LOGIC;
-			RST_BTN : in STD_LOGIC);
+			START : in STD_LOGIC;				-- BTN Y16
+			DIFF_CHANGE : in STD_LOGIC;			-- BTN V16
+			RST_BTN : in STD_LOGIC);			-- BTN R18
 end GAME;
 
 architecture Behavioral of GAME is
@@ -42,19 +42,19 @@ architecture Behavioral of GAME is
 				RED_OUT : out STD_LOGIC_VECTOR(7 downto 0);
 				GREEN_OUT : out STD_LOGIC_VECTOR(7 downto 2);
 				BLUE_OUT : out STD_LOGIC_VECTOR(7 downto 4);
-				DCLK : out STD_LOGIC;
-				DCLK_temp : out STD_LOGIC;
+				DCLK : out STD_LOGIC;							-- DCLK signal for the screen, with a DUT of 50%
+				DCLK_temp : out STD_LOGIC;						-- also DCLK, but the pusle width is only 1 CLK cycle (for ROM CE etc)
 				H_SYNC_O : out STD_LOGIC;
 				V_SYNC_O : out STD_LOGIC;
 				DISP : out STD_LOGIC;
 				BL_EN : out STD_LOGIC;
 				
 				-- signals used to change screen
-				RED_IN : in STD_LOGIC_VECTOR(7 downto 0);
-				GREEN_IN : in STD_LOGIC_VECTOR(7 downto 0);
-				BLUE_IN : in STD_LOGIC_VECTOR(7 downto 0);
-				X_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0);
-				Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));
+				RED_IN : in STD_LOGIC_VECTOR(7 downto 0);		-- pass this the RED component of the pixel you want to color
+				GREEN_IN : in STD_LOGIC_VECTOR(7 downto 0);		-- pass this the GREEN component of the pixel you want to color
+				BLUE_IN : in STD_LOGIC_VECTOR(7 downto 0);		-- pass this the BLUE component of the pixel you want to color
+				X_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0);	-- give the X pixel it is drawing, relative to the screen (0..479)
+				Y_POS_OUT : out STD_LOGIC_VECTOR(8 downto 0));	-- give the Y pixel it is drawing, relative to the screen (0..271)
 	end component;
 	
 	-- component that generates the background for the game
